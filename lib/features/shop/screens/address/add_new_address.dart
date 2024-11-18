@@ -68,7 +68,7 @@ class AddNewAddressScreen extends StatelessWidget {
                       child: TextFormField(
                         decoration: const InputDecoration(
                           prefixIcon: Icon(Iconsax.activity),
-                          labelText: 'State',
+                          labelText: 'Statkkke',
                         ),
                       ),
                     ),
