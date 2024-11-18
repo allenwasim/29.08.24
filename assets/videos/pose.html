@@ -1,0 +1,89 @@
+<div>
+  <canvas
+    id="canvas"
+    style="
+      position: fixed;
+      min-height: 100%;
+      min-width: 100%;
+      height: 100%;
+      width: 100%;
+      top: 0%;
+      left: 0%;
+      resize: none;
+    "
+  ></canvas>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/pose@0.8/dist/teachablemachine-pose.min.js"></script>
+<script type="text/javascript">
+  const URL = "http://127.0.0.1:4040/";
+  let model, webcam, ctx, labelContainer, maxPredictions;
+
+  async function init() {
+    const modelURL = URL + "model.json";
+    const metadataURL = URL + "metadata.json";
+
+    // Load the model and metadata
+    model = await tmPose.load(modelURL, metadataURL);
+    maxPredictions = model.getTotalClasses();
+
+    // Setup webcam
+    const size = 600;
+    const flip = true;
+    webcam = new tmPose.Webcam(size, size, flip);
+    await webcam.setup();
+    await webcam.play();
+    window.requestAnimationFrame(loop);
+
+    // Setup canvas
+    const canvas = document.getElementById("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    ctx = canvas.getContext("2d");
+  }
+
+  async function loop(timestamp) {
+    webcam.update();
+    await predict();
+    window.requestAnimationFrame(loop);
+  }
+
+  async function predict() {
+    const { pose, posenetOutput } = await model.estimatePose(webcam.canvas);
+    const prediction = await model.predict(posenetOutput);
+
+    let ans = 0,
+      score = 0;
+    for (let i = 0; i < maxPredictions; i++) {
+      if (prediction[i].probability.toFixed(2) > score) {
+        score = prediction[i].probability.toFixed(2);
+        ans = prediction[i].className;
+      }
+    }
+
+    drawPose(pose);
+    window.flutter_inappwebview.callHandler("updater", prediction);
+  }
+
+  function drawPose(pose) {
+    if (webcam.canvas) {
+      ctx.drawImage(webcam.canvas, 0, 0);
+
+      if (pose) {
+        const minPartConfidence = 0.5;
+        for (let i = 0; i < pose.keypoints.length; i++) {
+          const keypoint = pose.keypoints[i];
+          if (keypoint.score > minPartConfidence) {
+            const { y, x } = keypoint.position;
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, 2 * 2);
+            ctx.fillStyle = "#FF0000";
+            ctx.fill();
+          }
+        }
+      }
+    }
+  }
+
+  init();
+</script>

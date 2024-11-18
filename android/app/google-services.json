@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "424988674969",
+    "project_id": "dopamine-60dfc",
+    "storage_bucket": "dopamine-60dfc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:424988674969:android:67fcfd7b9735c87dc2e108",
+        "android_client_info": {
+          "package_name": "com.example.t_store"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "424988674969-unk2ocqocp5sm0q1b1dqf69k0jv9s1cp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.t_store",
+            "certificate_hash": "008f7af9b326328a6e9f551e7ec024164011cdf5"
+          }
+        },
+        {
+          "client_id": "424988674969-u4ok4abcc7a5f65lbvktg0u6jlcpifdi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCNDZguIPVpgkkDPZKLjgwy3D788sJCiyw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "424988674969-u4ok4abcc7a5f65lbvktg0u6jlcpifdi.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "424988674969-j3fvrrb88005q7urv9pcvm17h58hipp6.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.tStore"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
