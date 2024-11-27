@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:t_store/admin_module/add_stage.dart';
 import 'package:t_store/common/styles/spacing_styles.dart';
 import 'package:t_store/common/widgets/login_signup/social_buttons.dart';
 import 'package:t_store/common/widgets/login_signup/form_divider.dart';
@@ -31,7 +32,26 @@ class LoginScreen extends StatelessWidget {
               const SizedBox(
                 height: TSizes.spaceBtwSections,
               ),
-              const TSocialButtons()
+              const TSocialButtons(),
+              const SizedBox(
+                height: TSizes.spaceBtwSections,
+              ),
+              // Add "Login as Admin" at the bottom
+              GestureDetector(
+                onTap: () {
+                  Get.to(() => AddLevelScreen()); // Navigate to AddLevelScreen
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  child: Text(
+                    "Login as admin".capitalize!,
+                    style: TextStyle(
+                      color: dark ? Colors.lightBlueAccent : Colors.blue,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
