@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:t_store/admin_module/features/authentication/screens/add_stage.dart';
+import 'package:t_store/admin_module/features/personalization/add_stage.dart';
 import 'package:t_store/admin_module/features/authentication/screens/admin_login/admin_login.dart';
 import 'package:t_store/common/styles/spacing_styles.dart';
 import 'package:t_store/common/widgets/login_signup/social_buttons.dart';

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:t_store/admin_module/features/authentication/screens/add_stage.dart';
+import 'package:t_store/admin_module/admin_navigation.dart';
+import 'package:t_store/admin_module/features/personalization/add_stage.dart';
 import 'package:t_store/features/authentication/controllers/login/login_controller.dart';
 import 'package:t_store/features/shop/screens/password_configration/forgot_password.dart';
 import 'package:t_store/features/authentication/screens/signup/signup.dart';
@@ -90,7 +91,7 @@ class TAdminLoginForm extends StatelessWidget {
               SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
-                      onPressed: () => Get.to(() => const AddLevelScreen()),
+                      onPressed: () => Get.to(() => AdminNavigationScreen()),
                       child: const Text(TTexts.signIn))),
               const SizedBox(
                 height: TSizes.spaceBtwItems,
