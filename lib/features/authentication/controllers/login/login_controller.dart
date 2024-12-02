@@ -35,6 +35,8 @@ class LoginController extends GetxController {
       final isConnected = await NetworkManager.instance.isConnected();
       if (!isConnected) {
         TFullScreenLoader.stopLoading();
+        TLoaders.errorSnackBar(
+            title: 'No Connection', message: 'No internet connection');
         return;
       }
 
@@ -50,17 +52,28 @@ class LoginController extends GetxController {
         localStorage.write('REMEMBER_ME_PASSWORD', password.text.trim());
       }
 
-      // Login user using Email & Password Authentication
+      // Login using Email & Password
+      final userCredential =
+          await AuthenticationRepository.instance.loginWithEmailAndPassword(
+        email.text.trim(),
+        password.text.trim(),
+      );
 
-      // Remove Loader
-      TFullScreenLoader.stopLoading();
-
-      // Redirect
-      AuthenticationRepository.instance.screenRedirect();
+      // Check if login is successful
+      if (userCredential.user != null) {
+        TFullScreenLoader.stopLoading();
+        AuthenticationRepository.instance
+            .screenRedirect(); // Redirect after successful login
+      } else {
+        TFullScreenLoader.stopLoading();
+        TLoaders.errorSnackBar(
+            title: 'Login Failed',
+            message: 'User not found or incorrect credentials');
+      }
     } catch (e) {
       TFullScreenLoader.stopLoading();
-      // Handle error by showing a dialog or snackbar
-      Get.snackbar('Error', e.toString());
+      // Handle error
+      TLoaders.errorSnackBar(title: 'Error', message: e.toString());
     }
   }
 
@@ -68,6 +81,28 @@ class LoginController extends GetxController {
     try {
       TFullScreenLoader.openLoadingDialog(
           'Logging you in....', TImages.emailVerification);
+
+      final isConnected = await NetworkManager.instance.isConnected();
+      if (!isConnected) {
+        TFullScreenLoader.stopLoading();
+        return;
+      }
+
+      final userCredentials =
+          await AuthenticationRepository.instance.signInWithGoogle();
+
+      TFullScreenLoader.stopLoading();
+      AuthenticationRepository.instance.screenRedirect();
+    } catch (e) {
+      TFullScreenLoader.stopLoading();
+
+      TLoaders.errorSnackBar(title: 'Oh snap', message: e.toString());
+    }
+  }
+
+  Future<void> googleSignUp() async {
+    try {
+      TFullScreenLoader.openLoadingDialog(' ', TImages.emailVerification);
 
       final isConnected = await NetworkManager.instance.isConnected();
       if (!isConnected) {

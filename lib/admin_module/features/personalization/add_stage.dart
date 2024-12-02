@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:t_store/admin_module/features/authentication/controllers/add_level_controller.dart';
+import 'package:t_store/admin_module/features/personalization/controllers/add_level_controller.dart';
 import 'package:t_store/utils/constants/image_strings.dart';
 
 class AddLevelScreen extends StatefulWidget {

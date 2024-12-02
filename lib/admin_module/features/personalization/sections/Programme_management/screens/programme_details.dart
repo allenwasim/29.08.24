@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:t_store/admin_module/features/personalization/Programme_management/screens/make_levels_screen.dart';
+import 'package:t_store/admin_module/features/personalization/sections/Programme_management/screens/make_levels_screen.dart';
 import 'package:t_store/admin_module/features/personalization/add_stage.dart';
 import 'package:t_store/utils/helpers/helper_functions.dart';
 

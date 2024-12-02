@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:t_store/admin_module/features/personalization/Programme_management/screens/add_programmes.dart';
+import 'package:t_store/admin_module/features/personalization/sections/Programme_management/screens/add_programmes.dart';
 import 'package:t_store/utils/constants/image_strings.dart';
 
 class AdminProgrammesScreen extends StatefulWidget {

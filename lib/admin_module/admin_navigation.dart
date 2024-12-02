@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:t_store/admin_module/features/personalization/Programme_management/screens/programme_management.dart';
+import 'package:t_store/admin_module/features/personalization/sections/Programme_management/screens/programme_management.dart';
 import 'package:t_store/admin_module/features/personalization/add_stage.dart';
+import 'package:t_store/data/repositories/authentication/authentication_repository.dart';
 
 // Define a controller to manage navigation
 class AdminNavigationController extends GetxController {
@@ -16,7 +17,6 @@ class AdminNavigationController extends GetxController {
     AdminProgrammesScreen(),
     TrainingManagementScreen(),
     AnalyticsScreen(),
-    SettingsScreen(),
   ];
 
   final List<String> titles = [
@@ -28,7 +28,6 @@ class AdminNavigationController extends GetxController {
     'Programme Management',
     'Training Management',
     'Analytics & Reports',
-    'Settings',
   ];
 }
 
@@ -39,6 +38,8 @@ class AdminNavigationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final AuthenticationRepository authRepo =
+        Get.put(AuthenticationRepository());
 
     return Scaffold(
       appBar: AppBar(
@@ -114,11 +115,25 @@ class AdminNavigationScreen extends StatelessWidget {
               index: 7,
               context: context,
             ),
-            buildDrawerItem(
-              icon: Icons.settings,
-              text: 'Settings',
-              index: 8,
-              context: context,
+            ListTile(
+              leading: Icon(
+                Icons.logout,
+                color: isDark ? Colors.white : Colors.grey,
+              ),
+              title: Text(
+                'Logout',
+                style: TextStyle(
+                  color: isDark ? Colors.white : Colors.grey,
+                ),
+              ),
+              onTap: () async {
+                try {
+                  await authRepo.logout();
+                } catch (e) {
+                  Get.snackbar("Logout Failed", e.toString(),
+                      snackPosition: SnackPosition.BOTTOM);
+                }
+              },
             ),
           ],
         ),
@@ -203,12 +218,5 @@ class AnalyticsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(child: Text('Analytics Screen'));
-  }
-}
-
-class SettingsScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(child: Text('Settings Screen'));
   }
 }

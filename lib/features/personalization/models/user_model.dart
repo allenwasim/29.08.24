@@ -11,6 +11,7 @@ class UserModel {
   final String username;
   String phoneNumber;
   String profilePicture;
+  String role; // Added the role field
 
   // Constructor
   UserModel({
@@ -21,6 +22,7 @@ class UserModel {
     required this.username,
     this.phoneNumber = '',
     this.profilePicture = '',
+    this.role = 'client', // Default role set to 'client'
   });
 
   // Named constructor for an empty user model
@@ -31,7 +33,8 @@ class UserModel {
         email = '',
         username = '',
         phoneNumber = '',
-        profilePicture = '';
+        profilePicture = '',
+        role = ''; // Default role
 
   // Helper function to get the full name.
   String get fullName => '$firstName $lastName';
@@ -54,10 +57,15 @@ class UserModel {
     phoneNumber = newPhoneNumber;
   }
 
+  // Method to update role
+  void updateRole(String newRole) {
+    role = newRole;
+  }
+
   // Method to display user information
   @override
   String toString() {
-    return 'UserModel(id: $id, fullName: $fullName, email: $email, username: $username, phoneNumber: $phoneNumber, profilePicture: $profilePicture)';
+    return 'UserModel(id: $id, fullName: $fullName, email: $email, username: $username, phoneNumber: $phoneNumber, profilePicture: $profilePicture, role: $role)';
   }
 
   // Method to convert UserModel to JSON
@@ -69,6 +77,7 @@ class UserModel {
       'username': username,
       'phoneNumber': phoneNumber,
       'profilePicture': profilePicture,
+      'role': role, // Include the role in toJson
     };
   }
 
@@ -85,6 +94,7 @@ class UserModel {
         email: data['email'] ?? '',
         phoneNumber: data['phoneNumber'] ?? '',
         profilePicture: data['profilePicture'] ?? '',
+        role: data['role'] ?? 'client', // Assign default role if not present
       );
     } else {
       throw Exception('Document data is null');
@@ -110,6 +120,7 @@ class UserModel {
     String? username,
     String? phoneNumber,
     String? profilePicture,
+    String? role,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -119,6 +130,7 @@ class UserModel {
       username: username ?? this.username,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       profilePicture: profilePicture ?? this.profilePicture,
+      role: role ?? this.role, // Update role if provided
     );
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:t_store/admin_module/features/personalization/Programme_management/screens/programme_details.dart';
+import 'package:t_store/admin_module/features/personalization/sections/Programme_management/screens/programme_details.dart';
 
 class ProgrammeInfoScreen extends StatefulWidget {
   final Function(String, String, String, String) onAddProgramme;
