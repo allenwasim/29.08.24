@@ -1,7 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:t_store/admin_module/features/personalization/controllers/add_level_controller.dart';
-import 'package:t_store/utils/constants/image_strings.dart';
 
 class AddLevelScreen extends StatefulWidget {
   const AddLevelScreen({super.key});
@@ -13,8 +15,8 @@ class AddLevelScreen extends StatefulWidget {
 class _AddLevelScreenState extends State<AddLevelScreen> {
   final _titleController = TextEditingController();
   final _subtitleController = TextEditingController();
-  final List<Map<String, String>> _exercises = []; // Change the type here
-  String? _imagePath;
+  final List<Map<String, String>> _exercises = [];
+  File? _selectedImage;
 
   final AddLevelController _addLevelController = Get.put(AddLevelController());
 
@@ -23,6 +25,16 @@ class _AddLevelScreenState extends State<AddLevelScreen> {
     _titleController.dispose();
     _subtitleController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = File(pickedFile.path);
+      });
+    }
   }
 
   void _addExercise() {
@@ -39,7 +51,7 @@ class _AddLevelScreenState extends State<AddLevelScreen> {
     final form = _addLevelController.addLevelFormKey.currentState;
     if (form == null ||
         !form.validate() ||
-        _imagePath == null ||
+        _selectedImage == null ||
         _exercises.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill all fields')),
@@ -47,7 +59,6 @@ class _AddLevelScreenState extends State<AddLevelScreen> {
       return;
     }
 
-    // Validate individual exercises
     if (_exercises.any((exercise) =>
         (exercise['name']?.trim().isEmpty ?? true) ||
         (exercise['reps']?.trim().isEmpty ?? true))) {
@@ -57,12 +68,10 @@ class _AddLevelScreenState extends State<AddLevelScreen> {
       return;
     }
 
-    // Call the addLevel method with all required values
     await _addLevelController.addLevel(
       title: _titleController.text,
       subtitle: _subtitleController.text,
-      imagePath: _imagePath ??
-          '', // Use an empty string as fallback if _imagePath is null
+      imagePath: _selectedImage?.path ?? '',
       exercises: _exercises
           .map((exercise) => {
                 "name": exercise['name']?.trim() ?? '',
@@ -70,13 +79,6 @@ class _AddLevelScreenState extends State<AddLevelScreen> {
               })
           .toList(),
     );
-  }
-
-  Future<void> _pickImage() async {
-    // Replace with your image picker logic
-    setState(() {
-      _imagePath = TImages.clothIcon; // Replace with actual image picker result
-    });
   }
 
   @override
@@ -149,9 +151,15 @@ class _AddLevelScreenState extends State<AddLevelScreen> {
                         color: isDarkMode ? Colors.white : Colors.black),
                     borderRadius: BorderRadius.circular(8.0),
                   ),
-                  child: _imagePath == null
+                  child: _selectedImage == null
                       ? const Center(child: Text('Tap to select an image'))
-                      : Image.asset(_imagePath!, fit: BoxFit.cover),
+                      : ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: Image.file(
+                            _selectedImage!,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                 ),
               ),
               const SizedBox(height: 16.0),

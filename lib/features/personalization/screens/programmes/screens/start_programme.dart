@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:t_store/features/personalization/screens/programmes/screens/level_deatails_screen.dart';
 import 'package:t_store/features/personalization/screens/programmes/screens/stage.dart';
 import 'package:t_store/utils/constants/image_strings.dart';
 import 'package:t_store/utils/helpers/helper_functions.dart';
@@ -230,7 +231,7 @@ class StartProgramme extends StatelessWidget {
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  onPressed: () => Get.to(() => const Stage()),
+                  onPressed: () => Get.to(() => LevelDetailsScreen()),
                   child: Text(
                     'Start programme',
                     style: TextStyle(

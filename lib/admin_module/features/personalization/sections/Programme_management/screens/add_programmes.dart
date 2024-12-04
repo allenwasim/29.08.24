@@ -69,7 +69,7 @@ class _ProgrammeInfoScreenState extends State<ProgrammeInfoScreen> {
               child: ElevatedButton(
                 onPressed: () {
                   // Navigate to the AddDetailsScreen
-                  Get.to(() => AddDetailsScreen());
+                  Get.to(() => const AddDetailsScreen());
                 },
                 style: ElevatedButton.styleFrom(
                   shape: const CircleBorder(),

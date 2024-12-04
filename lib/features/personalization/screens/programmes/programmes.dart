@@ -37,7 +37,7 @@ class ProgrammesScreen extends StatelessWidget {
                   'Build a solid foundation with this full-body strength workout.',
               additionalInfo: '4–6 weeks, dumbbells required',
               onTap: () {
-                Get.to(() => StartProgramme());
+                Get.to(() => const StartProgramme());
               },
               isDarkMode: isDarkMode,
             ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:t_store/admin_module/features/personalization/sections/Programme_management/screens/add_programmes.dart';
 import 'package:t_store/admin_module/features/personalization/add_stage.dart';
 import 'package:t_store/utils/constants/image_strings.dart';
 

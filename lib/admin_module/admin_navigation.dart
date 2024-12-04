@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:t_store/admin_module/features/personalization/sections/Programme_management/screens/programme_management.dart';
-import 'package:t_store/admin_module/features/personalization/add_stage.dart';
 import 'package:t_store/data/repositories/authentication/authentication_repository.dart';
 
 // Define a controller to manage navigation

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:t_store/constants/colors.dart';
 import 'package:t_store/features/authentication/controllers/login/login_controller.dart';
-import 'package:t_store/features/authentication/controllers/signup/signup_controller.dart';
 import 'package:t_store/utils/constants/image_strings.dart';
 import 'package:t_store/utils/constants/sizes.dart';
 
@@ -29,7 +28,7 @@ class TSocialButtons extends StatelessWidget {
                 ? controller.googleSignIn()
                 : controller
                     .googleSignUp(), // Call the respective sign-in method
-            icon: Image(
+            icon: const Image(
                 height: TSizes.iconMd,
                 width: TSizes.iconMd,
                 image: AssetImage(TImages.google))),
