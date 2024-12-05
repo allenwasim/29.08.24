@@ -9,7 +9,7 @@ import 'package:t_store/common/widgets/text/brand_title_text.dart';
 import 'package:t_store/common/widgets/text/product_price_text.dart';
 import 'package:t_store/common/widgets/text/product_title_text.dart';
 import 'package:t_store/constants/colors.dart';
-import 'package:t_store/features/shop/screens/product_details/product_details.dart';
+import 'package:t_store/user_module/features/shop/screens/product_details/product_details.dart';
 import 'package:t_store/utils/constants/image_strings.dart';
 import 'package:t_store/utils/constants/sizes.dart';
 import 'package:t_store/utils/helpers/helper_functions.dart';

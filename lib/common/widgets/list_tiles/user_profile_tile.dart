@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:t_store/common/images/circular_image.dart';
 import 'package:t_store/constants/colors.dart';
-import 'package:t_store/features/shop/screens/profile/profile.dart';
-import 'package:t_store/features/personalization/controllers/user_controller.dart';
+import 'package:t_store/user_module/features/shop/screens/profile/profile.dart';
+import 'package:t_store/user_module/features/personalization/controllers/user_controller.dart';
 import 'package:t_store/utils/constants/image_strings.dart';
 
 class TUserProfileTile extends StatelessWidget {

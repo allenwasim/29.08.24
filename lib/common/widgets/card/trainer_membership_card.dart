@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:t_store/features/authentication/models/memberships/active_memberships_model.dart';
+import 'package:t_store/user_module/features/authentication/models/memberships/active_memberships_model.dart';
 import 'package:t_store/utils/helpers/helper_functions.dart';
 // Import dart:ui for the blur effect
 

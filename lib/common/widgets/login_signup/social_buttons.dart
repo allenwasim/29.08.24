@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:t_store/constants/colors.dart';
-import 'package:t_store/features/authentication/controllers/login/login_controller.dart';
+import 'package:t_store/user_module/features/authentication/controllers/login/login_controller.dart';
 import 'package:t_store/utils/constants/image_strings.dart';
 import 'package:t_store/utils/constants/sizes.dart';
 

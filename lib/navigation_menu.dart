@@ -4,14 +4,14 @@ import 'package:t_store/common/images/circular_image.dart';
 import 'package:t_store/common/appbar/main_appbar.dart';
 import 'package:t_store/common/widgets/product/cart/cart_menu_icon.dart';
 import 'package:t_store/constants/colors.dart';
-import 'package:t_store/features/personalization/screens/home/home_screen.dart';
-import 'package:t_store/features/personalization/screens/memberships/memberships.dart';
-import 'package:t_store/features/shop/screens/profile/profile.dart';
-import 'package:t_store/features/personalization/screens/programmes/programmes.dart';
-import 'package:t_store/features/shop/screens/fitstore/fitstore.dart';
-import 'package:t_store/features/personalization/screens/training/training.dart';
-import 'package:t_store/features/personalization/controllers/user_controller.dart';
-import 'package:t_store/features/shop/screens/fitstore/widgets/settings/settings.dart';
+import 'package:t_store/user_module/features/personalization/screens/home/home_screen.dart';
+import 'package:t_store/user_module/features/personalization/screens/memberships/memberships.dart';
+import 'package:t_store/user_module/features/shop/screens/profile/profile.dart';
+import 'package:t_store/user_module/features/personalization/screens/programmes/programmes.dart';
+import 'package:t_store/user_module/features/shop/screens/fitstore/fitstore.dart';
+import 'package:t_store/user_module/features/personalization/screens/training/training.dart';
+import 'package:t_store/user_module/features/personalization/controllers/user_controller.dart';
+import 'package:t_store/user_module/features/shop/screens/fitstore/widgets/settings/settings.dart';
 import 'package:t_store/utils/helpers/helper_functions.dart';
 
 class NavigationMenu extends StatelessWidget {

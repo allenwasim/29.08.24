@@ -4,8 +4,8 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:t_store/app.dart';
-import 'package:t_store/data/repositories/authentication/authentication_repository.dart';
 import 'package:t_store/firebase_options.dart';
+import 'package:t_store/user_module/data/repositories/authentication/authentication_repository.dart';
 
 void main() async {
   final WidgetsBinding widgetsBinding =

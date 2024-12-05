@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
-import 'package:t_store/bindings/general_binding.dart';
+import 'package:t_store/trainer_module/bindings/general_binding.dart';
 import 'package:t_store/constants/colors.dart';
 import 'package:t_store/utils/theme/theme.dart';
 
