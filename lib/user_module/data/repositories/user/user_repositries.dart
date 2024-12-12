@@ -20,7 +20,7 @@ class UserRepository extends GetxController {
   /// Function to save user data to Firestore.
   Future<void> saveUserRecord(UserModel user) async {
     try {
-      await _db.collection("Users").doc(user.id).set(user.toJson());
+      await _db.collection("Profiles").doc(user.id).set(user.toJson());
     } on FirebaseException catch (e) {
       throw TFirebaseException(e.code).message;
     } on FormatException catch (_) {
@@ -35,7 +35,7 @@ class UserRepository extends GetxController {
   Future<UserModel> fetchUserDetails() async {
     try {
       final documentSnapshot =
-          await _db.collection("Users").doc(_authRepo.authUser?.uid).get();
+          await _db.collection("Profiles").doc(_authRepo.authUser?.uid).get();
       if (documentSnapshot.exists) {
         return UserModel.fromSnapshot(documentSnapshot);
       } else {
@@ -55,7 +55,7 @@ class UserRepository extends GetxController {
   Future<void> updateUserData(UserModel updatedUser) async {
     try {
       await _db
-          .collection("Users")
+          .collection("Profiles")
           .doc(updatedUser.id)
           .update(updatedUser.toJson());
     } on FirebaseException catch (e) {
@@ -71,7 +71,10 @@ class UserRepository extends GetxController {
 
   Future<void> updateSingleField(Map<String, dynamic> json) async {
     try {
-      await _db.collection("Users").doc(_authRepo.authUser?.uid).update(json);
+      await _db
+          .collection("Profiles")
+          .doc(_authRepo.authUser?.uid)
+          .update(json);
     } on FirebaseException catch (e) {
       throw TFirebaseException(e.code).message;
     } on FormatException catch (_) {
@@ -85,7 +88,7 @@ class UserRepository extends GetxController {
 
   Future<void> removeUserRecord(String userId) async {
     try {
-      await _db.collection("Users").doc(userId).delete();
+      await _db.collection("Profiles").doc(userId).delete();
     } on FirebaseException catch (e) {
       throw TFirebaseException(e.code).message;
     } on FormatException catch (_) {

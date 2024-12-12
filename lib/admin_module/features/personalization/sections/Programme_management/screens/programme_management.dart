@@ -84,16 +84,7 @@ class _AdminProgrammesScreenState extends State<AdminProgrammesScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Get.to(() => ProgrammeInfoScreen(
-                onAddProgramme: (title, description, additionalInfo, imageUrl) {
-                  _addProgramme(
-                    title,
-                    description,
-                    additionalInfo,
-                    imageUrl.isEmpty ? TImages.homeimage2 : imageUrl,
-                  );
-                },
-              ));
+          Get.to(() => AddProgrammeScreen());
         },
         child: const Icon(Icons.add),
         backgroundColor: isDarkMode ? Colors.green[400] : Colors.green,

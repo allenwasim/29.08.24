@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -19,7 +20,51 @@ class AddLevelController extends GetxController {
   Rx<Map<String, dynamic>?> levelData = Rx<Map<String, dynamic>?>(null);
   RxList<Map<String, dynamic>> levels = <Map<String, dynamic>>[].obs;
 
-  // Add Level Method
+  Future<void> addProgramme({
+    required String title,
+    required String bannerImageUrl,
+    required int stagesCount,
+    String? estimatedDuration,
+    String? levels,
+    String? workoutDuration,
+    String? equipment,
+    String? designedFor,
+    String? overview,
+    Map<String, dynamic>? stage1Details,
+    Map<String, dynamic>? stage2Details,
+  }) async {
+    try {
+      if (title.isEmpty || bannerImageUrl.isEmpty || stagesCount <= 0) {
+        throw Exception("Required fields are missing!");
+      }
+
+      // Construct programme object
+      final programmeData = {
+        'title': title,
+        'bannerImageUrl': bannerImageUrl,
+        'stagesCount': stagesCount,
+        'estimatedDuration': estimatedDuration,
+        'levels': levels,
+        'workoutDuration': workoutDuration,
+        'equipment': equipment,
+        'designedFor': designedFor,
+        'overview': overview,
+        'stages': {
+          'stage1': stage1Details,
+          'stage2': stage2Details,
+        },
+      };
+
+      // Example Firebase Firestore integration
+      final firestore = FirebaseFirestore.instance;
+      await firestore.collection('programmes').add(programmeData);
+
+      Get.snackbar('Success', 'Programme added successfully');
+    } catch (e) {
+      Get.snackbar('Error', e.toString());
+    }
+  }
+
   Future<void> addLevel({
     required String title,
     required String subtitle,

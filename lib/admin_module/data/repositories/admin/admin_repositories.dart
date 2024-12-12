@@ -17,6 +17,16 @@ class AdminRepository extends GetxController {
   final AuthenticationRepository _authRepo =
       Get.find<AuthenticationRepository>();
 
+  Future<void> addProgramme(Map<String, dynamic> programmeData) async {
+    try {
+      await _db.collection("levels").add(programmeData);
+    } on FirebaseException catch (e) {
+      throw TFirebaseException(e.code).message;
+    } catch (e) {
+      throw 'Failed to add level. Please try again.';
+    }
+  }
+
   // Add a new level to the Firestore 'levels' collection
   Future<void> addLevel(Map<String, dynamic> levelData) async {
     try {

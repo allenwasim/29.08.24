@@ -170,7 +170,7 @@ class AuthenticationRepository extends GetxController {
       final user = _auth.currentUser;
       if (user != null) {
         // Delete user data from Firestore
-        await _db.collection("Users").doc(user.uid).delete();
+        await _db.collection("Profiles").doc(user.uid).delete();
 
         // Delete the user's account
         await user.delete();

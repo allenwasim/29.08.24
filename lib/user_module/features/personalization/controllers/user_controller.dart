@@ -22,8 +22,8 @@ class UserController extends GetxController {
   Future<void> fetchUserRecord() async {
     try {
       profileLoading.value = true;
-      final User = await userRepository.fetchUserDetails();
-      this.user(User);
+      final user = await userRepository.fetchUserDetails();
+      this.user(user);
       profileLoading.value = false;
     } catch (e) {
       user(UserModel.empty());
