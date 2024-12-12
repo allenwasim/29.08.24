@@ -6,7 +6,9 @@ import 'package:t_store/admin_module/features/personalization/controllers/add_le
 import 'package:t_store/utils/validators/validation.dart';
 
 class AddLevelScreen extends StatefulWidget {
-  const AddLevelScreen({super.key});
+  final String programmeId;
+
+  const AddLevelScreen({super.key, required this.programmeId});
 
   @override
   _AddLevelScreenState createState() => _AddLevelScreenState();
@@ -68,7 +70,9 @@ class _AddLevelScreenState extends State<AddLevelScreen> {
       return;
     }
 
+    // Saving the level
     await _addLevelController.addLevel(
+      programmeId: widget.programmeId, // Pass the programmeId here
       title: _titleController.text,
       subtitle: _subtitleController.text,
       imagePath: _selectedImage?.path ?? '',
@@ -79,6 +83,11 @@ class _AddLevelScreenState extends State<AddLevelScreen> {
               })
           .toList(),
     );
+
+    // Navigate to MakeLevelScreen or navigate back
+    // Get.to(() => MakeLevelScreen()); // Navigate to MakeLevelScreen
+    // OR if you want to go back to the previous screen:
+    Navigator.pop(context); // Go back
   }
 
   @override
