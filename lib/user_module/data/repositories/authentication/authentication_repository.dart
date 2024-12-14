@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:t_store/admin_module/admin_navigation.dart';
+import 'package:t_store/trainer_module/trainer_navigation_menu.dart';
 import 'package:t_store/user_module/data/repositories/user/user_repositries.dart';
 import 'package:t_store/user_module/features/authentication/screens/login/login.dart';
 import 'package:t_store/user_module/features/authentication/screens/onboarding/onboarding.dart';
@@ -53,6 +54,8 @@ class AuthenticationRepository extends GetxController {
           // Navigate based on the role
           if (userDetails.role == 'admin') {
             Get.offAll(() => AdminNavigationScreen());
+          } else if (userDetails.role == 'trainer') {
+            Get.offAll(() => TrainerNavigationMenu());
           } else {
             Get.offAll(() => NavigationMenu());
           }
