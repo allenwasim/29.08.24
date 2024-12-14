@@ -77,7 +77,7 @@ class CollectionScreen extends StatelessWidget {
 class SummaryCard extends StatelessWidget {
   final String title;
 
-  SummaryCard({required this.title});
+  SummaryCard({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {

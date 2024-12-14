@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:t_store/trainer_module/features/sections/manage_memberships.dart/manage_membership_navigation.dart';
+import 'package:t_store/trainer_module/features/sections/dash_board/dashboard.dart';
+import 'package:t_store/trainer_module/features/sections/collection/collection.dart';
+import 'package:t_store/trainer_module/features/sections/gym/gym.dart';
+import 'package:t_store/trainer_module/features/sections/members/members.dart';
 
 class TrainerNavigationMenu extends StatelessWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -67,11 +70,13 @@ class TrainerNavigationMenu extends StatelessWidget {
                 'Dashboard', 0),
             buildListTile(context, controller, iconColor, Icons.video_library,
                 'Upload Tutorials', 1),
-            buildListTile(context, controller, iconColor, Icons.people,
-                'Manage Memberships', 2),
+            buildListTile(
+                context, controller, iconColor, Icons.people, 'Members', 2),
+            buildListTile(
+                context, controller, iconColor, Icons.people, 'Collection', 3),
             const Divider(),
             buildListTile(
-                context, controller, iconColor, Icons.settings, 'Settings', 3),
+                context, controller, iconColor, Icons.settings, 'Settings', 4),
           ],
         ),
       ),
@@ -114,11 +119,13 @@ class TrainerNavigationMenu extends StatelessWidget {
 class TrainerNavigationController extends GetxController {
   final Rx<int> selectedIndex = 0.obs;
 
+  // Ensure this is a List<Widget>, where each widget is a screen
   final screens = [
-    const TrainerDashboardScreen(),
+    DashboardScreen(),
     const UploadTutorialsScreen(),
-    const ManageMembershipNavigation(),
-    const SettingsScreen(),
+    const MembersScreen(),
+    CollectionScreen(),
+    const GymScreen(),
   ];
 
   String getScreenTitle() {
@@ -128,9 +135,11 @@ class TrainerNavigationController extends GetxController {
       case 1:
         return 'Upload Tutorials';
       case 2:
-        return 'Manage Memberships';
+        return 'Members';
       case 3:
-        return 'Settings';
+        return 'Collection';
+      case 4:
+        return 'Gym';
       default:
         return '';
     }
@@ -138,22 +147,6 @@ class TrainerNavigationController extends GetxController {
 
   void updateSelectedIndex(int index) {
     selectedIndex.value = index;
-  }
-}
-
-class TrainerDashboardScreen extends StatelessWidget {
-  const TrainerDashboardScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Text(
-          'Trainer Dashboard Screen',
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-      ),
-    );
   }
 }
 
