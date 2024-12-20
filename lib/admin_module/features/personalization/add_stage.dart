@@ -1,12 +1,14 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:t_store/admin_module/features/personalization/controllers/add_level_controller.dart';
+import 'package:t_store/utils/validators/validation.dart';
 
 class AddLevelScreen extends StatefulWidget {
-  const AddLevelScreen({super.key});
+  final String programmeId;
+
+  const AddLevelScreen({super.key, required this.programmeId});
 
   @override
   _AddLevelScreenState createState() => _AddLevelScreenState();
@@ -68,7 +70,9 @@ class _AddLevelScreenState extends State<AddLevelScreen> {
       return;
     }
 
+    // Saving the level
     await _addLevelController.addLevel(
+      programmeId: widget.programmeId, // Pass the programmeId here
       title: _titleController.text,
       subtitle: _subtitleController.text,
       imagePath: _selectedImage?.path ?? '',
@@ -79,6 +83,11 @@ class _AddLevelScreenState extends State<AddLevelScreen> {
               })
           .toList(),
     );
+
+    // Navigate to MakeLevelScreen or navigate back
+    // Get.to(() => MakeLevelScreen()); // Navigate to MakeLevelScreen
+    // OR if you want to go back to the previous screen:
+    Navigator.pop(context); // Go back
   }
 
   @override
@@ -112,10 +121,7 @@ class _AddLevelScreenState extends State<AddLevelScreen> {
                 style:
                     TextStyle(color: isDarkMode ? Colors.white : Colors.black),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a workout title';
-                  }
-                  return null;
+                  return TValidator.validateEmptyText('Workout Title', value);
                 },
               ),
               const SizedBox(height: 16.0),
@@ -132,10 +138,8 @@ class _AddLevelScreenState extends State<AddLevelScreen> {
                 style:
                     TextStyle(color: isDarkMode ? Colors.white : Colors.black),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a workout subtitle';
-                  }
-                  return null;
+                  return TValidator.validateEmptyText(
+                      'Workout Subtitle', value);
                 },
               ),
               const SizedBox(height: 16.0),
@@ -199,10 +203,8 @@ class _AddLevelScreenState extends State<AddLevelScreen> {
                                 color:
                                     isDarkMode ? Colors.white : Colors.black),
                             validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter exercise name';
-                              }
-                              return null;
+                              return TValidator.validateEmptyText(
+                                  'Exercise Name', value);
                             },
                           ),
                         ),
@@ -223,10 +225,8 @@ class _AddLevelScreenState extends State<AddLevelScreen> {
                                 color:
                                     isDarkMode ? Colors.white : Colors.black),
                             validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter reps';
-                              }
-                              return null;
+                              return TValidator.validateEmptyText(
+                                  'Reps', value);
                             },
                           ),
                         ),

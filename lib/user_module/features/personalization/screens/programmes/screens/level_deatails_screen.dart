@@ -26,7 +26,7 @@ class LevelDetailsScreen extends StatelessWidget {
         ),
       ),
       body: FutureBuilder<void>(
-        future: addLevelController.mapAllLevels(),
+        future: addLevelController.mapAllLevels(""),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -128,7 +128,7 @@ class LevelItem extends StatelessWidget {
         color: isDarkMode ? Colors.black45 : Colors.white,
         child: ExpansionTile(
           title: Text(
-            level['Title'] ?? 'No Title',
+            level['title'] ?? 'No Title',
             style: TextStyle(
               color: isDarkMode ? Colors.white : Colors.black,
               fontSize: 18,
@@ -136,7 +136,7 @@ class LevelItem extends StatelessWidget {
             ),
           ),
           subtitle: Text(
-            level['Subtitle'] ?? 'No Subtitle',
+            level['subtitle'] ?? 'No Subtitle',
             style: TextStyle(color: isDarkMode ? Colors.grey : Colors.black54),
           ),
           leading: TCircularImage(

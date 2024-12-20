@@ -80,7 +80,7 @@ class LoginController extends GetxController {
   Future<void> googleSignIn() async {
     try {
       TFullScreenLoader.openLoadingDialog(
-          'Logging you in....', TImages.emailVerification);
+          'Logging in.... ', TImages.emailVerification);
 
       final isConnected = await NetworkManager.instance.isConnected();
       if (!isConnected) {
@@ -88,6 +88,8 @@ class LoginController extends GetxController {
         return;
       }
 
+      final userCredentials =
+          await AuthenticationRepository.instance.signInWithGoogle();
 
       TFullScreenLoader.stopLoading();
       AuthenticationRepository.instance.screenRedirect();

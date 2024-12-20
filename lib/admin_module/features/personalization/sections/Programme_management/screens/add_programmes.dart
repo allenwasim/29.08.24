@@ -1,86 +1,101 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:t_store/admin_module/features/personalization/sections/Programme_management/screens/programme_details.dart';
+import 'package:t_store/admin_module/features/personalization/add_stage.dart';
+import 'package:t_store/admin_module/features/personalization/controllers/add_level_controller.dart';
+import 'package:t_store/admin_module/features/personalization/sections/Programme_management/screens/make_levels_screen.dart';
 
-class ProgrammeInfoScreen extends StatefulWidget {
-  final Function(String, String, String, String) onAddProgramme;
-
-  const ProgrammeInfoScreen({
-    super.key,
-    required this.onAddProgramme,
-  });
-
-  @override
-  _ProgrammeInfoScreenState createState() => _ProgrammeInfoScreenState();
-}
-
-class _ProgrammeInfoScreenState extends State<ProgrammeInfoScreen> {
-  final TextEditingController titleController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
-  final TextEditingController additionalInfoController =
-      TextEditingController();
-  final TextEditingController imageUrlController = TextEditingController();
+class AddProgrammeScreen extends StatelessWidget {
+  AddProgrammeScreen({super.key});
+  final AddLevelController addLevelController = Get.put(AddLevelController());
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
-
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: const Text('Add Programme'),
-        backgroundColor: isDarkMode ? Colors.black : Colors.white,
-        iconTheme: IconThemeData(
-          color: isDarkMode ? Colors.white : Colors.black,
-        ),
-        titleTextStyle: TextStyle(
-          color: isDarkMode ? Colors.white : Colors.black,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      body: Padding(
+      appBar: AppBar(title: const Text('Add Programme')),
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: titleController,
-              decoration: const InputDecoration(labelText: 'Programme Title'),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: descriptionController,
-              decoration: const InputDecoration(labelText: 'Description'),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: additionalInfoController,
-              decoration: const InputDecoration(labelText: 'Additional Info'),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: imageUrlController,
-              decoration: const InputDecoration(labelText: 'Image URL'),
-            ),
-            const Spacer(),
-            Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Navigate to the AddDetailsScreen
-                  Get.to(() => const AddDetailsScreen());
-                },
-                style: ElevatedButton.styleFrom(
-                  shape: const CircleBorder(),
-                  padding: const EdgeInsets.all(16),
-                  backgroundColor: theme.primaryColor, // Button color
-                ),
-                child: const Icon(Icons.chevron_right,
-                    size: 32, color: Colors.white),
+        child: Form(
+          key: addLevelController.addLevelFormKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Programme Details',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: addLevelController.titleController,
+                decoration: const InputDecoration(labelText: 'Programme Title'),
+                validator: (value) =>
+                    value!.isEmpty ? 'Title is required' : null,
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: addLevelController.bannerImageController,
+                decoration:
+                    const InputDecoration(labelText: 'Banner Image URL'),
+                validator: (value) =>
+                    value!.isEmpty ? 'Banner image URL is required' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: addLevelController.stagesCountController,
+                decoration:
+                    const InputDecoration(labelText: 'Number of Stages'),
+                keyboardType: TextInputType.number,
+                validator: (value) =>
+                    value!.isEmpty ? 'Stages count is required' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: addLevelController.estimatedDurationController,
+                decoration: const InputDecoration(labelText: 'Duration'),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: addLevelController.workoutDurationController,
+                decoration:
+                    const InputDecoration(labelText: 'Workout Duration'),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: addLevelController.equipmentController,
+                decoration: const InputDecoration(labelText: 'Equipment'),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: addLevelController.designedForController,
+                decoration: const InputDecoration(labelText: 'Designed For'),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: addLevelController.overviewController,
+                decoration: const InputDecoration(labelText: 'Overview'),
+                maxLines: 4,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () async {
+                  if (addLevelController.addLevelFormKey.currentState!
+                      .validate()) {
+                    try {
+                      // Call the `addProgramme` method and get the programmeId
+                      String programmeId =
+                          await addLevelController.addProgrammes();
+
+                      // Navigate to the next screen and pass programmeId
+                      Get.to(() => MakeLevelScreen(programmeId: programmeId));
+                    } catch (e) {
+                      Get.snackbar('Error', e.toString());
+                    }
+                  } else {
+                    Get.snackbar('Validation Error',
+                        'Please fill out all required fields');
+                  }
+                },
+                child: const Text('Save Programme'),
+              ),
+            ],
+          ),
         ),
       ),
     );
