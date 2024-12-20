@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:t_store/common/widgets/buttons/circular_button.dart';
 import 'package:t_store/common/widgets/buttons/rounded_text_button.dart';
 import 'package:t_store/common/widgets/text/grey_text.dart';
 import 'package:t_store/user_module/features/personalization/screens/home/widgets/carosal_item.dart';
 import 'package:t_store/user_module/features/personalization/screens/home/widgets/carosal_slider.dart';
 import 'package:t_store/user_module/features/personalization/screens/memberships/memberships.dart';
-import 'package:t_store/user_module/features/personalization/screens/training/training.dart';
 import 'package:t_store/user_module/features/personalization/controllers/user_controller.dart';
-import 'package:t_store/utils/constants/colors.dart';
 import 'package:t_store/utils/constants/image_strings.dart';
 import 'package:t_store/utils/constants/sizes.dart';
 
@@ -86,31 +85,13 @@ class _HomeState extends State<Home> {
                     ),
                   ),
                   const SizedBox(height: TSizes.spaceBtwSections),
-                  Align(
+                  const Align(
                     alignment: Alignment.centerLeft,
                     child: SizedBox(
                       height: 60,
                       width: 210,
-                      child: OutlinedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              isDarkMode ? TColors.lightGrey : TColors.black,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(70.0),
-                          ),
-                        ),
-                        onPressed: () => Get.to(() => const Training()),
-                        focusNode: FocusNode(
-                            skipTraversal: true), // Remove blue outline
-                        child: Text(
-                          'Explore Workouts',
-                          style:
-                              Theme.of(context).textTheme.headlineSmall!.apply(
-                                    color: isDarkMode
-                                        ? const Color.fromARGB(255, 0, 0, 0)
-                                        : TColors.white,
-                                  ),
-                        ),
+                      child: TCircularButton(
+                        text: "Explore workouts",
                       ),
                     ),
                   )

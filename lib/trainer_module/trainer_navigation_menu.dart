@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:t_store/common/images/circular_image.dart';
+import 'package:t_store/constants/colors.dart';
 import 'package:t_store/trainer_module/features/sections/dash_board/dashboard.dart';
 import 'package:t_store/trainer_module/features/sections/collection/collection.dart';
 import 'package:t_store/trainer_module/features/sections/gym/gym.dart';
 import 'package:t_store/trainer_module/features/sections/members/members.dart';
+import 'package:t_store/user_module/data/repositories/authentication/authentication_repository.dart';
+import 'package:t_store/user_module/features/authentication/screens/login/login.dart';
+import 'package:t_store/user_module/features/personalization/controllers/user_controller.dart';
 
 class TrainerNavigationMenu extends StatelessWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -16,6 +21,9 @@ class TrainerNavigationMenu extends StatelessWidget {
         Get.put(TrainerNavigationController());
     final dark = Theme.of(context).brightness == Brightness.dark;
     final iconColor = dark ? Colors.white : Colors.black;
+    final UserController userController = Get.put(UserController());
+    final AuthenticationRepository authRepo =
+        Get.put(AuthenticationRepository());
 
     return Scaffold(
       key: _scaffoldKey,
@@ -23,8 +31,8 @@ class TrainerNavigationMenu extends StatelessWidget {
         preferredSize: const Size.fromHeight(kToolbarHeight),
         child: Obx(
           () => AppBar(
-            backgroundColor:
-                Colors.teal, // Teal color matching ManageMembershipScreen
+            backgroundColor: TColors
+                .trainerPrimary, // Teal color matching ManageMembershipScreen
             title: Text(
               controller.getScreenTitle(),
               style: const TextStyle(
@@ -49,20 +57,28 @@ class TrainerNavigationMenu extends StatelessWidget {
                 Get.to(() => const TrainerProfileScreen());
               },
               child: UserAccountsDrawerHeader(
-                accountName: Text(
-                  "Trainer Name",
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                accountEmail: Text(
-                  "trainer@example.com",
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
+                accountName: Obx(() {
+                  return Text(
+                    userController.user.value.fullName,
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  );
+                }),
+                accountEmail: Obx(() {
+                  return Text(
+                    userController.user.value.email,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  );
+                }),
                 decoration: const BoxDecoration(
                   color: Colors.transparent,
                 ),
-                currentAccountPicture: CircleAvatar(
-                  backgroundImage:
-                      AssetImage("assets/images/profile_placeholder.png"),
+                currentAccountPicture: Obx(
+                  () => TCircularImage(
+                    isNetworkImage: true,
+                    image: userController.user.value.profilePicture,
+                    width: 80,
+                    height: 80,
+                  ),
                 ),
               ),
             ),
@@ -74,9 +90,29 @@ class TrainerNavigationMenu extends StatelessWidget {
                 context, controller, iconColor, Icons.people, 'Members', 2),
             buildListTile(
                 context, controller, iconColor, Icons.people, 'Collection', 3),
-            const Divider(),
             buildListTile(
                 context, controller, iconColor, Icons.settings, 'Settings', 4),
+            const Divider(),
+            ListTile(
+              leading: Icon(
+                Icons.logout,
+                color: dark ? Colors.red : Colors.grey,
+              ),
+              title: Text(
+                'Logout',
+                style: TextStyle(
+                  color: dark ? Colors.red : Colors.grey,
+                ),
+              ),
+              onTap: () async {
+                try {
+                  await authRepo.logout();
+                } catch (e) {
+                  Get.snackbar("Logout Failed", e.toString(),
+                      snackPosition: SnackPosition.BOTTOM);
+                }
+              },
+            ),
           ],
         ),
       ),
@@ -194,3 +230,5 @@ class TrainerProfileScreen extends StatelessWidget {
     );
   }
 }
+
+//

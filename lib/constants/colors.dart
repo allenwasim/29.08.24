@@ -36,4 +36,5 @@ class TColors {
   static Color softGrey = Color(0xFFF4F4F4);
   static Color lightGrey = Color(0xFF);
   static Color white = Colors.white;
+  static Color trainerPrimary = const Color(0xFF00796B);
 }

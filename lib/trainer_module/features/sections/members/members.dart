@@ -1,29 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:t_store/common/widgets/buttons/circular_button.dart';
+import 'package:t_store/common/widgets/searchbars/search_bar.dart';
+import 'package:t_store/constants/colors.dart';
+import 'package:t_store/utils/helpers/helper_functions.dart';
 
 class MembersScreen extends StatelessWidget {
   const MembersScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    THelperFunctions.isDarkMode(context);
+
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor:
+            TColors.trainerPrimary, // Using the trainer primary color
+        title: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Container(
+                child: Column(
+              children: [
+                TSearchBar(
+                  backgroundColor: Colors.white,
+                  textColor: Colors.grey,
+                ),
+                SizedBox(
+                  height: 5,
+                )
+              ],
+            ))),
+      ),
       body: Column(
         children: [
-          // Search Bar
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search for "Mobile"',
-                prefixIcon: const Icon(Icons.search),
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-          ),
+          const SizedBox(height: 20),
           // Filters
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -46,9 +55,9 @@ class MembersScreen extends StatelessWidget {
                 SizedBox(height: 10),
                 Text('OR'),
                 SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: null,
-                  child: Text('Add Member'),
+                TCircularButton(
+                  text: "Add Members",
+                  textColor: Colors.teal,
                 ),
               ],
             ),

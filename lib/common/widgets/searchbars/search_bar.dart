@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:t_store/utils/constants/sizes.dart';
 import 'package:t_store/utils/helpers/helper_functions.dart';
@@ -8,8 +7,11 @@ class TSearchBar extends StatelessWidget {
   const TSearchBar({
     super.key,
     this.textColor,
+    this.backgroundColor, // Added backgroundColor argument
   });
+
   final Color? textColor;
+  final Color? backgroundColor; // Define the backgroundColor
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +51,10 @@ class TSearchBar extends StatelessWidget {
               width: 2.0,
             ),
           ),
-          fillColor: const Color.fromARGB(0, 255, 255, 255),
+          fillColor: backgroundColor ??
+              (dark
+                  ? Colors.black.withOpacity(0.1)
+                  : Colors.white), // Apply backgroundColor or default
           filled: true,
           contentPadding: const EdgeInsets.symmetric(
             vertical: 12.0,
