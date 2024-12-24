@@ -9,10 +9,12 @@ class TCircularButton extends StatelessWidget {
     super.key,
     required this.text,
     this.textColor,
+    this.backgroundColor,
   });
 
   final String text;
   final Color? textColor;
+  final Color? backgroundColor;
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +22,8 @@ class TCircularButton extends StatelessWidget {
 
     return OutlinedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: isDarkMode ? TColors.lightGrey : TColors.black,
+        backgroundColor:
+            backgroundColor ?? (isDarkMode ? TColors.lightGrey : TColors.black),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(70.0),
         ),

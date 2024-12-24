@@ -17,6 +17,11 @@ class MembershipDetailScreen extends StatelessWidget {
     final String startDateFormatted = dateFormat.format(membership.startDate);
     final String endDateFormatted = dateFormat.format(membership.endDate);
 
+    // Calculate progress and usage stats
+    final int? totalDays = membership.totalDays;
+    final int? workoutsCompleted = membership.workoutsCompleted;
+    final double progress = (workoutsCompleted ?? 0) / (totalDays ?? 1);
+
     return Scaffold(
       body: Stack(
         children: [
@@ -33,8 +38,8 @@ class MembershipDetailScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
+                    Colors.black.withOpacity(0.4),
                     Colors.black.withOpacity(0.6),
-                    Colors.black.withOpacity(0.8),
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
@@ -50,7 +55,7 @@ class MembershipDetailScreen extends StatelessWidget {
               child: Align(
                 alignment: Alignment.topLeft,
                 child: CircleAvatar(
-                  backgroundColor: Colors.black54,
+                  backgroundColor: Colors.black.withOpacity(0.5),
                   child: IconButton(
                     icon: const Icon(Icons.arrow_back, color: Colors.white),
                     onPressed: () {
@@ -69,161 +74,201 @@ class MembershipDetailScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(
-                        height: 80), // For spacing below the back button
-                    // Profile Section
-                    Row(
-                      children: [
-                        ClipRRect(
+                    const SizedBox(height: 80), // Spacing below the back button
+                    // Membership Plan Header
+                    buildMembershipHeader(context, isDarkMode,
+                        startDateFormatted, endDateFormatted),
+
+                    const SizedBox(height: 24),
+                    // Key Benefits Section
+                    buildKeyBenefitsSection(context, isDarkMode),
+
+                    const SizedBox(height: 24),
+                    // Progress Section
+                    buildProgressSection(context, isDarkMode, progress,
+                        workoutsCompleted, totalDays),
+
+                    const SizedBox(height: 24),
+                    // Live Sessions Button
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        // Handle live session logic
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[200], // Subtle gray button
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
-                          child: Image.asset(
-                            membership.trainerImageUrl,
-                            width: 80,
-                            height: 80,
-                            fit: BoxFit.cover,
-                          ),
                         ),
-                        const SizedBox(width: 16),
-                        Flexible(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                membership.trainerName,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineSmall
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                "Style of Training: ${membership.styleOfTraining}",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(
-                                      color: Colors.grey[300],
-                                    ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    // Membership Information Card
-                    Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        minimumSize: const Size(double.infinity, 50),
                       ),
-                      elevation: 4,
-                      color: isDarkMode ? Colors.grey[850] : Colors.white,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Membership Duration: ${membership.membershipDuration}",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(
-                                    color: isDarkMode
-                                        ? Colors.orange
-                                        : Colors.green,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              "Start Date: $startDateFormatted",
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              "End Date: $endDateFormatted",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(
-                                    color: Colors.redAccent,
-                                  ),
-                            ),
-                          ],
+                      icon: const Icon(Icons.video_call, color: Colors.black),
+                      label: const Text("Join Live Session",
+                          style: TextStyle(color: Colors.black)),
+                    ),
+
+                    const SizedBox(height: 16),
+                    // Camera Workout Feature
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        // Handle camera workout logic
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[200], // Subtle gray button
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
+                        minimumSize: const Size(double.infinity, 50),
                       ),
+                      icon: const Icon(Icons.camera_alt, color: Colors.black),
+                      label: const Text("Start Camera Workout",
+                          style: TextStyle(color: Colors.black)),
                     ),
+
+                    const SizedBox(height: 16),
+                    // Payment Button
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        // Handle payment logic
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[200], // Subtle gray button
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        minimumSize: const Size(double.infinity, 50),
+                      ),
+                      icon: const Icon(Icons.payment, color: Colors.black),
+                      label: const Text("Renew Membership",
+                          style: TextStyle(color: Colors.black)),
+                    ),
+
                     const SizedBox(height: 24),
-                    // Action Buttons
-                    Column(
-                      children: [
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            // Navigate to live training or perform action
-                          },
-                          icon: const Icon(Icons.videocam),
-                          label: const Text("Join Live Training"),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            backgroundColor: Colors.blueAccent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            minimumSize: const Size(double.infinity, 50),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            // Navigate to payment or perform action
-                          },
-                          icon: const Icon(Icons.payment),
-                          label: const Text("Make Payment"),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            backgroundColor: Colors.green,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            minimumSize: const Size(double.infinity, 50),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            // Navigate to daily workout challenge
-                          },
-                          icon: const Icon(Icons.camera_alt),
-                          label: const Text("Daily Workout Challenge"),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            backgroundColor: Colors.purple,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            minimumSize: const Size(double.infinity, 50),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 120),
-                    // Additional Info
-                    Text(
-                      "This membership is perfect for those looking to enhance their fitness journey with guided support and personalized training.",
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.grey[300],
-                          ),
-                    ),
                   ],
                 ),
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget buildMembershipHeader(BuildContext context, bool isDarkMode,
+      String startDateFormatted, String endDateFormatted) {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      elevation: 2,
+      color: isDarkMode ? Colors.grey[850] : Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              membership.membershipName,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: isDarkMode ? Colors.white : Colors.black,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Text("Status: ", style: Theme.of(context).textTheme.bodyMedium),
+                Text(
+                  membership.membershipStatus,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: membership.membershipStatus == "Active"
+                            ? Colors.green
+                            : Colors.red,
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text("Validity: $startDateFormatted - $endDateFormatted",
+                style: Theme.of(context).textTheme.bodyMedium),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildKeyBenefitsSection(BuildContext context, bool isDarkMode) {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      elevation: 2,
+      color: isDarkMode ? Colors.grey[850] : Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Key Benefits",
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: isDarkMode ? Colors.white : Colors.black,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            if (membership.keyBenefits != null)
+              Column(
+                children: membership.keyBenefits!
+                    .map((benefit) => ListTile(
+                          leading: const Icon(Icons.check_circle,
+                              color: Colors.green),
+                          title: Text(benefit),
+                        ))
+                    .toList(),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildProgressSection(BuildContext context, bool isDarkMode,
+      double progress, int? workoutsCompleted, int? totalDays) {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      elevation: 2,
+      color: isDarkMode ? Colors.grey[850] : Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Usage Stats",
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: isDarkMode ? Colors.white : Colors.black,
+                  ),
+            ),
+            const SizedBox(height: 16),
+            LinearProgressIndicator(
+              value: progress,
+              backgroundColor: isDarkMode ? Colors.grey : Colors.grey[300],
+              color: Colors.green,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "Workouts completed: $workoutsCompleted/$totalDays days",
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ],
+        ),
       ),
     );
   }

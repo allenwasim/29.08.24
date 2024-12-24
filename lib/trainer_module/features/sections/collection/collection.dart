@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 
 class CollectionScreen extends StatelessWidget {
+  const CollectionScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Date Filters
-            Row(
+            const Row(
               children: [
                 Expanded(
                   child: TextField(
@@ -33,7 +35,7 @@ class CollectionScreen extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Search and Clear Buttons
             Row(
@@ -41,32 +43,29 @@ class CollectionScreen extends StatelessWidget {
               children: [
                 ElevatedButton(
                   onPressed: () {},
-                  child: Text('Search'),
+                  child: const Text('Search'),
                 ),
                 OutlinedButton(
                   onPressed: () {},
-                  child: Text('Clear'),
+                  child: const Text('Clear'),
                 ),
               ],
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Note
-            Text(
+            const Text(
               'Note: The date filter is applied to the plan start date.',
               style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Plan Collection Summary
-            SummaryCard(title: 'Plan Collection Summary'),
-            SizedBox(height: 16),
+            const SummaryCard(title: 'Plan Collection Summary'),
+            const SizedBox(height: 16),
 
             // Service Collection Summary
-            Text(
-              'Service Collection Summary',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
+            const SummaryCard(title: 'Service Collection Summary'),
           ],
         ),
       ),
@@ -77,7 +76,7 @@ class CollectionScreen extends StatelessWidget {
 class SummaryCard extends StatelessWidget {
   final String title;
 
-  SummaryCard({super.key, required this.title});
+  const SummaryCard({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -92,16 +91,16 @@ class SummaryCard extends StatelessWidget {
           children: [
             Text(
               title,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 8),
-            Divider(),
+            const SizedBox(height: 8),
+            const Divider(),
             _buildSummaryRow('Total Membership', '0', '0', '0'),
-            Divider(),
+            const Divider(),
             _buildSummaryRow('Completely Paid', '0', '0', '0'),
-            Divider(),
+            const Divider(),
             _buildSummaryRow('Remainder Balance', '0', '0', '0'),
-            Divider(),
+            const Divider(),
             _buildSummaryRow('Unpaid Payment', '0', '0', '0'),
           ],
         ),
@@ -116,16 +115,32 @@ class SummaryCard extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Complete Amount: $amount'),
-            Text('₹ Received: $received'),
-            Text('₹ Balance due: $balanceDue',
-                style: TextStyle(color: Colors.red)),
+            Expanded(
+              child: Text(
+                'Complete Amount: $amount',
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                '₹ Received: $received',
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                '₹ Balance due: $balanceDue',
+                style: const TextStyle(color: Colors.red),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ],
         ),
       ],

@@ -9,26 +9,24 @@ class MembersScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    THelperFunctions.isDarkMode(context);
+    final dark = THelperFunctions.isDarkMode(context);
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor:
             TColors.trainerPrimary, // Using the trainer primary color
-        title: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Container(
-                child: Column(
-              children: [
-                TSearchBar(
-                  backgroundColor: Colors.white,
-                  textColor: Colors.grey,
-                ),
-                SizedBox(
-                  height: 5,
-                )
-              ],
-            ))),
+        title: const Padding(
+          padding: EdgeInsets.symmetric(vertical: 8.0),
+          child: Column(
+            children: [
+              TSearchBar(
+                backgroundColor: Colors.white,
+                textColor: Colors.grey,
+              ),
+              SizedBox(height: 5),
+            ],
+          ),
+        ),
       ),
       body: Column(
         children: [
@@ -37,27 +35,37 @@ class MembersScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildDropdownButton('All Member'),
-              _buildDropdownButton('All Plans'),
-              _buildDropdownButton('Select Batch'),
+              _buildDropdownButton('All Member', dark),
+              _buildDropdownButton('All Plans', dark),
+              _buildDropdownButton('Select Batch', dark),
             ],
           ),
           const SizedBox(height: 20),
           // No Members Found Section
-          const Center(
+          Center(
             child: Column(
               children: [
                 Text(
                   'No Members found',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: dark ? Colors.white : Colors.black,
+                  ),
                 ),
-                Text('Start Adding Member Click Top + Icon'),
-                SizedBox(height: 10),
-                Text('OR'),
-                SizedBox(height: 10),
+                Text(
+                  'Start Adding Member Click Top + Icon',
+                  style: TextStyle(
+                      color:
+                          dark ? Colors.grey.shade400 : Colors.grey.shade800),
+                ),
+                const SizedBox(height: 10),
+                const Text('OR'),
+                const SizedBox(height: 10),
                 TCircularButton(
+                  backgroundColor: dark ? Colors.transparent : Colors.white,
                   text: "Add Members",
-                  textColor: Colors.teal,
+                  textColor: dark ? Colors.teal : Colors.teal,
                 ),
               ],
             ),
@@ -75,12 +83,46 @@ class MembersScreen extends StatelessWidget {
   }
 
   // Reusable Dropdown Button Widget
-  Widget _buildDropdownButton(String title) {
-    return DropdownButton<String>(
-      value: title,
-      underline: const SizedBox(),
-      onChanged: (value) {},
-      items: [DropdownMenuItem(value: title, child: Text(title))],
+  Widget _buildDropdownButton(String title, bool dark) {
+    return Padding(
+      padding: const EdgeInsets.all(4.0), // Reduced outer padding
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+            horizontal: 8, vertical: 2), // Reduced inner padding
+        decoration: BoxDecoration(
+          color: dark
+              ? Colors.grey.shade800
+              : Colors.grey.shade200, // Background color
+          borderRadius: BorderRadius.circular(6), // Smaller rounded corners
+          border: Border.all(
+            color: dark
+                ? Colors.grey.shade600
+                : Colors.grey.shade400, // Border color
+          ),
+        ),
+        child: DropdownButton<String>(
+          value: title,
+          underline: const SizedBox(), // Removes the default underline
+          isDense: true, // Makes the button more compact
+          onChanged: (value) {},
+          items: [
+            DropdownMenuItem(
+              value: title,
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 12,
+                  color:
+                      dark ? Colors.white : Colors.black, // Dynamic text color
+                ),
+              ),
+            ),
+          ],
+          iconSize: 16, // Smaller dropdown arrow
+          iconEnabledColor:
+              dark ? Colors.white : Colors.black, // Adjust arrow color
+        ),
+      ),
     );
   }
 }

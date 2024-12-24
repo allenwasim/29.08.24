@@ -7,7 +7,6 @@ import 'package:t_store/trainer_module/features/sections/collection/collection.d
 import 'package:t_store/trainer_module/features/sections/gym/gym.dart';
 import 'package:t_store/trainer_module/features/sections/members/members.dart';
 import 'package:t_store/user_module/data/repositories/authentication/authentication_repository.dart';
-import 'package:t_store/user_module/features/authentication/screens/login/login.dart';
 import 'package:t_store/user_module/features/personalization/controllers/user_controller.dart';
 
 class TrainerNavigationMenu extends StatelessWidget {
@@ -40,6 +39,11 @@ class TrainerNavigationMenu extends StatelessWidget {
                 fontWeight: FontWeight.bold,
                 fontSize: 24,
               ),
+            ),
+            iconTheme: IconThemeData(
+              color: dark
+                  ? Colors.black
+                  : Colors.white, // Makes the drawer icon white
             ),
           ),
         ),

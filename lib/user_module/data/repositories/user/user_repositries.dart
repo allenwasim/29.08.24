@@ -121,4 +121,51 @@ class UserRepository extends GetxController {
       throw 'Something went wrong. Please try again.';
     }
   }
+
+  // Function to save trainer details to Firestore
+  Future<void> saveTrainerDetails(
+      String userId, Map<String, dynamic> trainerDetails) async {
+    try {
+      // Add trainer details to the "trainerDetails" subcollection
+      await _db
+          .collection("Profiles")
+          .doc(userId)
+          .collection('trainerDetails')
+          .doc('details')
+          .set(trainerDetails);
+    } on FirebaseException catch (e) {
+      throw TFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw const TFormatException().message;
+    } on PlatformException catch (e) {
+      throw TPlatformException(e.code).message;
+    } catch (e) {
+      throw 'Something went wrong. Please try again.';
+    }
+  }
+
+  // Function to fetch trainer details from Firestore
+  Future<Map<String, dynamic>?> fetchTrainerDetails(String userId) async {
+    try {
+      final documentSnapshot = await _db
+          .collection("Profiles")
+          .doc(userId)
+          .collection('trainerDetails')
+          .doc('details')
+          .get();
+      if (documentSnapshot.exists) {
+        return documentSnapshot.data();
+      } else {
+        return null; // Return null if no trainer details found
+      }
+    } on FirebaseException catch (e) {
+      throw TFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw const TFormatException().message;
+    } on PlatformException catch (e) {
+      throw TPlatformException(e.code).message;
+    } catch (e) {
+      throw 'Something went wrong. Please try again.';
+    }
+  }
 }

@@ -22,11 +22,11 @@ class UserController extends GetxController {
   Future<void> fetchUserRecord() async {
     try {
       profileLoading.value = true;
-      final user = await userRepository.fetchUserDetails();
-      this.user(user);
+      final fetchedUser = await userRepository.fetchUserDetails();
+      user.value = fetchedUser; // Corrected this line
       profileLoading.value = false;
     } catch (e) {
-      user(UserModel.empty());
+      user.value = UserModel.empty(); // Corrected this line
     }
   }
 
@@ -34,17 +34,24 @@ class UserController extends GetxController {
     try {
       await fetchUserRecord();
 
-      if (user.value.id.isEmpty) {}
+      if (user.value.id.isEmpty) {
+        // Handle the case if the user has an empty id
+      }
 
       if (userCredentials != null) {
-        final nameParts =
-            UserModel.splitFullName(userCredentials.user!.displayName ?? "");
-        final username =
-            UserModel.createUsername(userCredentials.user!.displayName ?? "");
+        final nameParts = userCredentials.user!.displayName?.split(" ") ?? [];
+        final username = nameParts.isNotEmpty
+            ? nameParts[0].toLowerCase() +
+                (nameParts.length > 1
+                    ? nameParts[1].substring(0, 1).toLowerCase()
+                    : '')
+            : '';
 
         final newUser = UserModel(
           id: userCredentials.user!.uid,
-          firstName: nameParts[0], // Fixed index to 0 for firstName
+          firstName: nameParts.isNotEmpty
+              ? nameParts[0]
+              : "", // Fixed index to 0 for firstName
           lastName: nameParts.length > 1 ? nameParts.sublist(1).join(" ") : "",
           email: userCredentials.user!.email ?? " ",
           username: username,
@@ -70,7 +77,7 @@ class UserController extends GetxController {
     );
 
     if (image != null) {
-      imageUploading.value == true;
+      imageUploading.value = true; // Corrected this line
       try {
         // Await the uploadImage to get the image URL
         final imageUrl =
@@ -97,7 +104,7 @@ class UserController extends GetxController {
             message:
                 "There was an issue updating your profile picture. Please try again.");
       } finally {
-        imageUploading.value == false;
+        imageUploading.value = false; // Corrected this line
       }
     }
   }
