@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:t_store/admin_module/admin_navigation.dart';
+import 'package:t_store/trainer_module/features/sections/add_trainer_details.dart/add_trainer_details.dart';
 import 'package:t_store/trainer_module/trainer_navigation_menu.dart';
 import 'package:t_store/user_module/data/repositories/user/user_repositries.dart';
 import 'package:t_store/user_module/features/authentication/screens/login/login.dart';
@@ -55,8 +56,24 @@ class AuthenticationRepository extends GetxController {
           if (userDetails.role == 'admin') {
             Get.offAll(() => AdminNavigationScreen());
           } else if (userDetails.role == 'trainer') {
-            Get.offAll(() => TrainerNavigationMenu());
+            // Check if trainer details are present in Firestore
+            final trainerDetailsDoc = await FirebaseFirestore.instance
+                .collection('Profiles')
+                .doc(user.uid)
+                .collection('trainerDetails')
+                .doc(
+                    'details') // Assuming there is one document with the trainer's details
+                .get();
+
+            // If trainer details are not found, navigate to AddTrainerDetailsScreen
+            if (!trainerDetailsDoc.exists) {
+              Get.offAll(() => AddTrainerDetailsScreen(userId: user.uid));
+            } else {
+              // If trainer details exist, navigate to TrainerNavigationMenu
+              Get.offAll(() => TrainerNavigationMenu());
+            }
           } else {
+            // Default navigation for non-admin, non-trainer users
             Get.offAll(() => NavigationMenu());
           }
         } catch (e) {
@@ -65,11 +82,11 @@ class AuthenticationRepository extends GetxController {
           Get.offAll(() => NavigationMenu()); // Default navigation on error
         }
       } else {
-        Get.offAll(() => VerifyEmailScreen(
-              email: _auth.currentUser?.email,
-            ));
+        // If email is not verified, navigate to VerifyEmailScreen
+        Get.offAll(() => VerifyEmailScreen(email: _auth.currentUser?.email));
       }
     } else {
+      // If no user is logged in, navigate to LoginScreen
       Get.offAll(const LoginScreen());
     }
   }
