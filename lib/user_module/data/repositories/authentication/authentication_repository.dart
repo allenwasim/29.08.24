@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
@@ -38,6 +39,7 @@ class AuthenticationRepository extends GetxController {
     // Check if it's the user's first time opening the app
     await deviceStorage.writeIfNull("isFirstTime", true);
     bool isFirstTime = deviceStorage.read("isFirstTime") ?? true;
+    final UserRepository userRepo = Get.put(UserRepository());
 
     if (isFirstTime) {
       Get.offAll(const OnBoardingScreen());
@@ -52,11 +54,9 @@ class AuthenticationRepository extends GetxController {
           // Fetch user details from Firestore
           final userDetails = await UserRepository.instance.fetchUserDetails();
 
-          // Navigate based on the role
-          if (userDetails.role == 'admin') {
-            Get.offAll(() => AdminNavigationScreen());
-          } else if (userDetails.role == 'trainer') {
-            // Check if trainer details are present in Firestore
+          // Redirect based on the role
+          if (userDetails.role == 'trainer') {
+            // Ensure trainer details are present, and navigate accordingly
             final trainerDetailsDoc = await FirebaseFirestore.instance
                 .collection('Profiles')
                 .doc(user.uid)
@@ -72,14 +72,17 @@ class AuthenticationRepository extends GetxController {
               // If trainer details exist, navigate to TrainerNavigationMenu
               Get.offAll(() => TrainerNavigationMenu());
             }
+          } else if (userDetails.role == 'admin') {
+            // Redirect to admin navigation if the role is admin
+            Get.offAll(() => AdminNavigationScreen());
           } else {
-            // Default navigation for non-admin, non-trainer users
-            Get.offAll(() => NavigationMenu());
+            // Default navigation for other roles (if needed, can be customized)
+            Get.offAll(() => UserNavigationMenu());
           }
         } catch (e) {
           // Handle any errors while fetching user details
           print('Error fetching user details: $e');
-          Get.offAll(() => NavigationMenu()); // Default navigation on error
+          screenRedirect(); // Ensure trainer goes to navigation menu on error
         }
       } else {
         // If email is not verified, navigate to VerifyEmailScreen

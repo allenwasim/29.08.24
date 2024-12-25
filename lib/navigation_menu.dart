@@ -14,10 +14,10 @@ import 'package:t_store/user_module/features/personalization/controllers/user_co
 import 'package:t_store/user_module/features/shop/screens/fitstore/widgets/settings/settings.dart';
 import 'package:t_store/utils/helpers/helper_functions.dart';
 
-class NavigationMenu extends StatelessWidget {
+class UserNavigationMenu extends StatelessWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  NavigationMenu({super.key});
+  UserNavigationMenu({super.key});
 
   @override
   Widget build(BuildContext context) {

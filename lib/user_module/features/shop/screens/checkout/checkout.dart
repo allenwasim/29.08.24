@@ -72,7 +72,7 @@ class CheckoutScreen extends StatelessWidget {
                 image: TImages.successFullyRegisterAnimation,
                 text: 'Payment Success',
                 subtitle: "Your item will be shipped soon!",
-                onPressed: () => Get.offAll(() => NavigationMenu()),
+                onPressed: () => Get.offAll(() => UserNavigationMenu()),
               )),
           child: const Text('Continue')),
     );

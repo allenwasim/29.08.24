@@ -38,7 +38,7 @@ class _MembershipsState extends State<Memberships>
         ),
         body: TabBarView(
           controller: _tabController,
-          children: const [
+          children: [
             ActiveMembershipsScreen(),
             AvailableMembershipsScreen(),
             NearMeScreen(),

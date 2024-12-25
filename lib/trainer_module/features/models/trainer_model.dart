@@ -1,6 +1,7 @@
 class TrainerDetails {
   // Fields specific to the trainer (no longer final)
   String trainerId; // Unique identifier for the trainer
+  String name; // Trainer's name
   String bio; // A short bio about the trainer
   String expertise; // The areas of expertise, e.g., Yoga, Weight Training
   int yearsOfExperience; // Number of years of experience
@@ -13,6 +14,7 @@ class TrainerDetails {
   // Constructor for TrainerDetails
   TrainerDetails({
     required this.trainerId,
+    required this.name,
     required this.bio,
     required this.expertise,
     required this.yearsOfExperience,
@@ -25,6 +27,7 @@ class TrainerDetails {
   // Named constructor for an empty trainer model
   TrainerDetails.empty()
       : trainerId = '',
+        name = '',
         bio = '',
         expertise = '',
         yearsOfExperience = 0,
@@ -35,6 +38,7 @@ class TrainerDetails {
 
   // Method to update trainer details
   void updateTrainerDetails({
+    String? name,
     String? bio,
     String? expertise,
     int? yearsOfExperience,
@@ -43,6 +47,7 @@ class TrainerDetails {
     List<String>? languages,
     String? availability,
   }) {
+    if (name != null) this.name = name;
     if (bio != null) this.bio = bio;
     if (expertise != null) this.expertise = expertise;
     if (yearsOfExperience != null) this.yearsOfExperience = yearsOfExperience;
@@ -56,6 +61,7 @@ class TrainerDetails {
   Map<String, dynamic> toJson() {
     return {
       'trainerId': trainerId,
+      'name': name,
       'bio': bio,
       'expertise': expertise,
       'yearsOfExperience': yearsOfExperience,
@@ -70,6 +76,7 @@ class TrainerDetails {
   factory TrainerDetails.fromJson(Map<String, dynamic> json) {
     return TrainerDetails(
       trainerId: json['trainerId'] ?? '',
+      name: json['name'] ?? '', // Parse name from JSON
       bio: json['bio'] ?? '',
       expertise: json['expertise'] ?? '',
       yearsOfExperience: json['yearsOfExperience'] ?? 0,
@@ -83,6 +90,6 @@ class TrainerDetails {
   // Method to display trainer information
   @override
   String toString() {
-    return 'TrainerDetails(trainerId: $trainerId, bio: $bio, expertise: $expertise, yearsOfExperience: $yearsOfExperience, rating: $rating, certifications: $certifications, languages: $languages, availability: $availability)';
+    return 'TrainerDetails(trainerId: $trainerId, name: $name, bio: $bio, expertise: $expertise, yearsOfExperience: $yearsOfExperience, rating: $rating, certifications: $certifications, languages: $languages, availability: $availability)';
   }
 }

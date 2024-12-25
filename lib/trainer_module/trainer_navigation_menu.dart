@@ -8,6 +8,7 @@ import 'package:t_store/trainer_module/features/sections/gym/gym.dart';
 import 'package:t_store/trainer_module/features/sections/members/members.dart';
 import 'package:t_store/user_module/data/repositories/authentication/authentication_repository.dart';
 import 'package:t_store/user_module/features/personalization/controllers/user_controller.dart';
+import 'package:t_store/user_module/features/shop/screens/fitstore/widgets/settings/settings.dart';
 
 class TrainerNavigationMenu extends StatelessWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -58,7 +59,8 @@ class TrainerNavigationMenu extends StatelessWidget {
             GestureDetector(
               onTap: () {
                 Navigator.pop(context);
-                Get.to(() => const TrainerProfileScreen());
+                Get.to(
+                    () => GymScreen(trainerId: userController.user.value.id));
               },
               child: UserAccountsDrawerHeader(
                 accountName: Obx(() {
@@ -165,7 +167,6 @@ class TrainerNavigationController extends GetxController {
     const UploadTutorialsScreen(),
     const MembersScreen(),
     CollectionScreen(),
-    const GymScreen(),
   ];
 
   String getScreenTitle() {
@@ -201,35 +202,6 @@ class UploadTutorialsScreen extends StatelessWidget {
           'Upload Tutorials Screen',
           style: Theme.of(context).textTheme.headlineMedium,
         ),
-      ),
-    );
-  }
-}
-
-class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Text(
-          'Settings Screen',
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-      ),
-    );
-  }
-}
-
-class TrainerProfileScreen extends StatelessWidget {
-  const TrainerProfileScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Text('Trainer Profile Screen'),
       ),
     );
   }

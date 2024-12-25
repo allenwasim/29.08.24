@@ -1,7 +1,5 @@
-// trainer_repository.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:t_store/trainer_module/features/models/trainer_model.dart';
-import 'package:t_store/user_module/features/personalization/models/user_model.dart';
 
 class TrainerRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -45,6 +43,33 @@ class TrainerRepository {
       });
     } catch (e) {
       print('Error adding new trainer: $e');
+    }
+  }
+
+  // Add Membership Plan to Firestore
+  Future<void> addMembershipPlan(
+    String trainerId,
+    String name,
+    String description,
+    double price,
+    String duration,
+    List<String> workouts,
+    bool isAvailable,
+  ) async {
+    try {
+      // Add plan to Firestore under memberships collection
+      await _firestore.collection('memberships').add({
+        'name': name,
+        'description': description,
+        'trainerId': trainerId, // Save only the trainer ID as a string
+        'price': price,
+        'duration': duration,
+        'workouts': workouts,
+        'available': isAvailable,
+      });
+    } catch (e) {
+      // Handle any errors during the Firestore operation
+      print('Error adding membership plan: $e');
     }
   }
 }

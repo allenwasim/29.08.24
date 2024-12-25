@@ -14,8 +14,8 @@ class MembershipDetailScreen extends StatelessWidget {
 
     // Format the dates using DateFormat
     final DateFormat dateFormat = DateFormat("MMM dd, yyyy");
-    final String startDateFormatted = dateFormat.format(membership.startDate);
-    final String endDateFormatted = dateFormat.format(membership.endDate);
+    final String startDateFormatted = dateFormat.format(membership.startDate!);
+    final String endDateFormatted = dateFormat.format(membership.endDate!);
 
     // Calculate progress and usage stats
     final int? totalDays = membership.totalDays;

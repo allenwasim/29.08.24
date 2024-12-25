@@ -16,6 +16,7 @@ class AddTrainerDetailsScreen extends StatefulWidget {
 
 class _AddTrainerDetailsScreenState extends State<AddTrainerDetailsScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController(); // Added controller for name
   final _bioController = TextEditingController();
   final _expertiseController = TextEditingController();
   final _yearsOfExperienceController = TextEditingController();
@@ -38,6 +39,17 @@ class _AddTrainerDetailsScreenState extends State<AddTrainerDetailsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                TextFormField(
+                  controller: _nameController, // Added name field
+                  decoration: InputDecoration(labelText: 'Trainer Name'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a trainer name';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 16), // Added space between input fields
                 TextFormField(
                   controller: _bioController,
                   decoration: InputDecoration(labelText: 'Bio'),
@@ -135,6 +147,7 @@ class _AddTrainerDetailsScreenState extends State<AddTrainerDetailsScreen> {
       // Create the trainer details object
       final trainerDetails = TrainerDetails(
         trainerId: widget.userId,
+        name: _nameController.text, // Added trainer name
         bio: _bioController.text,
         expertise: _expertiseController.text,
         yearsOfExperience: int.tryParse(_yearsOfExperienceController.text) ?? 0,
