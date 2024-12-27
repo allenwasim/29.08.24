@@ -1,48 +1,50 @@
-class ActiveMembership {
-  final String membershipName; // e.g., "Gold Membership"
-  final String trainerName;
-  final String styleOfTraining;
-  final String trainerImageUrl;
-  final String backgroundImageUrl;
-  final String? membershipDuration; // e.g., "Monthly" or "Annual"
-  final String? subscriptionRates; // e.g., "₹999/month"
-  final DateTime? startDate; // Required
-  final DateTime? endDate; // Required
-  final List<String>? keyBenefits; // e.g., ["Yoga Classes", "1-on-1 Sessions"]
-  final int? workoutsCompleted; // Optional usage stat
-  final int? totalDays; // Total days in the membership period
-  final String trainerId; // New field for trainerId
+// class ActiveMembership {
+//   final String membershipName;
+//   final String trainerName;
+//   final String styleOfTraining;
+//   final String trainerImageUrl;
+//   final String backgroundImageUrl;
+//   final String? membershipDuration;
+//   final String? subscriptionRates;
+//   final DateTime? startDate;
+//   final DateTime? endDate;
+//   final List<String>? keyBenefits;
+//   final int? workoutsCompleted;
+//   final int? totalDays;
+//   final String trainerId;
 
-  ActiveMembership({
-    required this.membershipName,
-    required this.trainerName,
-    required this.styleOfTraining,
-    required this.trainerImageUrl,
-    required this.backgroundImageUrl,
-    this.membershipDuration,
-    this.subscriptionRates,
-    this.startDate,
-    this.endDate,
-    this.keyBenefits,
-    this.workoutsCompleted,
-    this.totalDays,
-    required this.trainerId, // Initialize trainerId in the constructor
-  });
+//   // Add workouts field to track a list of workout names
+//   final List<String>? workouts; // e.g., ["Yoga", "Pilates", "Cardio"]
 
-  // Calculate remaining days
-  int get remainingDays {
-    return endDate!.difference(DateTime.now()).inDays.clamp(0, totalDays ?? 0);
-  }
+//   ActiveMembership.Membership({
+//     required this.membershipName,
+//     required this.trainerName,
+//     required this.styleOfTraining,
+//     required this.trainerImageUrl,
+//     required this.backgroundImageUrl,
+//     this.membershipDuration,
+//     this.subscriptionRates,
+//     this.startDate,
+//     this.endDate,
+//     this.keyBenefits,
+//     this.workoutsCompleted,
+//     this.totalDays,
+//     required this.trainerId,
+//     this.workouts, // Initialize workouts in the constructor
+//   });
 
-  // Determine membership status
-  String get membershipStatus {
-    if (DateTime.now().isBefore(startDate!)) {
-      return "Not Yet Active";
-    } else if (DateTime.now().isAfter(endDate!)) {
-      return "Expired";
-    } else if (remainingDays <= 7) {
-      return "About to Expire";
-    }
-    return "Active";
-  }
-}
+//   int get remainingDays {
+//     return endDate!.difference(DateTime.now()).inDays.clamp(0, totalDays ?? 0);
+//   }
+
+//   String get membershipStatus {
+//     if (DateTime.now().isBefore(startDate!)) {
+//       return "Not Yet Active";
+//     } else if (DateTime.now().isAfter(endDate!)) {
+//       return "Expired";
+//     } else if (remainingDays <= 7) {
+//       return "About to Expire";
+//     }
+//     return "Active";
+//   }
+// }

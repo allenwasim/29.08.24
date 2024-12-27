@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:t_store/trainer_module/features/models/membership_model.dart';
 import 'package:t_store/trainer_module/features/models/trainer_model.dart';
+import 'package:t_store/user_module/features/authentication/models/memberships/active_memberships_model.dart';
 
 class TrainerRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -46,10 +48,10 @@ class TrainerRepository {
     }
   }
 
-  // Add Membership Plan to Firestore
+  // Add Membership Plan to Firestore using MembershipModel
   Future<void> addMembershipPlan(
     String trainerId,
-    String name,
+    String planName,
     String description,
     double price,
     String duration,
@@ -57,19 +59,106 @@ class TrainerRepository {
     bool isAvailable,
   ) async {
     try {
-      // Add plan to Firestore under memberships collection
-      await _firestore.collection('memberships').add({
-        'name': name,
-        'description': description,
-        'trainerId': trainerId, // Save only the trainer ID as a string
-        'price': price,
-        'duration': duration,
-        'workouts': workouts,
-        'available': isAvailable,
-      });
+      final membership = MembershipModel(
+        id: '', // Firebase will generate ID
+        membershipId: '', // Generate as needed
+        trainerId: trainerId,
+        planName: planName,
+        description: description,
+        price: price,
+        duration: duration,
+        workouts: workouts,
+        isAvailable: isAvailable,
+        createdAt: DateTime.now(),
+        startDate: null, // Leaving it null initially
+        endDate: null, // Leaving it null initially
+      );
+
+      // Add membership plan to Firestore
+      await _firestore.collection('memberships').add(membership.toJson());
     } catch (e) {
-      // Handle any errors during the Firestore operation
       print('Error adding membership plan: $e');
+    }
+  }
+
+  // Fetch Active Memberships and map to MembershipModel
+  // Fetch Active Memberships and map to MembershipModel
+  // Fetch Active Memberships and map to MembershipModel
+  Future<List<MembershipModel>> getAvailableMemberships() async {
+    try {
+      final membershipQuery = _firestore.collection('memberships').where(
+          'isAvailable',
+          isEqualTo: true); // Only fetch available memberships
+
+      final querySnapshot = await membershipQuery.get();
+
+      // Fetching and mapping membership data
+      final memberships = await Future.wait(querySnapshot.docs.map((doc) async {
+        final data = doc.data();
+        String trainerName = 'Unknown Trainer';
+        String trainerImageUrl = '';
+        String trainerId = '';
+        String styleOfTraining = 'Unknown Training';
+
+        if (data.containsKey('trainerId') && data['trainerId'] is String) {
+          trainerId = data['trainerId'];
+          // Fetch trainer details using trainerId from the 'trainerDetails' subcollection
+          try {
+            final trainerDetailsDoc = await _firestore
+                .collection('Profiles')
+                .doc(trainerId)
+                .collection('trainerDetails')
+                .doc(
+                    'details') // Assuming all trainers have one document under 'trainerDetails'
+                .get();
+
+            if (trainerDetailsDoc.exists) {
+              final trainerDetailsData = trainerDetailsDoc.data();
+              if (trainerDetailsData != null) {
+                trainerName = trainerDetailsData['name'] ?? 'Unknown Trainer';
+                trainerImageUrl = trainerDetailsData['profilePicture'] ?? '';
+                styleOfTraining =
+                    trainerDetailsData['styleOfTraining'] ?? 'Unknown Training';
+              }
+            } else {
+              print('Trainer details document not found for $trainerId');
+            }
+          } catch (e) {
+            print("Error fetching trainer details for $trainerId: $e");
+          }
+        } else {
+          print('Trainer ID not found in membership data');
+        }
+
+        // Parse workouts field
+        if (data.containsKey('workouts') && data['workouts'] is List) {
+          final workouts = List<String>.from(data['workouts']);
+          styleOfTraining = workouts.join(', ');
+        }
+
+        // Create MembershipModel
+        final membershipModel = MembershipModel(
+          id: doc.id,
+          membershipId: data['membershipId'] ?? '',
+          trainerId: trainerId,
+          planName: data['planName'] ?? 'No Name',
+          description: data['description'] ?? '',
+          price: data['price']?.toDouble() ?? 0.0,
+          duration: data['duration'] ?? '',
+          workouts: List<String>.from(data['workouts'] ?? []),
+          isAvailable: data['isAvailable'] ?? true,
+          createdAt: (data['createdAt'] as Timestamp).toDate(),
+          startDate: (data['startDate'] as Timestamp?)?.toDate(), // Nullable
+          endDate: (data['endDate'] as Timestamp?)?.toDate(), // Nullable
+        );
+
+        return membershipModel; // Return the MembershipModel instance
+      }).toList());
+
+      return memberships; // Return the list of memberships
+    } catch (e) {
+      print("Error fetching memberships: $e");
+      return []; // Return an empty list if there’s an error
     }
   }
 }

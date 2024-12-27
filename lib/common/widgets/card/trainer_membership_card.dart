@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:t_store/user_module/features/authentication/models/memberships/active_memberships_model.dart';
+import 'package:t_store/trainer_module/features/models/membership_model.dart';
 import 'package:t_store/utils/constants/image_strings.dart';
 import 'package:t_store/utils/helpers/helper_functions.dart';
 
 class TTrainerCard extends StatelessWidget {
-  final ActiveMembership membership;
+  final MembershipModel membership;
   final String trainerName; // Add trainerName as an argument
 
   const TTrainerCard({
@@ -27,7 +27,7 @@ class TTrainerCard extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           image: DecorationImage(
-            image: AssetImage(membership.backgroundImageUrl),
+            image: AssetImage(TImages.homeimage2),
             fit: BoxFit.cover,
             colorFilter: ColorFilter.mode(
               dark
@@ -59,7 +59,7 @@ class TTrainerCard extends StatelessWidget {
               contentPadding:
                   const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
               title: Text(
-                membership.membershipName,
+                membership.planName,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
@@ -92,7 +92,7 @@ class TTrainerCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'Style: ${membership.styleOfTraining}',
+                    'Style: ${membership.workouts}',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -107,7 +107,7 @@ class TTrainerCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  if (membership.subscriptionRates != null)
+                  if (membership.price != null)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -146,8 +146,7 @@ class TTrainerCard extends StatelessWidget {
                                             fontWeight: FontWeight.w700),
                                       ),
                                       TextSpan(
-                                        text:
-                                            '${membership.subscriptionRates} Rs/month',
+                                        text: '${membership.price} Rs/month',
                                         style: const TextStyle(
                                           color: Color(0xFF32CD32),
                                           fontSize: 15,
@@ -165,11 +164,11 @@ class TTrainerCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                  if (membership.membershipDuration != null)
+                  if (membership.duration != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0),
                       child: Text(
-                        'Time Left: ${membership.membershipDuration}',
+                        'Time Left: ${membership.duration}',
                         style: TextStyle(
                           color: Colors.orange,
                           fontSize: 16,

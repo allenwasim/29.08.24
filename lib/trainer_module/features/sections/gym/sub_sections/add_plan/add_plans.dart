@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:t_store/trainer_module/data/repositories/trainer_repository.dart';
+import 'package:t_store/trainer_module/data/repositories/membership_repository.dart';
+import 'package:t_store/trainer_module/features/models/membership_model.dart';
 
 class AddPlanScreen extends StatefulWidget {
   final String trainerId;
@@ -13,7 +14,8 @@ class AddPlanScreen extends StatefulWidget {
 
 class _AddPlanScreenState extends State<AddPlanScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TrainerRepository trainerRepository = Get.put(TrainerRepository());
+  final MembershipRepository membershipRepository =
+      Get.put(MembershipRepository());
 
   String _name = '';
   String _description = '';
@@ -134,8 +136,9 @@ class _AddPlanScreenState extends State<AddPlanScreen> {
                 ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState?.validate() ?? false) {
-                      // Use the passed trainerId
-                      await trainerRepository.addMembershipPlan(
+                      // Call the addMembershipPlan method with individual fields
+                      MembershipModel newPlan =
+                          await membershipRepository.addMembershipPlan(
                         widget.trainerId,
                         _name,
                         _description,
@@ -151,12 +154,12 @@ class _AddPlanScreenState extends State<AddPlanScreen> {
                         snackPosition: SnackPosition.BOTTOM,
                       );
 
-                      // Navigate back or to another screen
+                      // Optionally, navigate back or to another screen
                       Get.back();
                     }
                   },
                   child: const Text('Add Plan'),
-                ),
+                )
               ],
             ),
           ),

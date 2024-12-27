@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:t_store/common/widgets/card/trainer_membership_card.dart';
-import 'package:t_store/user_module/features/authentication/models/memberships/active_memberships_model.dart';
+import 'package:t_store/trainer_module/features/models/membership_model.dart';
 import 'package:t_store/user_module/features/personalization/screens/memberships/tabs/active/membership_training_screen.dart';
 
 class ActiveMembershipsScreen extends StatelessWidget {
@@ -18,19 +18,18 @@ class ActiveMembershipsScreen extends StatelessWidget {
 
       Map<String, String> trainerNames = {};
       for (var doc in trainerDocs.docs) {
-        // Fetching the 'firstName' and 'lastName' fields
         final firstName = doc.data()?['firstName'] ?? '';
         final lastName = doc.data()?['lastName'] ?? '';
         trainerNames[doc.id] = '$firstName $lastName'.trim(); // Combine names
       }
       return trainerNames;
     } catch (e) {
-      // Handle errors and return an empty map in case of failure
       return {};
     }
   }
 
-  Future<List<ActiveMembership>> _getActiveMemberships() async {
+  // Fetch active memberships
+  Future<List<MembershipModel>> _getActiveMemberships() async {
     try {
       final membershipQuery = FirebaseFirestore.instance
           .collection('memberships')
@@ -40,21 +39,30 @@ class ActiveMembershipsScreen extends StatelessWidget {
       final memberships = querySnapshot.docs.map((doc) {
         final data = doc.data();
 
-        return ActiveMembership(
-          membershipName: data['name'] ?? 'No Name',
-          trainerId:
-              data['trainerId'] ?? '', // Assuming trainerId is stored here
-          styleOfTraining: data['styleOfTraining'] ?? 'Unknown Training',
-          trainerImageUrl: data['trainerImageUrl'] ?? '',
-          backgroundImageUrl: data['backgroundImageUrl'] ?? '',
-          membershipDuration: data['duration'] ?? '0 days',
+        // Mapping to MembershipModel
+        return MembershipModel(
+          id: doc.id,
+          membershipId: data['membershipId'] ??
+              '', // You need to ensure 'membershipId' is included
+          trainerId: data['trainerId'] ?? '',
+          planName: data['name'] ?? 'No Name',
+          description: data['description'] ??
+              '', // Provide description (use empty string if not present)
+          price: data['price'] ??
+              0.0, // Initialize with default price if not available
+          duration: data['duration'] ?? '0 days',
+          workouts: List<String>.from(data['workouts'] ??
+              []), // Default to an empty list if no workouts
+          isAvailable: data['isAvailable'] ??
+              true, // Assuming it's a boolean in Firestore
+          createdAt: (data['createdAt'] as Timestamp?)?.toDate() ??
+              DateTime.now(), // Default to current time if null
           startDate: data['startDate'] != null
               ? DateTime.parse(data['startDate'])
-              : DateTime.now(),
+              : null, // Nullable startDate
           endDate: data['endDate'] != null
               ? DateTime.parse(data['endDate'])
-              : DateTime.now(),
-          trainerName: '',
+              : null, // Nullable endDate
         );
       }).toList();
 
@@ -68,7 +76,7 @@ class ActiveMembershipsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Active Memberships')),
-      body: FutureBuilder<List<ActiveMembership>>(
+      body: FutureBuilder<List<MembershipModel>>(
         future: _getActiveMemberships(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -115,13 +123,14 @@ class ActiveMembershipsScreen extends StatelessWidget {
 
                   return GestureDetector(
                     onTap: () {
-                      // Navigate to the desired screen using Get.to
+                      // Navigate to the MembershipDetailsScreen with the membership model
                       Get.to(
                           () => MembershipDetailScreen(membership: membership));
                     },
                     child: TTrainerCard(
                       trainerName: trainerName, // Pass the fetched trainer name
-                      membership: membership,
+                      membership:
+                          membership, // Pass the full MembershipModel object
                     ),
                   );
                 },

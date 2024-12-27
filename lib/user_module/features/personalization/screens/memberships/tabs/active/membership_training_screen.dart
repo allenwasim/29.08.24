@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:t_store/user_module/features/authentication/models/memberships/active_memberships_model.dart';
+import 'package:t_store/trainer_module/features/models/membership_model.dart';
 
 class MembershipDetailScreen extends StatelessWidget {
-  final ActiveMembership membership;
+  final MembershipModel membership;
 
   const MembershipDetailScreen({Key? key, required this.membership})
       : super(key: key);
@@ -14,24 +14,26 @@ class MembershipDetailScreen extends StatelessWidget {
 
     // Format the dates using DateFormat
     final DateFormat dateFormat = DateFormat("MMM dd, yyyy");
-    final String startDateFormatted = dateFormat.format(membership.startDate!);
-    final String endDateFormatted = dateFormat.format(membership.endDate!);
+    final String startDateFormatted = dateFormat.format(membership.createdAt);
+    final String endDateFormatted = dateFormat.format(
+        membership.createdAt.add(Duration(days: 30))); // Adjust for end date
 
     // Calculate progress and usage stats
-    final int? totalDays = membership.totalDays;
-    final int? workoutsCompleted = membership.workoutsCompleted;
-    final double progress = (workoutsCompleted ?? 0) / (totalDays ?? 1);
+    final int totalDays = membership.workouts.length;
+    final int workoutsCompleted =
+        membership.workouts.where((workout) => workout.isNotEmpty).length;
+    final double progress = (workoutsCompleted / totalDays).clamp(0.0, 1.0);
 
     return Scaffold(
       body: Stack(
         children: [
           // Background Image
-          Positioned.fill(
-            child: Image.asset(
-              membership.backgroundImageUrl,
-              fit: BoxFit.cover,
-            ),
-          ),
+          // Positioned.fill(
+          //   child: Image.asset(
+          //     // membership.backgroundImageUrl ?? 'assets/default_image.png', // Provide a fallback image
+          //     // fit: BoxFit.cover,
+          //   ),
+          // ),
           // Gradient Overlay
           Positioned.fill(
             child: Container(
@@ -170,7 +172,7 @@ class MembershipDetailScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              membership.membershipName,
+              membership.planName,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: isDarkMode ? Colors.white : Colors.black,
@@ -181,11 +183,10 @@ class MembershipDetailScreen extends StatelessWidget {
               children: [
                 Text("Status: ", style: Theme.of(context).textTheme.bodyMedium),
                 Text(
-                  membership.membershipStatus,
+                  membership.isAvailable ? "Active" : "Inactive",
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: membership.membershipStatus == "Active"
-                            ? Colors.green
-                            : Colors.red,
+                        color:
+                            membership.isAvailable ? Colors.green : Colors.red,
                         fontWeight: FontWeight.bold,
                       ),
                 ),
@@ -220,13 +221,13 @@ class MembershipDetailScreen extends StatelessWidget {
                   ),
             ),
             const SizedBox(height: 8),
-            if (membership.keyBenefits != null)
+            if (membership.workouts.isNotEmpty)
               Column(
-                children: membership.keyBenefits!
-                    .map((benefit) => ListTile(
+                children: membership.workouts
+                    .map((workout) => ListTile(
                           leading: const Icon(Icons.check_circle,
                               color: Colors.green),
-                          title: Text(benefit),
+                          title: Text(workout),
                         ))
                     .toList(),
               ),
@@ -237,7 +238,7 @@ class MembershipDetailScreen extends StatelessWidget {
   }
 
   Widget buildProgressSection(BuildContext context, bool isDarkMode,
-      double progress, int? workoutsCompleted, int? totalDays) {
+      double progress, int workoutsCompleted, int totalDays) {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
@@ -264,7 +265,7 @@ class MembershipDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              "Workouts completed: $workoutsCompleted/$totalDays days",
+              "Workouts completed: $workoutsCompleted/$totalDays",
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ],

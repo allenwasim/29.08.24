@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:t_store/common/appbar/sub_appbar.dart';
 import 'package:t_store/user_module/features/personalization/screens/memberships/tabs/active/active.dart';
-import 'package:t_store/user_module/features/personalization/screens/memberships/tabs/available.dart';
+import 'package:t_store/user_module/features/personalization/screens/memberships/tabs/available/available.dart';
 import 'package:t_store/user_module/features/personalization/screens/memberships/tabs/near_me.dart';
 
 class Memberships extends StatefulWidget {

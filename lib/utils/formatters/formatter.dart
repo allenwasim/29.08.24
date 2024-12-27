@@ -3,11 +3,13 @@ import 'package:intl/intl.dart';
 class TFormatter {
   static String formatDate(DateTime? date) {
     date ??= DateTime.now();
-    return DateFormat('dd-MMM-yyyy').format(date); // Customize the date format as needed
+    return DateFormat('dd-MMM-yyyy')
+        .format(date); // Customize the date format as needed
   }
 
   static String formatCurrency(double amount) {
-    return NumberFormat.currency(locale: 'en_US', symbol: '\$').format(amount); // Customize the currency locale and symbol as needed
+    return NumberFormat.currency(locale: 'en_US', symbol: '\$')
+        .format(amount); // Customize the currency locale and symbol as needed
   }
 
   static String formatPhoneNumber(String phoneNumber) {
@@ -21,8 +23,6 @@ class TFormatter {
     return phoneNumber;
   }
 
-
-  // Not fully tested.
   static String internationalFormatPhoneNumber(String phoneNumber) {
     // Remove any non-digit characters from the phone number
     var digitsOnly = phoneNumber.replaceAll(RegExp(r'\D'), '');
@@ -54,13 +54,9 @@ class TFormatter {
     return formattedNumber.toString();
   }
 
-
-
-
+  // New method for formatted price
+  static String formatPrice(double price) {
+    return NumberFormat.currency(locale: 'en_US', symbol: '\$')
+        .format(price); // Customize as per the requirement
+  }
 }
-
-
-/*
-*
-*
-* */
