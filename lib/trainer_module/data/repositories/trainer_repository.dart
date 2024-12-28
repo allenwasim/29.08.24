@@ -160,4 +160,45 @@ class TrainerRepository {
       return []; // Return an empty list if there’s an error
     }
   }
+
+  // Fetch Membership Details by membershipId and return MembershipModel
+  Future<MembershipModel?> getMembershipDetails(String membershipId) async {
+    try {
+      // Fetch the membership document from the 'memberships' collection using the membershipId
+      final docSnapshot =
+          await _firestore.collection('memberships').doc(membershipId).get();
+
+      // If the document exists, map the Firestore data to MembershipModel
+      if (docSnapshot.exists) {
+        final data = docSnapshot.data()!;
+
+        // Parse workouts field if available
+        final workouts = List<String>.from(data['workouts'] ?? []);
+
+        // Create MembershipModel
+        final membershipModel = MembershipModel(
+          id: docSnapshot.id, // Document ID from Firestore
+          membershipId: data['membershipId'] ?? '',
+          trainerId: data['trainerId'] ?? '',
+          planName: data['planName'] ?? 'No Plan Name',
+          description: data['description'] ?? '',
+          price: data['price']?.toDouble() ?? 0.0,
+          duration: data['duration'] ?? '',
+          workouts: workouts,
+          isAvailable: data['isAvailable'] ?? true,
+          createdAt: (data['createdAt'] as Timestamp).toDate(),
+          startDate: (data['startDate'] as Timestamp?)?.toDate(), // Nullable
+          endDate: (data['endDate'] as Timestamp?)?.toDate(), // Nullable
+        );
+
+        return membershipModel; // Return the mapped MembershipModel
+      } else {
+        print('Membership not found for membershipId: $membershipId');
+        return null; // Return null if the document doesn't exist
+      }
+    } catch (e) {
+      print('Error fetching membership details: $e');
+      return null; // Return null if there's an error
+    }
+  }
 }

@@ -192,5 +192,35 @@ class UserRepository extends GetxController {
     }
   }
 
+  // Function to fetch client details from Firestore
+  Future<Map<String, dynamic>?> fetchClientDetails(String clientId) async {
+    try {
+      final documentSnapshot = await _db
+          .collection("Profiles")
+          .doc(
+              clientId) // Use the clientId to fetch the specific client's document
+          .collection('clientDetails')
+          .doc(
+              'details') // Assuming there's only one document named 'details' for each client
+          .get();
+
+      if (documentSnapshot.exists) {
+        return documentSnapshot
+            .data(); // Return the client details if the document exists
+      } else {
+        return null; // Return null if no client details found
+      }
+    } on FirebaseException catch (e) {
+      throw TFirebaseException(e.code).message; // Handle Firestore exceptions
+    } on FormatException catch (_) {
+      throw const TFormatException().message; // Handle format exceptions
+    } on PlatformException catch (e) {
+      throw TPlatformException(e.code)
+          .message; // Handle platform-specific exceptions
+    } catch (e) {
+      throw 'Something went wrong. Please try again.'; // Catch any other errors
+    }
+  }
+
   // Function to add membership to clientDetails
 }

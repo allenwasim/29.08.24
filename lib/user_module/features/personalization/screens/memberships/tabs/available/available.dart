@@ -101,6 +101,7 @@ class AvailableMembershipsScreen extends StatelessWidget {
                               margin:
                                   const EdgeInsets.symmetric(horizontal: 16.0),
                               child: TTrainerCard(
+                                isActive: false,
                                 membership: membership,
                                 trainerName:
                                     trainerName, // Pass the trainer's name here

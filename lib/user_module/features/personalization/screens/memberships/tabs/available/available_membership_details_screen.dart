@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:t_store/common/widgets/buttons/circular_button.dart';
 import 'package:t_store/user_module/data/repositories/user/user_repositries.dart';
 import 'package:t_store/user_module/features/personalization/models/client_model.dart';
+import 'package:t_store/user_module/features/personalization/screens/memberships/tabs/active/membership_training_screen.dart';
 import 'package:t_store/user_module/features/personalization/screens/programmes/screens/level_deatails_screen.dart';
 import 'package:t_store/utils/formatters/formatter.dart';
 import 'package:t_store/trainer_module/features/models/membership_model.dart';
@@ -185,7 +186,9 @@ class AvailableMembershipDetailsScreen extends StatelessWidget {
                               .toJson()); // Update the client document with new data
 
                       // Navigate to the next screen
-                      Get.to(() => LevelDetailsScreen());
+                      Get.offAll(() => MembershipDetailScreen(
+                            membership: membership,
+                          ));
                     }
                   } else {
                     // Handle case where client does not exist

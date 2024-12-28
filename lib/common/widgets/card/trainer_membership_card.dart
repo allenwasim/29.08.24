@@ -6,11 +6,13 @@ import 'package:t_store/utils/helpers/helper_functions.dart';
 class TTrainerCard extends StatelessWidget {
   final MembershipModel membership;
   final String trainerName; // Add trainerName as an argument
+  final bool isActive; // Add isActive as an argument
 
   const TTrainerCard({
     super.key,
     required this.membership,
     required this.trainerName, // Accept trainerName in the constructor
+    required this.isActive, // Accept isActive in the constructor
   });
 
   @override
@@ -107,7 +109,40 @@ class TTrainerCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  if (membership.price != null)
+                  if (isActive) ...[
+                    // Show start and end dates if isActive is true
+                    Text(
+                      'Start Date: ${membership.startDate}', // Add start date
+                      style: TextStyle(
+                        color: Colors.orange,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withOpacity(0.6),
+                            offset: const Offset(1, 1),
+                            blurRadius: 3,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Text(
+                      'End Date: ${membership.endDate}', // Add end date
+                      style: TextStyle(
+                        color: Colors.orange,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withOpacity(0.6),
+                            offset: const Offset(1, 1),
+                            blurRadius: 3,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ] else if (membership.price != null) ...[
+                    // Show price and duration if not active
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -164,22 +199,23 @@ class TTrainerCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Duration: ${membership.duration}', // Add duration field here
-                    style: TextStyle(
-                      color: Colors.orange,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black.withOpacity(0.6),
-                          offset: const Offset(1, 1),
-                          blurRadius: 3,
-                        ),
-                      ],
+                    const SizedBox(height: 8),
+                    Text(
+                      'Duration: ${membership.duration}', // Add duration field here
+                      style: TextStyle(
+                        color: Colors.orange,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withOpacity(0.6),
+                            offset: const Offset(1, 1),
+                            blurRadius: 3,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                  ],
                 ],
               ),
               trailing: Container(
