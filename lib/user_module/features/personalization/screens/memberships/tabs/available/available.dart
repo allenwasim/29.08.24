@@ -5,17 +5,23 @@ import 'package:t_store/common/widgets/searchbars/search_bar.dart';
 import 'package:t_store/trainer_module/data/repositories/trainer_repository.dart';
 import 'package:t_store/trainer_module/features/models/membership_model.dart';
 import 'package:t_store/trainer_module/features/models/trainer_model.dart';
+import 'package:t_store/user_module/data/repositories/authentication/authentication_repository.dart';
 import 'package:t_store/user_module/features/personalization/screens/memberships/tabs/available/available_membership_details_screen.dart';
 
 class AvailableMembershipsScreen extends StatelessWidget {
   AvailableMembershipsScreen({super.key});
 
   final TrainerRepository trainerRepository = TrainerRepository();
+  final AuthenticationRepository authenticationRepository =
+      Get.put(AuthenticationRepository());
+
+  final clientId = AuthenticationRepository().authUser!.uid;
 
   // Fetch available memberships using the repository
   Future<List<MembershipModel>> _getAvailableMemberships() async {
-    return await trainerRepository
-        .getAvailableMemberships(); // Ensure this method returns MembershipModel instances
+    print('Auth User UID: $clientId');
+    return await trainerRepository.getAvailableMemberships();
+    // Ensure this method returns MembershipModel instances
   }
 
   @override
@@ -86,6 +92,7 @@ class AvailableMembershipsScreen extends StatelessWidget {
                             onTap: () {
                               // Navigate to MembershipDetailsScreen with the full membership object
                               Get.to(() => AvailableMembershipDetailsScreen(
+                                    clientId: clientId,
                                     membership:
                                         membership, // Pass the entire membership object
                                   ));

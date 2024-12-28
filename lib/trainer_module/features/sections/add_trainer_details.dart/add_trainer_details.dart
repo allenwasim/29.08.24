@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:t_store/trainer_module/features/models/trainer_model.dart';
 import 'package:t_store/user_module/data/repositories/authentication/authentication_repository.dart';
+import 'package:t_store/user_module/data/repositories/user/user_repositries.dart';
 import 'package:t_store/user_module/features/personalization/models/user_model.dart'; // Import your UserModel
 
 class AddTrainerDetailsScreen extends StatefulWidget {
@@ -24,6 +27,7 @@ class _AddTrainerDetailsScreenState extends State<AddTrainerDetailsScreen> {
   final _availabilityController = TextEditingController();
   final _certificationsController = TextEditingController();
   final _languagesController = TextEditingController();
+  final UserRepository userRepository = Get.put(UserRepository());
 
   @override
   Widget build(BuildContext context) {
@@ -167,7 +171,8 @@ class _AddTrainerDetailsScreenState extends State<AddTrainerDetailsScreen> {
         );
 
         // Save the trainer details to Firestore under the user
-        await userModel.saveTrainerDetails(trainerDetails);
+        await userRepository.saveTrainerDetails(
+            widget.userId, trainerDetails.toJson());
 
         // Redirect after saving the trainer details
         AuthenticationRepository.instance

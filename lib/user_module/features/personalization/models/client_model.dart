@@ -1,25 +1,55 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ClientDetails {
-  final List<Map<String, dynamic>> memberships;
+  final String userId; // Unique identifier for the user
+  final String height; // Height in cm
+  final String weight; // Weight in kg
+  final String gender; // Male, Female, or Not Specified
+  final String activityLevel; // Sedentary, Lightly Active, etc.
+  final String injuries; // Description of injuries, if any
+  final String fitnessGoal; // User's fitness goal
+  final List<Map<String, dynamic>> memberships; // List of memberships
 
-  ClientDetails({required this.memberships});
+  ClientDetails({
+    required this.userId,
+    required this.height,
+    required this.weight,
+    required this.gender,
+    required this.activityLevel,
+    required this.injuries,
+    required this.fitnessGoal,
+    required this.memberships,
+  });
 
-  // Convert ClientDetails to JSON
+  // Convert ClientDetails to JSON for Firestore
   Map<String, dynamic> toJson() {
     return {
+      'userId': userId,
+      'height': height,
+      'weight': weight,
+      'gender': gender,
+      'activityLevel': activityLevel,
+      'injuries': injuries,
+      'fitnessGoal': fitnessGoal,
       'memberships': memberships,
     };
   }
 
-  // Create ClientDetails from JSON
+  // Create ClientDetails from Firestore JSON
   factory ClientDetails.fromJson(Map<String, dynamic> json) {
     return ClientDetails(
+      userId: json['userId'] ?? '',
+      height: json['height'] ?? '',
+      weight: json['weight'] ?? '',
+      gender: json['gender'] ?? 'Not Specified',
+      activityLevel: json['activityLevel'] ?? 'Sedentary',
+      injuries: json['injuries'] ?? '',
+      fitnessGoal: json['fitnessGoal'] ?? '',
       memberships: List<Map<String, dynamic>>.from(json['memberships'] ?? []),
     );
   }
 
-  // Method to add a new membership
+  // Add a new membership
   void addMembership({
     required String membershipId,
     required Timestamp startDate,
@@ -40,7 +70,7 @@ class ClientDetails {
     });
   }
 
-  // Method to update the progress of a membership
+  // Update progress for a specific membership
   void updateProgress(String membershipId, int progress) {
     final membership = memberships.firstWhere(
         (membership) => membership['membershipId'] == membershipId,
@@ -50,7 +80,7 @@ class ClientDetails {
     }
   }
 
-  // Method to update the status of a membership
+  // Update status for a specific membership
   void updateStatus(String membershipId, String status) {
     final membership = memberships.firstWhere(
         (membership) => membership['membershipId'] == membershipId,
@@ -60,7 +90,7 @@ class ClientDetails {
     }
   }
 
-  // Method to calculate remaining workouts
+  // Calculate remaining workouts
   int remainingWorkouts(String membershipId) {
     final membership = memberships.firstWhere(
         (membership) => membership['membershipId'] == membershipId,
@@ -71,11 +101,16 @@ class ClientDetails {
     return 0;
   }
 
-  // Method to fetch the membership by ID
+  // Fetch membership details by ID
   Map<String, dynamic> getMembershipById(String membershipId) {
     return memberships.firstWhere(
       (membership) => membership['membershipId'] == membershipId,
       orElse: () => {},
     );
+  }
+
+  // Function to get userId
+  String getUserId() {
+    return userId;
   }
 }

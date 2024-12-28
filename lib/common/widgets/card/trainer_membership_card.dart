@@ -164,25 +164,22 @@ class TTrainerCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                  if (membership.duration != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Text(
-                        'Time Left: ${membership.duration}',
-                        style: TextStyle(
-                          color: Colors.orange,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          shadows: [
-                            Shadow(
-                              color: Colors.black.withOpacity(0.6),
-                              offset: const Offset(1, 1),
-                              blurRadius: 3,
-                            ),
-                          ],
+                  const SizedBox(height: 8),
+                  Text(
+                    'Duration: ${membership.duration}', // Add duration field here
+                    style: TextStyle(
+                      color: Colors.orange,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black.withOpacity(0.6),
+                          offset: const Offset(1, 1),
+                          blurRadius: 3,
                         ),
-                      ),
+                      ],
                     ),
+                  ),
                 ],
               ),
               trailing: Container(

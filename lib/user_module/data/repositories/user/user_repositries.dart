@@ -168,4 +168,29 @@ class UserRepository extends GetxController {
       throw 'Something went wrong. Please try again.';
     }
   }
+
+  // Function to save client details to Firestore
+  // Function to save client details to Firestore
+  Future<void> saveClientDetails(
+      String clientId, Map<String, dynamic> clientDetails) async {
+    try {
+      // Add client details to the "clientDetails" subcollection
+      await _db
+          .collection("Profiles")
+          .doc(clientId)
+          .collection('clientDetails')
+          .doc('details')
+          .set(clientDetails);
+    } on FirebaseException catch (e) {
+      throw TFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw const TFormatException().message;
+    } on PlatformException catch (e) {
+      throw TPlatformException(e.code).message;
+    } catch (e) {
+      throw 'Something went wrong. Please try again.';
+    }
+  }
+
+  // Function to add membership to clientDetails
 }

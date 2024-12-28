@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:t_store/trainer_module/features/models/membership_model.dart';
 import 'package:t_store/trainer_module/features/models/trainer_model.dart';
-import 'package:t_store/user_module/features/authentication/models/memberships/active_memberships_model.dart';
 
 class TrainerRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

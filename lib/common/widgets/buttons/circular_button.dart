@@ -10,11 +10,13 @@ class TCircularButton extends StatelessWidget {
     required this.text,
     this.textColor,
     this.backgroundColor,
+    this.onTap,
   });
 
   final String text;
   final Color? textColor;
   final Color? backgroundColor;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +30,7 @@ class TCircularButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(70.0),
         ),
       ),
-      onPressed: () => Get.to(() => const Training()),
+      onPressed: onTap, // Default action
       focusNode: FocusNode(skipTraversal: true), // Remove blue outline
       child: Text(
         text,

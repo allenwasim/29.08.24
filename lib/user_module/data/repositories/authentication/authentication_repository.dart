@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
@@ -10,6 +9,7 @@ import 'package:t_store/admin_module/admin_navigation.dart';
 import 'package:t_store/trainer_module/features/sections/add_trainer_details.dart/add_trainer_details.dart';
 import 'package:t_store/trainer_module/trainer_navigation_menu.dart';
 import 'package:t_store/user_module/data/repositories/user/user_repositries.dart';
+import 'package:t_store/user_module/features/authentication/screens/client_details/add_client_details.dart';
 import 'package:t_store/user_module/features/authentication/screens/login/login.dart';
 import 'package:t_store/user_module/features/authentication/screens/onboarding/onboarding.dart';
 import 'package:t_store/user_module/features/authentication/screens/signup/verify_email.dart';
@@ -75,14 +75,28 @@ class AuthenticationRepository extends GetxController {
           } else if (userDetails.role == 'admin') {
             // Redirect to admin navigation if the role is admin
             Get.offAll(() => AdminNavigationScreen());
-          } else {
-            // Default navigation for other roles (if needed, can be customized)
-            Get.offAll(() => UserNavigationMenu());
+          } else if (userDetails.role == 'client') {
+            // For clients, check if client details exist
+            final clientDetailsDoc = await FirebaseFirestore.instance
+                .collection('Profiles')
+                .doc(user.uid)
+                .collection('clientDetails')
+                .doc(
+                    'details') // Assuming there is one document with the trainer's details
+                .get();
+
+            // If client details don't exist, navigate to ClientDetailsScreen
+            if (!clientDetailsDoc.exists) {
+              Get.offAll(() => AddClientDetailsScreen(userId: user.uid));
+            } else {
+              // If client details exist, navigate to UserNavigationMenu
+              Get.offAll(() => UserNavigationMenu());
+            }
           }
         } catch (e) {
           // Handle any errors while fetching user details
           print('Error fetching user details: $e');
-          screenRedirect(); // Ensure trainer goes to navigation menu on error
+          screenRedirect(); // Ensure user goes to navigation menu on error
         }
       } else {
         // If email is not verified, navigate to VerifyEmailScreen

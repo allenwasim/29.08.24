@@ -26,8 +26,6 @@ class UserModel {
     this.phoneNumber = '',
     this.profilePicture = '',
     this.role = 'client',
-    this.trainerDetails,
-    this.clientDetails,
   });
 
   // Named constructor for an empty user model
@@ -85,10 +83,7 @@ class UserModel {
       'phoneNumber': phoneNumber,
       'profilePicture': profilePicture,
       'role': role, // Include the role in toJson
-      'trainerDetails':
-          trainerDetails?.toJson(), // Include trainerDetails if not null
-      'clientDetails':
-          clientDetails?.toJson(), // Include clientDetails if not null
+      // Include clientDetails if not null
     };
   }
 
@@ -97,8 +92,6 @@ class UserModel {
       DocumentSnapshot<Map<String, dynamic>> document) async {
     final data = document.data()!;
     final role = data['role'] ?? 'client';
-    TrainerDetails? trainerDetails;
-    ClientDetails? clientDetails;
 
     // Fetch trainerDetails from subcollection if the role is trainer
     if (role == 'trainer') {
@@ -108,16 +101,9 @@ class UserModel {
           .collection("trainerDetails")
           .doc('details') // Assuming only one document for trainer details
           .get();
-
-      if (trainerSnapshot.exists) {
-        trainerDetails = TrainerDetails.fromJson(trainerSnapshot.data()!);
-      }
     }
 
     // Fetch clientDetails if the role is client
-    if (role == 'client') {
-      clientDetails = ClientDetails.fromJson(data['clientDetails'] ?? {});
-    }
 
     return UserModel(
       id: document.id,
@@ -128,28 +114,8 @@ class UserModel {
       phoneNumber: data['phoneNumber'] ?? '',
       profilePicture: data['profilePicture'] ?? '',
       role: role,
-      trainerDetails: trainerDetails,
-      clientDetails: clientDetails,
     );
   }
 
   // Method to save trainer details to Firestore subcollection
-  Future<void> saveTrainerDetails(TrainerDetails details) async {
-    if (role == 'trainer') {
-      final ref = FirebaseFirestore.instance
-          .collection('Profiles')
-          .doc(id)
-          .collection('trainerDetails')
-          .doc('details'); // Save under a single document for trainer details
-      await ref.set(details.toJson());
-    }
-  }
-
-  // Method to save client details to Firestore
-  Future<void> saveClientDetails(ClientDetails details) async {
-    if (role == 'client') {
-      final ref = FirebaseFirestore.instance.collection('Profiles').doc(id);
-      await ref.update({'clientDetails': details.toJson()});
-    }
-  }
 }
