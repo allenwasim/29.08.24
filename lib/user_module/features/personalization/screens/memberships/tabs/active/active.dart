@@ -6,17 +6,29 @@ import 'package:t_store/common/widgets/card/trainer_membership_card.dart';
 import 'package:t_store/trainer_module/data/repositories/trainer_repository.dart';
 import 'package:t_store/trainer_module/features/models/membership_model.dart';
 import 'package:t_store/user_module/data/repositories/user/user_repositries.dart';
-import 'package:t_store/user_module/features/personalization/screens/memberships/tabs/active/membership_training_screen.dart';
 import 'package:t_store/common/widgets/searchbars/search_bar.dart';
-import 'package:t_store/trainer_module/features/models/trainer_model.dart';
+import 'package:t_store/user_module/features/personalization/screens/memberships/tabs/active/membership_training_screen.dart';
+import 'package:t_store/trainer_module/data/repositories/membership_repository.dart'; // Import the MembershipRepository
+import 'package:intl/intl.dart'; // Import for DateFormat
 
 class ActiveMembershipsScreen extends StatelessWidget {
   ActiveMembershipsScreen({super.key});
 
   final TrainerRepository _trainerRepository = TrainerRepository();
   final UserRepository userRepository = Get.put(UserRepository());
+  final MembershipRepository membershipRepository =
+      Get.put(MembershipRepository()); // Use MembershipRepository
 
-  Future<List<String>> _getClientMembershipIds(String clientId) async {
+  Future<String> _getCurrentUserId() async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      return currentUser.uid;
+    } else {
+      throw Exception('No user is currently logged in');
+    }
+  }
+
+  Future<List<String>> getClientMembershipIds(String clientId) async {
     try {
       final clientDoc = await FirebaseFirestore.instance
           .collection('Profiles')
@@ -55,7 +67,7 @@ class ActiveMembershipsScreen extends StatelessWidget {
           id: doc.id,
           membershipId: data['membershipId'] ?? '',
           trainerId: data['trainerId'] ?? '',
-          planName: data['name'] ?? 'No Name',
+          planName: data['planName'] ?? 'No Name',
           description: data['description'] ?? '',
           price: data['price'] ?? 0.0,
           duration: data['duration'] ?? '0 days',
@@ -76,6 +88,51 @@ class ActiveMembershipsScreen extends StatelessWidget {
     }
   }
 
+  Future<Map<String, String>> _getTrainerDetails(
+      List<String> trainerIds) async {
+    final Map<String, String> trainerNames = {};
+    for (String trainerId in trainerIds) {
+      final trainerDetails =
+          await userRepository.fetchTrainerDetails(trainerId);
+      if (trainerDetails != null) {
+        trainerNames[trainerId] = trainerDetails['name'] ?? 'Unknown Trainer';
+      } else {
+        trainerNames[trainerId] = 'Unknown Trainer';
+      }
+    }
+    return trainerNames;
+  }
+
+  Future<Map<String, dynamic>> _getMembershipStartEndDates(
+      String clientId) async {
+    try {
+      final memberships =
+          await membershipRepository.fetchUserMemberships(clientId);
+      final Map<String, dynamic> membershipDates = {};
+
+      for (var membership in memberships) {
+        final membershipId = membership['membershipId'];
+        membershipDates[membershipId] = {
+          'startDate': membership['startDate'] != null
+              ? (membership['startDate'] is Timestamp
+                  ? (membership['startDate'] as Timestamp).toDate()
+                  : DateTime.parse(membership['startDate']))
+              : null,
+          'endDate': membership['endDate'] != null
+              ? (membership['endDate'] is Timestamp
+                  ? (membership['endDate'] as Timestamp).toDate()
+                  : DateTime.parse(membership['endDate']))
+              : null,
+        };
+      }
+
+      return membershipDates;
+    } catch (e) {
+      print('Error fetching membership dates: $e');
+      throw Exception("Error fetching membership dates: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,7 +150,7 @@ class ActiveMembershipsScreen extends StatelessWidget {
           final clientId = userSnapshot.data!;
 
           return FutureBuilder<List<String>>(
-            future: _getClientMembershipIds(clientId),
+            future: getClientMembershipIds(clientId),
             builder: (context, membershipIdsSnapshot) {
               if (membershipIdsSnapshot.connectionState ==
                   ConnectionState.waiting) {
@@ -133,7 +190,7 @@ class ActiveMembershipsScreen extends StatelessWidget {
                       .toList();
 
                   return FutureBuilder<Map<String, String>>(
-                    future: _getTrainersNames(trainerIds),
+                    future: _getTrainerDetails(trainerIds),
                     builder: (context, trainerSnapshot) {
                       if (trainerSnapshot.connectionState ==
                           ConnectionState.waiting) {
@@ -147,56 +204,97 @@ class ActiveMembershipsScreen extends StatelessWidget {
 
                       final trainerNames = trainerSnapshot.data ?? {};
 
-                      return CustomScrollView(
-                        slivers: [
-                          const SliverToBoxAdapter(
-                            child: SizedBox(
-                              height: 80,
-                              child: TSearchBar(),
-                            ),
-                          ),
-                          SliverToBoxAdapter(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                'Active Memberships',
-                                style:
-                                    Theme.of(context).textTheme.headlineSmall,
-                              ),
-                            ),
-                          ),
-                          SliverList(
-                            delegate: SliverChildBuilderDelegate(
-                              (context, index) {
-                                final membership = memberships[index];
-                                final trainerName =
-                                    trainerNames[membership.trainerId] ??
-                                        'Unknown Trainer';
+                      return FutureBuilder<Map<String, dynamic>>(
+                        future: _getMembershipStartEndDates(clientId),
+                        builder: (context, dateSnapshot) {
+                          if (dateSnapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          }
 
-                                return Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 8.0),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      Get.to(() => MembershipDetailScreen(
-                                          membership: membership));
-                                    },
-                                    child: Container(
-                                      margin: const EdgeInsets.symmetric(
-                                          horizontal: 16.0),
-                                      child: TTrainerCard(
-                                        isActive: true,
-                                        trainerName: trainerName,
-                                        membership: membership,
-                                      ),
-                                    ),
+                          if (dateSnapshot.hasError) {
+                            return Center(
+                                child: Text('Error: ${dateSnapshot.error}'));
+                          }
+
+                          final membershipDates = dateSnapshot.data ?? {};
+                          final DateFormat dateFormat =
+                              DateFormat('yyyy-MM-dd'); // Custom date format
+
+                          return CustomScrollView(
+                            slivers: [
+                              const SliverToBoxAdapter(
+                                child: SizedBox(
+                                  height: 80,
+                                  child: TSearchBar(),
+                                ),
+                              ),
+                              SliverToBoxAdapter(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    'Active Memberships',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineSmall,
                                   ),
-                                );
-                              },
-                              childCount: memberships.length,
-                            ),
-                          ),
-                        ],
+                                ),
+                              ),
+                              SliverList(
+                                delegate: SliverChildBuilderDelegate(
+                                  (context, index) {
+                                    final membership = memberships[index];
+                                    final trainerName =
+                                        trainerNames[membership.trainerId] ??
+                                            'Unknown Trainer';
+
+                                    final membershipStartDate =
+                                        membershipDates[membership.membershipId]
+                                                    ?['startDate'] !=
+                                                null
+                                            ? dateFormat.format(membershipDates[
+                                                    membership.membershipId]
+                                                ?['startDate'])
+                                            : 'No Start Date';
+
+                                    final membershipEndDate =
+                                        membershipDates[membership.membershipId]
+                                                    ?['endDate'] !=
+                                                null
+                                            ? dateFormat.format(membershipDates[
+                                                    membership.membershipId]
+                                                ?['endDate'])
+                                            : 'No End Date';
+
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          Get.to(() => MembershipDetailScreen(
+                                              membership: membership));
+                                        },
+                                        child: Container(
+                                          margin: const EdgeInsets.symmetric(
+                                              horizontal: 16.0),
+                                          child: TTrainerCard(
+                                            isActive: true,
+                                            trainerName: trainerName,
+                                            membership: membership,
+                                            startDate: membershipStartDate,
+                                            endDate: membershipEndDate,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  childCount: memberships.length,
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       );
                     },
                   );
@@ -207,26 +305,5 @@ class ActiveMembershipsScreen extends StatelessWidget {
         },
       ),
     );
-  }
-
-  Future<String> _getCurrentUserId() async {
-    final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser != null) {
-      return currentUser.uid;
-    } else {
-      throw Exception('No user is currently logged in');
-    }
-  }
-
-  Future<Map<String, String>> _getTrainersNames(List<String> trainerIds) async {
-    final Map<String, String> trainerNames = {};
-    for (final trainerId in trainerIds) {
-      final trainerDetails =
-          await userRepository.fetchTrainerDetails(trainerId);
-      if (trainerDetails != null) {
-        trainerNames[trainerId] = trainerDetails['name'] ?? 'Unknown Trainer';
-      }
-    }
-    return trainerNames;
   }
 }

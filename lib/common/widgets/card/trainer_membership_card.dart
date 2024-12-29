@@ -5,14 +5,18 @@ import 'package:t_store/utils/helpers/helper_functions.dart';
 
 class TTrainerCard extends StatelessWidget {
   final MembershipModel membership;
-  final String trainerName; // Add trainerName as an argument
-  final bool isActive; // Add isActive as an argument
+  final String trainerName;
+  final bool isActive;
+  final String? startDate; // Optional start date field
+  final String? endDate; // Optional end date field
 
   const TTrainerCard({
     super.key,
     required this.membership,
-    required this.trainerName, // Accept trainerName in the constructor
-    required this.isActive, // Accept isActive in the constructor
+    required this.trainerName,
+    required this.isActive,
+    this.startDate, // Accept startDate as an optional parameter
+    this.endDate, // Accept endDate as an optional parameter
   });
 
   @override
@@ -22,7 +26,7 @@ class TTrainerCard extends StatelessWidget {
     return Card(
       elevation: 8,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16), // More rounded corners
+        borderRadius: BorderRadius.circular(16),
       ),
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: Container(
@@ -79,7 +83,7 @@ class TTrainerCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Trainer: $trainerName', // Use the trainerName argument
+                    'Trainer: $trainerName',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -110,9 +114,9 @@ class TTrainerCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   if (isActive) ...[
-                    // Show start and end dates if isActive is true
+                    // Display start and end dates if isActive is true
                     Text(
-                      'Start Date: ${membership.startDate}', // Add start date
+                      'Start Date: ${startDate ?? "Not available"}', // Use passed start date
                       style: TextStyle(
                         color: Colors.orange,
                         fontSize: 16,
@@ -127,7 +131,7 @@ class TTrainerCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'End Date: ${membership.endDate}', // Add end date
+                      'End Date: ${endDate ?? "Not available"}', // Use passed end date
                       style: TextStyle(
                         color: Colors.orange,
                         fontSize: 16,
@@ -169,7 +173,6 @@ class TTrainerCard extends StatelessWidget {
                                 ),
                               ),
                               child: FittedBox(
-                                // Wrapping the text in FittedBox to avoid overflow
                                 child: Text.rich(
                                   TextSpan(
                                     children: [
@@ -201,7 +204,7 @@ class TTrainerCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Duration: ${membership.duration}', // Add duration field here
+                      'Duration: ${membership.duration}',
                       style: TextStyle(
                         color: Colors.orange,
                         fontSize: 16,

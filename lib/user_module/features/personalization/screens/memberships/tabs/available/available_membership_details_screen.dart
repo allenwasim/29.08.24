@@ -143,19 +143,16 @@ class AvailableMembershipDetailsScreen extends StatelessWidget {
               backgroundColor: Colors.green,
               onTap: () async {
                 try {
-                  // Fetch the client data from the new collection path
+                  // Fetch the client data from the clientDetails collection
                   final clientDoc = await FirebaseFirestore.instance
-                      .collection('Profiles') // Access the Profiles collection
-                      .doc(clientId) // Get the document for the current user
-                      .collection(
-                          'clientDetails') // Access the clientDetails collection
-                      .doc('details') // Access the details document
-                      .get(); // Fetch the client document
+                      .collection('Profiles')
+                      .doc(clientId)
+                      .collection('clientDetails')
+                      .doc('details')
+                      .get();
 
                   if (clientDoc.exists) {
-                    // Fetch the current client data
                     final clientData = clientDoc.data();
-
                     if (clientData != null) {
                       final client = ClientDetails.fromJson(clientData);
 
@@ -163,43 +160,70 @@ class AvailableMembershipDetailsScreen extends StatelessWidget {
                       client.addMembership(
                         membershipId: membership.id,
                         startDate: Timestamp.now(),
-                        endDate: Timestamp
-                            .now(), // You'll probably need to calculate an actual end date
-                        status:
-                            'Active', // Or whatever the initial status should be
+                        duration: 1, // Actual duration calculation
+                        status: 'Active',
                         progress: 0,
                         workoutsCompleted: 0,
-                        totalDays:
-                            30, // Adjust the total days based on your logic
+                        totalDays: 30,
                       );
 
-                      // Update Firestore with the new membership data
+                      // Update the clientDetails document
                       await FirebaseFirestore.instance
-                          .collection(
-                              'Profiles') // Access the Profiles collection
-                          .doc(
-                              clientId) // Get the document for the current user
-                          .collection(
-                              'clientDetails') // Access the clientDetails collection
-                          .doc('details') // Access the details document
-                          .update(client
-                              .toJson()); // Update the client document with new data
+                          .collection('Profiles')
+                          .doc(clientId)
+                          .collection('clientDetails')
+                          .doc('details')
+                          .update(client.toJson());
+
+                      // Check if trainerDetails document exists
+                      final trainerDoc = await FirebaseFirestore.instance
+                          .collection('Profiles')
+                          .doc(membership.trainerId)
+                          .collection('trainerDetails')
+                          .doc('details')
+                          .get();
+
+                      if (!trainerDoc.exists) {
+                        // Create the trainerDetails document if it doesn't exist
+                        await FirebaseFirestore.instance
+                            .collection('Profiles')
+                            .doc(membership.trainerId)
+                            .collection('trainerDetails')
+                            .doc('details')
+                            .set({
+                          'members': [],
+                        });
+                      }
+
+                      // Add client membership to trainerDetails
+                      await FirebaseFirestore.instance
+                          .collection('Profiles')
+                          .doc(membership.trainerId)
+                          .collection('trainerDetails')
+                          .doc('details')
+                          .update({
+                        'members': FieldValue.arrayUnion([
+                          {
+                            'clientId': clientId,
+                            'membershipId': membership.id,
+                            'startDate': Timestamp.now(),
+                            'status': 'Active',
+                          }
+                        ])
+                      });
 
                       // Navigate to the next screen
-                      Get.offAll(() => MembershipDetailScreen(
-                            membership: membership,
-                          ));
+                      Get.off(
+                          () => MembershipDetailScreen(membership: membership));
                     }
                   } else {
-                    // Handle case where client does not exist
                     print("Client not found");
                   }
                 } catch (e) {
-                  // Handle any errors
                   print("Error adding membership: $e");
                 }
               },
-            ),
+            )
           ],
         ),
       ),

@@ -16,12 +16,10 @@ class MembershipRepository extends GetxService {
     bool isAvailable,
   ) async {
     try {
-      // Generate a unique membershipId
       String membershipId = _firestore.collection('memberships').doc().id;
 
-      // Prepare the membership plan data
       Map<String, dynamic> membershipData = {
-        'membershipId': membershipId, // Add unique membershipId
+        'membershipId': membershipId,
         'trainerId': trainerId,
         'planName': name,
         'description': description,
@@ -29,21 +27,16 @@ class MembershipRepository extends GetxService {
         'duration': duration,
         'workouts': workouts,
         'isAvailable': isAvailable,
-        'createdAt':
-            FieldValue.serverTimestamp(), // Save the timestamp of creation
+        'createdAt': FieldValue.serverTimestamp(),
       };
 
-      // Add the membership plan to the Firestore collection "memberships"
-// Get the DocumentReference for the generated membershipId
       DocumentReference ref =
           _firestore.collection('memberships').doc(membershipId);
 
-// Use the `set` method to save the data
       await ref.set(membershipData);
 
-      // After the document is added, create the MembershipModel object
       MembershipModel membership = MembershipModel(
-        id: membershipId, // Use the generated membershipId
+        id: membershipId,
         membershipId: membershipId,
         trainerId: trainerId,
         planName: name,
@@ -57,7 +50,7 @@ class MembershipRepository extends GetxService {
 
       print(
           'Membership Plan added for Trainer ID: $trainerId with Membership ID: $membershipId');
-      return membership; // Return the created MembershipModel object
+      return membership;
     } catch (e) {
       print('Error adding membership plan: $e');
       throw Exception('Failed to add membership plan');
@@ -67,12 +60,10 @@ class MembershipRepository extends GetxService {
   // Function to fetch membership plan details using the membership ID
   Future<Map<String, dynamic>> fetchMembershipPlan(String membershipId) async {
     try {
-      // Fetch the membership plan from Firestore using the membership ID
       DocumentSnapshot snapshot =
           await _firestore.collection('memberships').doc(membershipId).get();
 
       if (snapshot.exists) {
-        // If the document exists, return the data as a Map
         return snapshot.data() as Map<String, dynamic>;
       } else {
         throw Exception('Membership plan not found for ID: $membershipId');
@@ -87,14 +78,12 @@ class MembershipRepository extends GetxService {
   Future<List<Map<String, dynamic>>> fetchMembershipPlansByTrainer(
       String trainerId) async {
     try {
-      // Fetch the membership plans for the given trainerId from Firestore
       QuerySnapshot snapshot = await _firestore
           .collection('memberships')
           .where('trainerId', isEqualTo: trainerId)
           .get();
 
       if (snapshot.docs.isNotEmpty) {
-        // If there are matching documents, return all as a list of Maps
         return snapshot.docs
             .map((doc) => doc.data() as Map<String, dynamic>)
             .toList();
@@ -104,6 +93,92 @@ class MembershipRepository extends GetxService {
     } catch (e) {
       print('Error fetching membership plans: $e');
       throw Exception('Failed to fetch membership plans');
+    }
+  }
+
+  // Function to fetch user memberships from the "ClientDetails" collection
+  Future<List<Map<String, dynamic>>> fetchUserMemberships(String userId) async {
+    try {
+      DocumentSnapshot userDoc = await _firestore
+          .collection('Profiles')
+          .doc(userId)
+          .collection('clientDetails')
+          .doc('details')
+          .get();
+
+      if (userDoc.exists) {
+        Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+        List<Map<String, dynamic>> memberships =
+            List<Map<String, dynamic>>.from(userData['memberships'] ?? []);
+
+        print('Fetched memberships for User ID: $userId');
+        return memberships;
+      } else {
+        throw Exception('User not found for ID: $userId');
+      }
+    } catch (e) {
+      print('Error fetching user memberships: $e');
+      throw Exception('Failed to fetch user memberships');
+    }
+  }
+
+  // Function to fetch membership details of all clients for a specific trainer
+  Future<List<String>> fetchClientIdsByTrainer(String trainerId) async {
+    try {
+      // Step 1: Fetch the trainer's member list from trainerDetails
+      DocumentSnapshot trainerDoc = await _firestore
+          .collection('Profiles')
+          .doc(trainerId)
+          .collection('trainerDetails')
+          .doc('details')
+          .get();
+
+      if (trainerDoc.exists) {
+        Map<String, dynamic> trainerData =
+            trainerDoc.data() as Map<String, dynamic>;
+
+        // Get the list of clientIds in the 'members' array
+        List<dynamic> members = trainerData['members'] ?? [];
+        List<String> clientIds =
+            members.map((member) => member['clientId'] as String).toList();
+
+        if (clientIds.isEmpty) {
+          throw Exception('No clients found for Trainer ID: $trainerId');
+        }
+
+        print('Fetched client IDs for Trainer ID: $trainerId');
+        return clientIds;
+      } else {
+        throw Exception('Trainer not found for ID: $trainerId');
+      }
+    } catch (e) {
+      print('Error fetching client IDs for trainer: $e');
+      throw Exception('Failed to fetch client IDs for trainer');
+    }
+  }
+
+  Future<List<String>> getClientMembershipIds(String clientId) async {
+    try {
+      final clientDoc = await FirebaseFirestore.instance
+          .collection('Profiles')
+          .doc(clientId)
+          .collection('clientDetails')
+          .doc('details')
+          .get();
+
+      final clientData = clientDoc.data();
+      if (clientData != null) {
+        final memberships = clientData['memberships'];
+        if (memberships != null && memberships is List) {
+          return memberships.map<String>((membership) {
+            return membership['membershipId'] ?? '';
+          }).toList();
+        }
+      }
+      return [];
+    } catch (e) {
+      print('Error fetching client memberships: $e');
+      throw Exception("Error fetching client memberships: $e");
     }
   }
 }

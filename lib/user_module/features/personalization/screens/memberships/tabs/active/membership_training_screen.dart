@@ -25,16 +25,22 @@ class MembershipDetailScreen extends StatelessWidget {
     final double progress = (workoutsCompleted / totalDays).clamp(0.0, 1.0);
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: isDarkMode ? Colors.black : Colors.green,
+        title: Text(
+          'Membership Details',
+          style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back,
+              color: isDarkMode ? Colors.white : Colors.black),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
       body: Stack(
         children: [
-          // Background Image
-          // Positioned.fill(
-          //   child: Image.asset(
-          //     // membership.backgroundImageUrl ?? 'assets/default_image.png', // Provide a fallback image
-          //     // fit: BoxFit.cover,
-          //   ),
-          // ),
-          // Gradient Overlay
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
@@ -49,26 +55,6 @@ class MembershipDetailScreen extends StatelessWidget {
               ),
             ),
           ),
-
-          // Back Button
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Align(
-                alignment: Alignment.topLeft,
-                child: CircleAvatar(
-                  backgroundColor: Colors.black.withOpacity(0.5),
-                  child: IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ),
-              ),
-            ),
-          ),
-          // Main Content
           SafeArea(
             child: SingleChildScrollView(
               child: Padding(
@@ -76,7 +62,6 @@ class MembershipDetailScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 80), // Spacing below the back button
                     // Membership Plan Header
                     buildMembershipHeader(context, isDarkMode,
                         startDateFormatted, endDateFormatted),
@@ -92,62 +77,39 @@ class MembershipDetailScreen extends StatelessWidget {
 
                     const SizedBox(height: 24),
                     // Live Sessions Button
-                    ElevatedButton.icon(
-                      onPressed: () {
+                    buildActionButton(
+                      context,
+                      'Join Live Session',
+                      Icons.video_call,
+                      () {
                         // Handle live session logic
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey[200], // Subtle gray button
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        minimumSize: const Size(double.infinity, 50),
-                      ),
-                      icon: const Icon(Icons.video_call, color: Colors.black),
-                      label: const Text("Join Live Session",
-                          style: TextStyle(color: Colors.black)),
                     ),
 
                     const SizedBox(height: 16),
                     // Camera Workout Feature
-                    ElevatedButton.icon(
-                      onPressed: () {
+                    buildActionButton(
+                      context,
+                      'Start Camera Workout',
+                      Icons.camera_alt,
+                      () {
                         // Handle camera workout logic
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey[200], // Subtle gray button
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        minimumSize: const Size(double.infinity, 50),
-                      ),
-                      icon: const Icon(Icons.camera_alt, color: Colors.black),
-                      label: const Text("Start Camera Workout",
-                          style: TextStyle(color: Colors.black)),
                     ),
 
                     const SizedBox(height: 16),
                     // Payment Button
-                    ElevatedButton.icon(
-                      onPressed: () {
+                    buildActionButton(
+                      context,
+                      'Renew Membership',
+                      Icons.payment,
+                      () {
                         // Handle payment logic
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey[200], // Subtle gray button
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        minimumSize: const Size(double.infinity, 50),
-                      ),
-                      icon: const Icon(Icons.payment, color: Colors.black),
-                      label: const Text("Renew Membership",
-                          style: TextStyle(color: Colors.black)),
                     ),
 
                     const SizedBox(height: 24),
+                    // Navigate to Profile Button
                   ],
                 ),
               ),
@@ -271,6 +233,23 @@ class MembershipDetailScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget buildActionButton(BuildContext context, String label, IconData icon,
+      VoidCallback onPressed) {
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.grey[200],
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        minimumSize: const Size(double.infinity, 50),
+      ),
+      icon: Icon(icon, color: Colors.black),
+      label: Text(label, style: const TextStyle(color: Colors.black)),
     );
   }
 }

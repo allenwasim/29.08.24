@@ -4,14 +4,16 @@ import 'package:t_store/common/widgets/card/trainer_membership_card.dart';
 import 'package:t_store/common/widgets/searchbars/search_bar.dart';
 import 'package:t_store/trainer_module/data/repositories/trainer_repository.dart';
 import 'package:t_store/trainer_module/features/models/membership_model.dart';
-import 'package:t_store/trainer_module/features/models/trainer_model.dart';
 import 'package:t_store/user_module/data/repositories/authentication/authentication_repository.dart';
+import 'package:t_store/user_module/data/repositories/user/user_repositries.dart';
 import 'package:t_store/user_module/features/personalization/screens/memberships/tabs/available/available_membership_details_screen.dart';
 
 class AvailableMembershipsScreen extends StatelessWidget {
   AvailableMembershipsScreen({super.key});
 
-  final TrainerRepository trainerRepository = TrainerRepository();
+  final UserRepository userRepository = Get.put(UserRepository());
+  final TrainerRepository trainerRepository = Get.put(TrainerRepository());
+
   final AuthenticationRepository authenticationRepository =
       Get.put(AuthenticationRepository());
 
@@ -66,10 +68,10 @@ class AvailableMembershipsScreen extends StatelessWidget {
                   (context, index) {
                     final membership = memberships[index];
 
-                    // Fetch trainer details using the trainerId
-                    return FutureBuilder<TrainerDetails?>(
-                      future: trainerRepository
-                          .getTrainerDetails(membership.trainerId),
+                    // Fetch trainer details using the fetchTrainerDetails method from UserRepository
+                    return FutureBuilder<Map<String, dynamic>?>(
+                      future: userRepository
+                          .fetchTrainerDetails(membership.trainerId),
                       builder: (context, trainerSnapshot) {
                         if (trainerSnapshot.connectionState ==
                             ConnectionState.waiting) {
@@ -84,7 +86,7 @@ class AvailableMembershipsScreen extends StatelessWidget {
 
                         final trainerDetails = trainerSnapshot.data;
                         final trainerName =
-                            trainerDetails?.name ?? 'Unknown Trainer';
+                            trainerDetails?['name'] ?? 'Unknown Trainer';
 
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8.0),

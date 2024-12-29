@@ -158,7 +158,7 @@ class _AddTrainerDetailsScreenState extends State<AddTrainerDetailsScreen> {
         rating: double.tryParse(_ratingController.text) ?? 0.0,
         certifications: _certificationsController.text.split(','),
         languages: _languagesController.text.split(','),
-        availability: _availabilityController.text,
+        availability: _availabilityController.text, members: [],
       );
 
       try {

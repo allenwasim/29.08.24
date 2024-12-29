@@ -9,6 +9,9 @@ class ClientDetails {
   final String injuries; // Description of injuries, if any
   final String fitnessGoal; // User's fitness goal
   final List<Map<String, dynamic>> memberships; // List of memberships
+  final String email; // User's email
+  final String address; // User's address
+  final String phoneNumber; // User's phone number
 
   ClientDetails({
     required this.userId,
@@ -19,6 +22,9 @@ class ClientDetails {
     required this.injuries,
     required this.fitnessGoal,
     required this.memberships,
+    required this.email,
+    required this.address,
+    required this.phoneNumber,
   });
 
   // Convert ClientDetails to JSON for Firestore
@@ -32,6 +38,9 @@ class ClientDetails {
       'injuries': injuries,
       'fitnessGoal': fitnessGoal,
       'memberships': memberships,
+      'email': email,
+      'address': address,
+      'phoneNumber': phoneNumber,
     };
   }
 
@@ -46,23 +55,31 @@ class ClientDetails {
       injuries: json['injuries'] ?? '',
       fitnessGoal: json['fitnessGoal'] ?? '',
       memberships: List<Map<String, dynamic>>.from(json['memberships'] ?? []),
+      email: json['email'] ?? '',
+      address: json['address'] ?? '',
+      phoneNumber: json['phoneNumber'] ?? '',
     );
   }
 
-  // Add a new membership
+  // Add a new membership with duration instead of endDate
   void addMembership({
     required String membershipId,
     required Timestamp startDate,
-    required Timestamp endDate,
     required String status,
     required int progress,
     required int workoutsCompleted,
     required int totalDays,
+    required int duration, // duration in months
   }) {
+    // Calculate the end date by adding 'duration' months to the start date
+    DateTime start = startDate.toDate();
+    DateTime end = start
+        .add(Duration(days: 30 * duration)); // Add 'duration' months (roughly)
+
     memberships.add({
       'membershipId': membershipId,
       'startDate': startDate,
-      'endDate': endDate,
+      'endDate': Timestamp.fromDate(end), // Set the calculated end date
       'status': status,
       'progress': progress,
       'workoutsCompleted': workoutsCompleted,

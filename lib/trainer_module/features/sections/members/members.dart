@@ -1,11 +1,94 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:t_store/common/widgets/buttons/circular_button.dart';
 import 'package:t_store/common/widgets/searchbars/search_bar.dart';
 import 'package:t_store/constants/colors.dart';
+import 'package:t_store/trainer_module/data/repositories/membership_repository.dart';
+import 'package:t_store/trainer_module/features/sections/members/widgets/client_membership_card.dart';
+import 'package:t_store/user_module/data/repositories/authentication/authentication_repository.dart';
+import 'package:t_store/user_module/data/repositories/user/user_repositries.dart';
+import 'package:t_store/user_module/features/personalization/controllers/user_controller.dart';
 import 'package:t_store/utils/helpers/helper_functions.dart';
 
-class MembersScreen extends StatelessWidget {
+class MembersScreen extends StatefulWidget {
   const MembersScreen({super.key});
+
+  @override
+  _MembersScreenState createState() => _MembersScreenState();
+}
+
+class _MembersScreenState extends State<MembersScreen> {
+  final UserController userController = Get.put(UserController());
+  bool _isLoading = true;
+  List<Map<String, dynamic>> _membershipDetails = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch membership details on init
+    _fetchMembershipDetails();
+  }
+
+  Future<void> _fetchMembershipDetails() async {
+    try {
+      final membershipRepo = MembershipRepository();
+
+      // Step 1: Fetch client IDs by trainer ID
+      List<String> clientIds = await membershipRepo
+          .fetchClientIdsByTrainer(userController.user.value.id);
+
+      print("Fetched client IDs: $clientIds");
+
+      if (clientIds.isEmpty) {
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+
+      // Use a Set to ensure unique client IDs
+      Set<String> uniqueClientIds = {};
+
+      // Step 2: Fetch client details for each unique client ID
+      List<Map<String, dynamic>> memberships = [];
+      for (String clientId in clientIds) {
+        if (uniqueClientIds.contains(clientId)) {
+          // Skip duplicate client IDs
+          continue;
+        }
+
+        uniqueClientIds.add(clientId);
+
+        // Fetch user details for the client
+        Map<String, dynamic>? userDetails =
+            await UserRepository().fetchClientDetails(clientId);
+
+        if (userDetails != null) {
+          memberships.add({
+            'clientId': clientId,
+            'name': userDetails['name'] ?? 'Unknown',
+            'mobile': userDetails['mobile'] ?? 'Not available',
+            'planExpiry': userDetails['planExpiry'] ?? 'Not available',
+            'email': userDetails['email'] ?? 'Not available',
+          });
+        } else {
+          print('User details not found for clientId: $clientId');
+        }
+      }
+
+      print("Final membership details (unique): $memberships");
+
+      setState(() {
+        _membershipDetails = memberships;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      print('Error fetching membership details: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,8 +96,7 @@ class MembersScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor:
-            TColors.trainerPrimary, // Using the trainer primary color
+        backgroundColor: TColors.trainerPrimary,
         title: const Padding(
           padding: EdgeInsets.symmetric(vertical: 8.0),
           child: Column(
@@ -41,38 +123,59 @@ class MembersScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 20),
-          // No Members Found Section
-          Center(
-            child: Column(
-              children: [
-                Text(
-                  'No Members found',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: dark ? Colors.white : Colors.black,
-                  ),
-                ),
-                Text(
-                  'Start Adding Member Click Top + Icon',
-                  style: TextStyle(
-                      color:
-                          dark ? Colors.grey.shade400 : Colors.grey.shade800),
-                ),
-                const SizedBox(height: 10),
-                const Text('OR'),
-                const SizedBox(height: 10),
-                TCircularButton(
-                  backgroundColor: dark ? Colors.transparent : Colors.white,
-                  text: "Add Members",
-                  textColor: dark ? Colors.teal : Colors.teal,
-                ),
-              ],
-            ),
-          ),
+          // Display fetched memberships
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _membershipDetails.isNotEmpty
+                  ? Expanded(
+                      child: ListView.builder(
+                        itemCount: _membershipDetails.length,
+                        itemBuilder: (context, index) {
+                          final membership = _membershipDetails[index];
+                          return UserMembershipCard(
+                            name: membership['name'] ?? 'Unknown',
+                            mobile: membership['mobile'] ?? 'Not available',
+                            planExpiry:
+                                membership['planExpiry'] ?? 'Not available',
+                            email: membership['email'] ?? 'Not available',
+                            membershipId:
+                                membership['membershipId'] ?? 'Not available',
+                          );
+                        },
+                      ),
+                    )
+                  : Center(
+                      child: Column(
+                        children: [
+                          Text(
+                            'No Members found',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: dark ? Colors.white : Colors.black,
+                            ),
+                          ),
+                          Text(
+                            'Start Adding Member Click Top + Icon',
+                            style: TextStyle(
+                                color: dark
+                                    ? Colors.grey.shade400
+                                    : Colors.grey.shade800),
+                          ),
+                          const SizedBox(height: 10),
+                          const Text('OR'),
+                          const SizedBox(height: 10),
+                          TCircularButton(
+                            backgroundColor:
+                                dark ? Colors.transparent : Colors.white,
+                            text: "Add Members",
+                            textColor: dark ? Colors.teal : Colors.teal,
+                          ),
+                        ],
+                      ),
+                    ),
         ],
       ),
-      // Floating Button
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: Colors.teal,
         onPressed: () {},
@@ -82,28 +185,22 @@ class MembersScreen extends StatelessWidget {
     );
   }
 
-  // Reusable Dropdown Button Widget
   Widget _buildDropdownButton(String title, bool dark) {
     return Padding(
-      padding: const EdgeInsets.all(4.0), // Reduced outer padding
+      padding: const EdgeInsets.all(4.0),
       child: Container(
-        padding: const EdgeInsets.symmetric(
-            horizontal: 8, vertical: 2), // Reduced inner padding
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         decoration: BoxDecoration(
-          color: dark
-              ? Colors.grey.shade800
-              : Colors.grey.shade200, // Background color
-          borderRadius: BorderRadius.circular(6), // Smaller rounded corners
+          color: dark ? Colors.grey.shade800 : Colors.grey.shade200,
+          borderRadius: BorderRadius.circular(6),
           border: Border.all(
-            color: dark
-                ? Colors.grey.shade600
-                : Colors.grey.shade400, // Border color
+            color: dark ? Colors.grey.shade600 : Colors.grey.shade400,
           ),
         ),
         child: DropdownButton<String>(
           value: title,
-          underline: const SizedBox(), // Removes the default underline
-          isDense: true, // Makes the button more compact
+          underline: const SizedBox(),
+          isDense: true,
           onChanged: (value) {},
           items: [
             DropdownMenuItem(
@@ -112,15 +209,13 @@ class MembersScreen extends StatelessWidget {
                 title,
                 style: TextStyle(
                   fontSize: 12,
-                  color:
-                      dark ? Colors.white : Colors.black, // Dynamic text color
+                  color: dark ? Colors.white : Colors.black,
                 ),
               ),
             ),
           ],
-          iconSize: 16, // Smaller dropdown arrow
-          iconEnabledColor:
-              dark ? Colors.white : Colors.black, // Adjust arrow color
+          iconSize: 16,
+          iconEnabledColor: dark ? Colors.white : Colors.black,
         ),
       ),
     );
