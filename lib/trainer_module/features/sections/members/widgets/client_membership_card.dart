@@ -7,6 +7,7 @@ class UserMembershipCard extends StatelessWidget {
   final String planExpiry;
   final String email;
   final String membershipId; // New field for membershipId
+  final String profilePic; // New field for profilePic
 
   const UserMembershipCard({
     Key? key,
@@ -15,6 +16,7 @@ class UserMembershipCard extends StatelessWidget {
     required this.planExpiry,
     required this.email,
     required this.membershipId, // Added membershipId to constructor
+    required this.profilePic, // Added profilePic to constructor
   }) : super(key: key);
 
   @override
@@ -30,8 +32,11 @@ class UserMembershipCard extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(50.0),
-              child: Image.asset(
-                TImages.userProfileImage1, // Replace with a default user image
+              child: Image.network(
+                // Use Image.network to load the profile picture
+                profilePic.isNotEmpty
+                    ? profilePic
+                    : profilePic, // Use the provided profilePic or a default one
                 width: 70,
                 height: 70,
                 fit: BoxFit.cover,
@@ -44,13 +49,13 @@ class UserMembershipCard extends StatelessWidget {
                 children: [
                   Text(
                     name,
-                    style: Theme.of(context).textTheme.headlineSmall,
+                    style: Theme.of(context).textTheme.headlineMedium,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 5),
                   Text(
                     'Mobile: $mobile',
-                    style: Theme.of(context).textTheme.headlineMedium,
+                    style: Theme.of(context).textTheme.bodyMedium,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 5),
@@ -73,12 +78,6 @@ class UserMembershipCard extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-            IconButton(
-              icon: Icon(Icons.delete, color: Colors.red),
-              onPressed: () {
-                // Handle delete action
-              },
             ),
           ],
         ),

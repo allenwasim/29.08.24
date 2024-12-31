@@ -5,9 +5,8 @@ import 'package:t_store/common/widgets/searchbars/search_bar.dart';
 import 'package:t_store/constants/colors.dart';
 import 'package:t_store/trainer_module/data/repositories/membership_repository.dart';
 import 'package:t_store/trainer_module/features/sections/members/widgets/client_membership_card.dart';
-import 'package:t_store/user_module/data/repositories/authentication/authentication_repository.dart';
-import 'package:t_store/user_module/data/repositories/user/user_repositries.dart';
 import 'package:t_store/user_module/features/personalization/controllers/user_controller.dart';
+import 'package:t_store/utils/constants/image_strings.dart';
 import 'package:t_store/utils/helpers/helper_functions.dart';
 
 class MembersScreen extends StatefulWidget {
@@ -19,74 +18,37 @@ class MembersScreen extends StatefulWidget {
 
 class _MembersScreenState extends State<MembersScreen> {
   final UserController userController = Get.put(UserController());
-  bool _isLoading = true;
+  final MembershipRepository membershipRepository =
+      Get.put(MembershipRepository());
+
   List<Map<String, dynamic>> _membershipDetails = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    // Fetch membership details on init
     _fetchMembershipDetails();
   }
 
   Future<void> _fetchMembershipDetails() async {
     try {
-      final membershipRepo = MembershipRepository();
-
-      // Step 1: Fetch client IDs by trainer ID
-      List<String> clientIds = await membershipRepo
-          .fetchClientIdsByTrainer(userController.user.value.id);
-
-      print("Fetched client IDs: $clientIds");
-
-      if (clientIds.isEmpty) {
-        setState(() {
-          _isLoading = false;
-        });
+      final trainerId = userController.user.value.id;
+      if (trainerId == null || trainerId.isEmpty) {
+        Get.snackbar('Error', 'Trainer ID is not valid.');
         return;
       }
 
-      // Use a Set to ensure unique client IDs
-      Set<String> uniqueClientIds = {};
-
-      // Step 2: Fetch client details for each unique client ID
-      List<Map<String, dynamic>> memberships = [];
-      for (String clientId in clientIds) {
-        if (uniqueClientIds.contains(clientId)) {
-          // Skip duplicate client IDs
-          continue;
-        }
-
-        uniqueClientIds.add(clientId);
-
-        // Fetch user details for the client
-        Map<String, dynamic>? userDetails =
-            await UserRepository().fetchClientDetails(clientId);
-
-        if (userDetails != null) {
-          memberships.add({
-            'clientId': clientId,
-            'name': userDetails['name'] ?? 'Unknown',
-            'mobile': userDetails['mobile'] ?? 'Not available',
-            'planExpiry': userDetails['planExpiry'] ?? 'Not available',
-            'email': userDetails['email'] ?? 'Not available',
-          });
-        } else {
-          print('User details not found for clientId: $clientId');
-        }
-      }
-
-      print("Final membership details (unique): $memberships");
-
+      final membershipDetails =
+          await membershipRepository.getMembershipDetailsForTrainer(trainerId);
       setState(() {
-        _membershipDetails = memberships;
+        _membershipDetails = membershipDetails;
         _isLoading = false;
       });
     } catch (e) {
       setState(() {
         _isLoading = false;
       });
-      print('Error fetching membership details: $e');
+      Get.snackbar('Error', 'Failed to fetch membership details: $e');
     }
   }
 
@@ -110,72 +72,76 @@ class _MembersScreenState extends State<MembersScreen> {
           ),
         ),
       ),
-      body: Column(
-        children: [
-          const SizedBox(height: 20),
-          // Filters
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildDropdownButton('All Member', dark),
-              _buildDropdownButton('All Plans', dark),
-              _buildDropdownButton('Select Batch', dark),
-            ],
-          ),
-          const SizedBox(height: 20),
-          // Display fetched memberships
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _membershipDetails.isNotEmpty
-                  ? Expanded(
-                      child: ListView.builder(
-                        itemCount: _membershipDetails.length,
-                        itemBuilder: (context, index) {
-                          final membership = _membershipDetails[index];
-                          return UserMembershipCard(
-                            name: membership['name'] ?? 'Unknown',
-                            mobile: membership['mobile'] ?? 'Not available',
-                            planExpiry:
-                                membership['planExpiry'] ?? 'Not available',
-                            email: membership['email'] ?? 'Not available',
-                            membershipId:
-                                membership['membershipId'] ?? 'Not available',
-                          );
-                        },
-                      ),
-                    )
-                  : Center(
-                      child: Column(
-                        children: [
-                          Text(
-                            'No Members found',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: dark ? Colors.white : Colors.black,
+      body: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(
+                color: TColors.trainerPrimary,
+              ),
+            )
+          : Column(
+              children: [
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildDropdownButton('All Member', dark),
+                    _buildDropdownButton('All Plans', dark),
+                    _buildDropdownButton('Select Batch', dark),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                _membershipDetails.isNotEmpty
+                    ? Expanded(
+                        child: ListView.builder(
+                          itemCount: _membershipDetails.length,
+                          itemBuilder: (context, index) {
+                            final membership = _membershipDetails[index];
+                            return UserMembershipCard(
+                              name: membership['name'] ?? 'Unknown',
+                              mobile: membership['mobile'] ?? 'Not available',
+                              planExpiry:
+                                  membership['planExpiry'] ?? 'Not available',
+                              email: membership['email'] ?? 'Not available',
+                              membershipId:
+                                  membership['membershipId'] ?? 'Not available',
+                              profilePic: membership['pic'] ?? TImages.acerlogo,
+                            );
+                          },
+                        ),
+                      )
+                    : Center(
+                        child: Column(
+                          children: [
+                            Text(
+                              'No Members found',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: dark ? Colors.white : Colors.black,
+                              ),
                             ),
-                          ),
-                          Text(
-                            'Start Adding Member Click Top + Icon',
-                            style: TextStyle(
+                            Text(
+                              'Start Adding Member Click Top + Icon',
+                              style: TextStyle(
                                 color: dark
                                     ? Colors.grey.shade400
-                                    : Colors.grey.shade800),
-                          ),
-                          const SizedBox(height: 10),
-                          const Text('OR'),
-                          const SizedBox(height: 10),
-                          TCircularButton(
-                            backgroundColor:
-                                dark ? Colors.transparent : Colors.white,
-                            text: "Add Members",
-                            textColor: dark ? Colors.teal : Colors.teal,
-                          ),
-                        ],
+                                    : Colors.grey.shade800,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            const Text('OR'),
+                            const SizedBox(height: 10),
+                            TCircularButton(
+                              backgroundColor:
+                                  dark ? Colors.transparent : Colors.white,
+                              text: "Add Members",
+                              textColor: dark ? Colors.teal : Colors.teal,
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-        ],
-      ),
+              ],
+            ),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: Colors.teal,
         onPressed: () {},
@@ -201,7 +167,9 @@ class _MembersScreenState extends State<MembersScreen> {
           value: title,
           underline: const SizedBox(),
           isDense: true,
-          onChanged: (value) {},
+          onChanged: (value) {
+            // Filter membership details based on selection
+          },
           items: [
             DropdownMenuItem(
               value: title,

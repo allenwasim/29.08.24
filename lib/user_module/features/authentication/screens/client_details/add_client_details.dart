@@ -310,6 +310,8 @@ class _AddClientDetailsScreenState extends State<AddClientDetailsScreen> {
                         phoneNumber: phoneController.text,
                         address: addressController.text,
                         email: userController.user.value.email,
+                        name: userController.user.value.fullName,
+                        profilePic: userController.user.value.profilePicture,
                       );
 
                       // Convert ClientDetails to Map<String, dynamic> using toJson

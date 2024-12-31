@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ClientDetails {
   final String userId; // Unique identifier for the user
+  final String name; // Name of the client
   final String height; // Height in cm
   final String weight; // Weight in kg
   final String gender; // Male, Female, or Not Specified
@@ -12,9 +13,11 @@ class ClientDetails {
   final String email; // User's email
   final String address; // User's address
   final String phoneNumber; // User's phone number
+  final String profilePic; // New field for profile picture URL
 
   ClientDetails({
     required this.userId,
+    required this.name,
     required this.height,
     required this.weight,
     required this.gender,
@@ -25,12 +28,14 @@ class ClientDetails {
     required this.email,
     required this.address,
     required this.phoneNumber,
+    required this.profilePic, // Added profilePic to constructor
   });
 
   // Convert ClientDetails to JSON for Firestore
   Map<String, dynamic> toJson() {
     return {
       'userId': userId,
+      'name': name, // Include the name in the JSON
       'height': height,
       'weight': weight,
       'gender': gender,
@@ -41,6 +46,7 @@ class ClientDetails {
       'email': email,
       'address': address,
       'phoneNumber': phoneNumber,
+      'profilePic': profilePic, // Include profilePic in the JSON
     };
   }
 
@@ -48,6 +54,7 @@ class ClientDetails {
   factory ClientDetails.fromJson(Map<String, dynamic> json) {
     return ClientDetails(
       userId: json['userId'] ?? '',
+      name: json['name'] ?? '', // Parse the name from JSON
       height: json['height'] ?? '',
       weight: json['weight'] ?? '',
       gender: json['gender'] ?? 'Not Specified',
@@ -58,6 +65,7 @@ class ClientDetails {
       email: json['email'] ?? '',
       address: json['address'] ?? '',
       phoneNumber: json['phoneNumber'] ?? '',
+      profilePic: json['profilePic'] ?? '', // Parse profilePic from JSON
     );
   }
 
