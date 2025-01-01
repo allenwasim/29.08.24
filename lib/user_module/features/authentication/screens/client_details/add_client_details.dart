@@ -1,59 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:t_store/user_module/data/repositories/authentication/authentication_repository.dart';
-import 'package:t_store/user_module/data/repositories/user/user_repositries.dart';
-import 'package:t_store/user_module/features/personalization/controllers/user_controller.dart';
-import 'package:t_store/user_module/features/personalization/models/client_model.dart';
+import 'package:t_store/user_module/features/authentication/controllers/client_details/add_client_details_controller.dart';
 
-class AddClientDetailsScreen extends StatefulWidget {
-  final String userId; // User ID passed as an argument
+class AddClientDetailsScreen extends StatelessWidget {
+  final String userId;
 
-  const AddClientDetailsScreen({Key? key, required this.userId})
-      : super(key: key);
-
-  @override
-  State<AddClientDetailsScreen> createState() => _AddClientDetailsScreenState();
-}
-
-class _AddClientDetailsScreenState extends State<AddClientDetailsScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final TextEditingController heightController = TextEditingController();
-  final TextEditingController weightController = TextEditingController();
-  final TextEditingController injuriesController = TextEditingController();
-  final TextEditingController fitnessGoalController = TextEditingController();
-  final TextEditingController phoneController = TextEditingController();
-  final TextEditingController addressController = TextEditingController();
-  final UserRepository userRepository = Get.put(UserRepository());
-  final AuthenticationRepository authenticationRepository =
-      Get.put(AuthenticationRepository());
-  final UserController userController = Get.put(UserController());
-
-  String? gender;
-  String activityLevel = "Sedentary";
-  String? fitnessGoal; // Changed to hold selected fitness goal.
-
-  // Lists for height and weight options
-  final List<String> heightOptions = List.generate(49, (index) {
-    int feet = 5 + index ~/ 12;
-    int inches = index % 12;
-    return '${feet}\'${inches}"';
-  });
-
-  final List<String> weightOptions = List.generate(58, (index) {
-    return '${40 + index} kg';
-  });
-
-  final List<String> fitnessGoals = [
-    "Fat Loss",
-    "Weight Gain",
-    "Overall Fitness",
-    "Muscle Building", // You can add more options here
-    "Endurance",
-    "Flexibility",
-  ];
+  const AddClientDetailsScreen({super.key, required this.userId});
 
   @override
   Widget build(BuildContext context) {
+    // Instantiate the controller
+    final controller = Get.put(AddClientDetailsController());
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Fitness Details'),
@@ -62,7 +20,6 @@ class _AddClientDetailsScreenState extends State<AddClientDetailsScreen> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
-          key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -80,19 +37,17 @@ class _AddClientDetailsScreenState extends State<AddClientDetailsScreen> {
               ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                value: heightController.text.isEmpty
+                value: controller.heightController.text.isEmpty
                     ? null
-                    : heightController.text,
-                items: heightOptions.map((height) {
+                    : controller.heightController.text,
+                items: controller.heightOptions.map((height) {
                   return DropdownMenuItem(
                     value: height,
                     child: Text(height),
                   );
                 }).toList(),
                 onChanged: (value) {
-                  setState(() {
-                    heightController.text = value!;
-                  });
+                  controller.heightController.text = value!;
                 },
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
@@ -112,19 +67,17 @@ class _AddClientDetailsScreenState extends State<AddClientDetailsScreen> {
               ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                value: weightController.text.isEmpty
+                value: controller.weightController.text.isEmpty
                     ? null
-                    : weightController.text,
-                items: weightOptions.map((weight) {
+                    : controller.weightController.text,
+                items: controller.weightOptions.map((weight) {
                   return DropdownMenuItem(
                     value: weight,
                     child: Text(weight),
                   );
                 }).toList(),
                 onChanged: (value) {
-                  setState(() {
-                    weightController.text = value!;
-                  });
+                  controller.weightController.text = value!;
                 },
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
@@ -148,11 +101,9 @@ class _AddClientDetailsScreenState extends State<AddClientDetailsScreen> {
                     child: RadioListTile<String>(
                       title: const Text('Male'),
                       value: 'Male',
-                      groupValue: gender,
+                      groupValue: controller.gender,
                       onChanged: (value) {
-                        setState(() {
-                          gender = value;
-                        });
+                        controller.gender = value;
                       },
                     ),
                   ),
@@ -160,11 +111,9 @@ class _AddClientDetailsScreenState extends State<AddClientDetailsScreen> {
                     child: RadioListTile<String>(
                       title: const Text('Female'),
                       value: 'Female',
-                      groupValue: gender,
+                      groupValue: controller.gender,
                       onChanged: (value) {
-                        setState(() {
-                          gender = value;
-                        });
+                        controller.gender = value;
                       },
                     ),
                   ),
@@ -177,7 +126,7 @@ class _AddClientDetailsScreenState extends State<AddClientDetailsScreen> {
               ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                value: activityLevel,
+                value: controller.activityLevel,
                 items: const [
                   DropdownMenuItem(
                     value: "Sedentary",
@@ -197,9 +146,7 @@ class _AddClientDetailsScreenState extends State<AddClientDetailsScreen> {
                   ),
                 ],
                 onChanged: (value) {
-                  setState(() {
-                    activityLevel = value!;
-                  });
+                  controller.activityLevel = value!;
                 },
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
@@ -212,17 +159,15 @@ class _AddClientDetailsScreenState extends State<AddClientDetailsScreen> {
               ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                value: fitnessGoal,
-                items: fitnessGoals.map((goal) {
+                value: controller.fitnessGoal,
+                items: controller.fitnessGoals.map((goal) {
                   return DropdownMenuItem(
                     value: goal,
                     child: Text(goal),
                   );
                 }).toList(),
                 onChanged: (value) {
-                  setState(() {
-                    fitnessGoal = value;
-                  });
+                  controller.fitnessGoal = value;
                 },
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
@@ -242,7 +187,7 @@ class _AddClientDetailsScreenState extends State<AddClientDetailsScreen> {
               ),
               const SizedBox(height: 8),
               TextFormField(
-                controller: injuriesController,
+                controller: controller.injuriesController,
                 maxLines: 3,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
@@ -256,7 +201,7 @@ class _AddClientDetailsScreenState extends State<AddClientDetailsScreen> {
               ),
               const SizedBox(height: 8),
               TextFormField(
-                controller: phoneController,
+                controller: controller.phoneController,
                 keyboardType: TextInputType.phone,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
@@ -276,7 +221,7 @@ class _AddClientDetailsScreenState extends State<AddClientDetailsScreen> {
               ),
               const SizedBox(height: 8),
               TextFormField(
-                controller: addressController,
+                controller: controller.addressController,
                 maxLines: 3,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
@@ -294,39 +239,7 @@ class _AddClientDetailsScreenState extends State<AddClientDetailsScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      // Create client details object
-                      ClientDetails clientDetails = ClientDetails(
-                        userId: widget.userId,
-                        height: heightController.text,
-                        weight: weightController.text,
-                        gender: gender ??
-                            'Not Specified', // Set default value if not selected
-                        activityLevel: activityLevel,
-                        fitnessGoal: fitnessGoal ??
-                            'Not Specified', // Set default value if not selected
-                        injuries: injuriesController.text,
-                        memberships: [],
-                        phoneNumber: phoneController.text,
-                        address: addressController.text,
-                        email: userController.user.value.email,
-                        name: userController.user.value.fullName,
-                        profilePic: userController.user.value.profilePicture,
-                      );
-
-                      // Convert ClientDetails to Map<String, dynamic> using toJson
-                      userRepository
-                          .saveClientDetails(
-                              widget.userId, clientDetails.toJson())
-                          .then((_) {
-                        // Perform the screen redirection after saving details
-                        authenticationRepository
-                            .screenRedirect(); // Assuming screenRedirect() is a method in AuthenticationRepository
-
-                        // Optionally, go back to the previous screen after redirection
-                        Get.back();
-                      });
-                    }
+                    controller.saveClientDetails(userId);
                   },
                   child: const Text('Save Details'),
                 ),

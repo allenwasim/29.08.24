@@ -70,30 +70,6 @@ class ClientDetails {
   }
 
   // Add a new membership with duration instead of endDate
-  void addMembership({
-    required String membershipId,
-    required Timestamp startDate,
-    required String status,
-    required int progress,
-    required int workoutsCompleted,
-    required int totalDays,
-    required int duration, // duration in months
-  }) {
-    // Calculate the end date by adding 'duration' months to the start date
-    DateTime start = startDate.toDate();
-    DateTime end = start
-        .add(Duration(days: 30 * duration)); // Add 'duration' months (roughly)
-
-    memberships.add({
-      'membershipId': membershipId,
-      'startDate': startDate,
-      'endDate': Timestamp.fromDate(end), // Set the calculated end date
-      'status': status,
-      'progress': progress,
-      'workoutsCompleted': workoutsCompleted,
-      'totalDays': totalDays,
-    });
-  }
 
   // Update progress for a specific membership
   void updateProgress(String membershipId, int progress) {

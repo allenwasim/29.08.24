@@ -1,47 +1,56 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:t_store/trainer_module/data/repositories/membership_repository.dart';
-import 'package:t_store/trainer_module/features/models/membership_model.dart';
+import 'package:t_store/common/widgets/buttons/circular_button.dart';
+import 'package:t_store/constants/colors.dart';
+import 'package:t_store/trainer_module/features/controllers/add_plans_controller.dart';
 
-class AddPlanScreen extends StatefulWidget {
+class AddPlanScreen extends StatelessWidget {
   final String trainerId;
 
-  const AddPlanScreen({Key? key, required this.trainerId}) : super(key: key);
-
-  @override
-  _AddPlanScreenState createState() => _AddPlanScreenState();
-}
-
-class _AddPlanScreenState extends State<AddPlanScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final MembershipRepository membershipRepository =
-      Get.put(MembershipRepository());
-
-  String _name = '';
-  String _description = '';
-  double _price = 0;
-  String _duration = '';
-  List<String> _workouts = [];
-  bool _isAvailable = true;
-
-  final List<String> availableWorkouts = [
-    "Yoga",
-    "Strength Training",
-    "Cardio",
-    "HIIT",
-    "Pilates",
-  ];
+  const AddPlanScreen({super.key, required this.trainerId});
 
   @override
   Widget build(BuildContext context) {
+    final AddPlansController controller = Get.put(AddPlansController());
+
+    // Generate price options (0 to 5000 in increments of 100)
+    final List<int> priceOptions = List.generate(51, (index) => index * 100);
+
+    // Define duration options with values in months
+    final List<String> durationOptions = [
+      '1 Month',
+      '3 Months',
+      '6 Months',
+      '1 Year'
+    ];
+
+    // Map the selected duration string to its corresponding month value
+    int mapDurationToMonths(String duration) {
+      switch (duration) {
+        case '1 Month':
+          return 1;
+        case '3 Months':
+          return 3;
+        case '6 Months':
+          return 6;
+        case '1 Year':
+          return 12;
+        default:
+          return 1; // Default to 1 month
+      }
+    }
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Membership Plan')),
+      appBar: AppBar(
+        title: const Text('Add Membership Plan'),
+        backgroundColor: TColors.trainerPrimary,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
-          key: _formKey,
           child: SingleChildScrollView(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextFormField(
                   decoration: const InputDecoration(labelText: 'Plan Name'),
@@ -51,10 +60,10 @@ class _AddPlanScreenState extends State<AddPlanScreen> {
                     }
                     return null;
                   },
-                  onChanged: (value) => setState(() {
-                    _name = value;
-                  }),
+                  onChanged: (value) => controller.name.value = value,
                 ),
+                const SizedBox(height: 16),
+
                 TextFormField(
                   decoration: const InputDecoration(labelText: 'Description'),
                   maxLines: 3,
@@ -64,38 +73,67 @@ class _AddPlanScreenState extends State<AddPlanScreen> {
                     }
                     return null;
                   },
-                  onChanged: (value) => setState(() {
-                    _description = value;
-                  }),
+                  onChanged: (value) => controller.description.value = value,
                 ),
-                TextFormField(
-                  decoration: const InputDecoration(labelText: 'Price'),
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter the price';
+                const SizedBox(height: 16),
+
+                // Price Dropdown
+                DropdownButtonFormField<int>(
+                  decoration:
+                      const InputDecoration(labelText: 'Price (/month)'),
+                  value: controller.price.value.toInt(),
+                  items: priceOptions
+                      .map((price) => DropdownMenuItem(
+                            value: price,
+                            child: Text('₹$price'),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      controller.price.value = value.toDouble();
                     }
-                    if (double.tryParse(value) == null) {
-                      return 'Please enter a valid number';
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Please select a price';
                     }
                     return null;
                   },
-                  onChanged: (value) => setState(() {
-                    _price = double.tryParse(value) ?? 0;
-                  }),
                 ),
-                TextFormField(
-                  decoration: const InputDecoration(labelText: 'Duration'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter the duration';
-                    }
-                    return null;
-                  },
-                  onChanged: (value) => setState(() {
-                    _duration = value;
-                  }),
-                ),
+                const SizedBox(height: 16),
+
+                // Duration Dropdown
+                Obx(() {
+                  // Ensure controller.duration.value is within a valid range
+                  final selectedIndex = (controller.duration.value > 0 &&
+                          controller.duration.value <= durationOptions.length)
+                      ? controller.duration.value - 1
+                      : 0; // Default to the first option if invalid
+
+                  return DropdownButtonFormField<String>(
+                    decoration: const InputDecoration(labelText: 'Duration'),
+                    value: durationOptions[selectedIndex],
+                    items: durationOptions
+                        .map((duration) => DropdownMenuItem(
+                              value: duration,
+                              child: Text(duration),
+                            ))
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        controller.duration.value = mapDurationToMonths(value);
+                      }
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please select a duration';
+                      }
+                      return null;
+                    },
+                  );
+                }),
+                const SizedBox(height: 16),
+
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   child: Column(
@@ -103,62 +141,49 @@ class _AddPlanScreenState extends State<AddPlanScreen> {
                     children: [
                       const Text('Workouts Included',
                           style: TextStyle(fontSize: 16)),
-                      Wrap(
-                        spacing: 10,
-                        children: availableWorkouts.map((workout) {
-                          return ChoiceChip(
-                            label: Text(workout),
-                            selected: _workouts.contains(workout),
-                            onSelected: (selected) {
-                              setState(() {
-                                if (selected) {
-                                  _workouts.add(workout);
-                                } else {
-                                  _workouts.remove(workout);
-                                }
-                              });
-                            },
-                          );
-                        }).toList(),
-                      ),
+                      const SizedBox(height: 8),
+                      Obx(() => Wrap(
+                            spacing: 10,
+                            children:
+                                controller.availableWorkouts.map((workout) {
+                              return ChoiceChip(
+                                label: Text(workout),
+                                selected: controller.workouts.contains(workout),
+                                onSelected: (selected) {
+                                  if (selected) {
+                                    controller.workouts.add(workout);
+                                  } else {
+                                    controller.workouts.remove(workout);
+                                  }
+                                },
+                              );
+                            }).toList(),
+                          )),
                     ],
                   ),
                 ),
-                SwitchListTile(
-                  title: const Text('Available for new clients'),
-                  value: _isAvailable,
-                  onChanged: (value) {
-                    setState(() {
-                      _isAvailable = value;
-                    });
-                  },
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (_formKey.currentState?.validate() ?? false) {
-                      // Call the addMembershipPlan method with individual fields
-                      MembershipModel newPlan =
-                          await membershipRepository.addMembershipPlan(
-                        widget.trainerId,
-                        _name,
-                        _description,
-                        _price,
-                        _duration,
-                        _workouts,
-                        _isAvailable,
-                      );
+                const SizedBox(height: 16),
 
-                      Get.snackbar(
-                        'Success',
-                        'Membership plan added successfully!',
-                        snackPosition: SnackPosition.BOTTOM,
-                      );
+                Obx(() => SwitchListTile(
+                      title: const Text('Available now'),
+                      value: controller.isAvailable.value,
+                      onChanged: (value) {
+                        controller.isAvailable.value = value;
+                      },
+                    )),
+                const SizedBox(height: 16),
 
-                      // Optionally, navigate back or to another screen
-                      Get.back();
-                    }
-                  },
-                  child: const Text('Add Plan'),
+                Center(
+                  child: SizedBox(
+                    width: 250,
+                    child: TCircularButton(
+                      text: 'Add Plan',
+                      backgroundColor: TColors.primary,
+                      onTap: () async {
+                        await controller.addMembershipPlan(trainerId);
+                      },
+                    ),
+                  ),
                 )
               ],
             ),

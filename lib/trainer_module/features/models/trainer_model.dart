@@ -1,11 +1,13 @@
 class Member {
   final String clientId; // Unique identifier for the client
   final String membershipId; // Unique identifier for the membership
+  final String profilePic; // Profile picture URL for the member
 
   // Constructor
   Member({
     required this.clientId,
     required this.membershipId,
+    required this.profilePic,
   });
 
   // Method to convert Member to JSON
@@ -13,6 +15,7 @@ class Member {
     return {
       'clientId': clientId,
       'membershipId': membershipId,
+      'profilePic': profilePic,
     };
   }
 
@@ -21,30 +24,29 @@ class Member {
     return Member(
       clientId: json['clientId'] ?? '',
       membershipId: json['membershipId'] ?? '',
+      profilePic: json['profilePic'] ?? '', // Handle profilePic
     );
   }
 
   @override
   String toString() {
-    return 'Member(clientId: $clientId, membershipId: $membershipId)';
+    return 'Member(clientId: $clientId, membershipId: $membershipId, profilePic: $profilePic)';
   }
 }
 
 class TrainerDetails {
-  // Fields specific to the trainer (no longer final)
-  String trainerId; // Unique identifier for the trainer
-  String name; // Trainer's name
-  String bio; // A short bio about the trainer
-  String expertise; // The areas of expertise, e.g., Yoga, Weight Training
-  int yearsOfExperience; // Number of years of experience
-  double rating; // Average rating from clients
-  List<String> certifications; // List of certifications
-  List<String> languages; // Languages spoken by the trainer
-  String
-      availability; // Availability status, e.g., "Available", "Busy", "Offline"
-  List<Member> members; // List of members associated with the trainer
+  String trainerId;
+  String name;
+  String bio;
+  String expertise;
+  int yearsOfExperience;
+  double rating;
+  List<String> certifications;
+  List<String> languages;
+  String availability;
+  List<Member> members;
+  String profilePic;
 
-  // Constructor for TrainerDetails
   TrainerDetails({
     required this.trainerId,
     required this.name,
@@ -55,7 +57,8 @@ class TrainerDetails {
     required this.certifications,
     required this.languages,
     required this.availability,
-    required this.members, // Pass list of members
+    required this.members,
+    required this.profilePic,
   });
 
   // Named constructor for an empty trainer model
@@ -69,7 +72,8 @@ class TrainerDetails {
         certifications = [],
         languages = [],
         availability = '',
-        members = [];
+        members = [],
+        profilePic = '';
 
   // Method to add a new member to the trainer's member list
   void addMemberToTrainerDetails(Member member) {
@@ -87,6 +91,7 @@ class TrainerDetails {
     List<String>? languages,
     String? availability,
     List<Member>? members,
+    String? profilePic,
   }) {
     if (name != null) this.name = name;
     if (bio != null) this.bio = bio;
@@ -97,6 +102,7 @@ class TrainerDetails {
     if (languages != null) this.languages = languages;
     if (availability != null) this.availability = availability;
     if (members != null) this.members = members;
+    if (profilePic != null) this.profilePic = profilePic;
   }
 
   // Method to convert TrainerDetails to JSON
@@ -112,6 +118,7 @@ class TrainerDetails {
       'languages': languages,
       'availability': availability,
       'members': members.map((member) => member.toJson()).toList(),
+      'profilePic': profilePic,
     };
   }
 
@@ -127,15 +134,15 @@ class TrainerDetails {
       certifications: List<String>.from(json['certifications'] ?? []),
       languages: List<String>.from(json['languages'] ?? []),
       availability: json['availability'] ?? '',
-      members: (json['members'] as List<dynamic>?)
-              ?.map((memberJson) => Member.fromJson(memberJson))
-              .toList() ??
-          [],
+      members: (json['members'] as List<dynamic>? ?? [])
+          .map((memberJson) => Member.fromJson(memberJson))
+          .toList(),
+      profilePic: json['profilePic'] ?? '',
     );
   }
 
   @override
   String toString() {
-    return 'TrainerDetails(trainerId: $trainerId, name: $name, bio: $bio, expertise: $expertise, yearsOfExperience: $yearsOfExperience, rating: $rating, certifications: $certifications, languages: $languages, availability: $availability, members: $members)';
+    return 'TrainerDetails(trainerId: $trainerId, name: $name, bio: $bio, expertise: $expertise, yearsOfExperience: $yearsOfExperience, rating: $rating, certifications: $certifications, languages: $languages, availability: $availability, profilePic: $profilePic, members: $members)';
   }
 }

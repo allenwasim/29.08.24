@@ -8,7 +8,7 @@ class MembershipModel {
   String planName;
   String description;
   double price;
-  String duration;
+  int duration;
   List<String> workouts;
   bool isAvailable;
   DateTime createdAt;
@@ -17,21 +17,21 @@ class MembershipModel {
   DateTime? startDate; // Nullable field for start date
   DateTime? endDate; // Nullable field for end date
 
-  // Constructor
+  // Constructor with optional parameters
   MembershipModel({
-    required this.id,
-    required this.membershipId,
-    required this.trainerId,
-    required this.planName,
-    required this.description,
-    required this.price,
-    required this.duration,
-    required this.workouts,
-    required this.isAvailable,
-    required this.createdAt,
-    this.startDate, // Nullable start date
-    this.endDate, // Nullable end date
-  });
+    this.id = '',
+    this.membershipId = '',
+    this.trainerId = '',
+    this.planName = '',
+    this.description = '',
+    this.price = 0.0,
+    this.duration = 0,
+    this.workouts = const [],
+    this.isAvailable = true,
+    DateTime? createdAt,
+    this.startDate,
+    this.endDate,
+  }) : createdAt = createdAt ?? DateTime.now();
 
   // Named constructor for an empty membership model
   MembershipModel.empty()
@@ -40,23 +40,48 @@ class MembershipModel {
         trainerId = '',
         planName = '',
         description = '',
-        price = 0,
-        duration = '',
+        price = 0.0,
+        duration = 0,
         workouts = [],
         isAvailable = true,
         createdAt = DateTime.now(),
         startDate = null,
         endDate = null;
 
-  // Other methods...
-
   // Helper function to get formatted price
   String get formattedPrice => TFormatter.formatPrice(price);
+
+  // Helper function to get formatted duration
+
+  // Method to update plan name
+  void updatePlanName(String newPlanName) {
+    planName = newPlanName;
+  }
+
+  // Method to update description
+  void updateDescription(String newDescription) {
+    description = newDescription;
+  }
+
+  // Method to update price
+  void updatePrice(double newPrice) {
+    price = newPrice;
+  }
+
+  // Method to update workouts
+  void updateWorkouts(List<String> newWorkouts) {
+    workouts = newWorkouts;
+  }
+
+  // Method to update availability status
+  void updateAvailability(bool newAvailability) {
+    isAvailable = newAvailability;
+  }
 
   // Method to convert MembershipModel to JSON
   Map<String, dynamic> toJson() {
     return {
-      'membershipId': membershipId, // Include membershipId in Firestore data
+      'membershipId': membershipId,
       'trainerId': trainerId,
       'planName': planName,
       'description': description,
@@ -74,19 +99,54 @@ class MembershipModel {
   static Future<MembershipModel> fromSnapshot(
       DocumentSnapshot<Map<String, dynamic>> document) async {
     final data = document.data()!;
+
+    // Ensure `duration` is parsed correctly, whether it's a String or int
+    int parsedDuration = 0;
+    if (data['duration'] is int) {
+      parsedDuration = data['duration'];
+    } else if (data['duration'] is String) {
+      parsedDuration = int.tryParse(data['duration']) ?? 0;
+    }
+
     return MembershipModel(
       id: document.id,
-      membershipId: data['membershipId'] ?? '', // Read membershipId
+      membershipId: data['membershipId'] ?? '',
       trainerId: data['trainerId'] ?? '',
       planName: data['planName'] ?? '',
       description: data['description'] ?? '',
-      price: data['price'] ?? 0.0,
-      duration: data['duration'] ?? '',
+      price: (data['price'] ?? 0).toDouble(),
+      duration: parsedDuration, // Use parsed duration
       workouts: List<String>.from(data['workouts'] ?? []),
-      isAvailable: data['isAvailable'] ?? true,
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      startDate: (data['startDate'] as Timestamp).toDate(),
-      endDate: (data['endDate'] as Timestamp).toDate(),
+      isAvailable: data['isAvailable'] ?? false,
+      createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      startDate: (data['startDate'] as Timestamp?)?.toDate(),
+      endDate: (data['endDate'] as Timestamp?)?.toDate(),
+    );
+  }
+
+  // Add this method to convert a Map<String, dynamic> into MembershipModel
+  static MembershipModel fromMap(Map<String, dynamic> data) {
+    // Ensure `duration` is parsed correctly, whether it's a String or int
+    int parsedDuration = 0;
+    if (data['duration'] is int) {
+      parsedDuration = data['duration'];
+    } else if (data['duration'] is String) {
+      parsedDuration = int.tryParse(data['duration']) ?? 0;
+    }
+
+    return MembershipModel(
+      id: data['id'] ?? '',
+      membershipId: data['membershipId'] ?? '',
+      trainerId: data['trainerId'] ?? '',
+      planName: data['planName'] ?? '',
+      description: data['description'] ?? '',
+      price: (data['price'] ?? 0).toDouble(),
+      duration: parsedDuration, // Use parsed duration
+      workouts: List<String>.from(data['workouts'] ?? []),
+      isAvailable: data['isAvailable'] ?? false,
+      createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      startDate: (data['startDate'] as Timestamp?)?.toDate(),
+      endDate: (data['endDate'] as Timestamp?)?.toDate(),
     );
   }
 

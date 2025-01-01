@@ -5,7 +5,9 @@ import 'package:t_store/common/widgets/searchbars/search_bar.dart';
 import 'package:t_store/constants/colors.dart';
 import 'package:t_store/trainer_module/data/repositories/membership_repository.dart';
 import 'package:t_store/trainer_module/features/sections/members/widgets/client_membership_card.dart';
+import 'package:t_store/trainer_module/features/sections/members/widgets/member_details_screen.dart';
 import 'package:t_store/user_module/features/personalization/controllers/user_controller.dart';
+import 'package:t_store/user_module/features/personalization/screens/memberships/tabs/active/membership_training_screen.dart';
 import 'package:t_store/utils/constants/image_strings.dart';
 import 'package:t_store/utils/helpers/helper_functions.dart';
 
@@ -40,8 +42,20 @@ class _MembersScreenState extends State<MembersScreen> {
 
       final membershipDetails =
           await membershipRepository.getMembershipDetailsForTrainer(trainerId);
+
+      // Use a Map to store unique memberships by their ID
+      Map<String, Map<String, dynamic>> uniqueMembershipDetailsMap = {};
+
+      for (var membership in membershipDetails) {
+        final membershipId = membership['membershipId'];
+        if (membershipId != null && membershipId.isNotEmpty) {
+          uniqueMembershipDetailsMap[membershipId] = membership;
+        }
+      }
+
       setState(() {
-        _membershipDetails = membershipDetails;
+        _membershipDetails = uniqueMembershipDetailsMap.values
+            .toList(); // Convert map values back to a list
         _isLoading = false;
       });
     } catch (e) {
@@ -96,15 +110,19 @@ class _MembersScreenState extends State<MembersScreen> {
                           itemCount: _membershipDetails.length,
                           itemBuilder: (context, index) {
                             final membership = _membershipDetails[index];
-                            return UserMembershipCard(
-                              name: membership['name'] ?? 'Unknown',
-                              mobile: membership['mobile'] ?? 'Not available',
-                              planExpiry:
-                                  membership['planExpiry'] ?? 'Not available',
-                              email: membership['email'] ?? 'Not available',
-                              membershipId:
-                                  membership['membershipId'] ?? 'Not available',
-                              profilePic: membership['pic'] ?? TImages.acerlogo,
+                            return GestureDetector(
+                              onTap: () => Get.to(MemberDetails()),
+                              child: UserMembershipCard(
+                                name: membership['name'] ?? 'Unknown',
+                                mobile: membership['mobile'] ?? 'Not available',
+                                planExpiry:
+                                    membership['planExpiry'] ?? 'Not available',
+                                email: membership['email'] ?? 'Not available',
+                                membershipId: membership['membershipId'] ??
+                                    'Not available',
+                                profilePic:
+                                    membership['pic'] ?? TImages.acerlogo,
+                              ),
                             );
                           },
                         ),

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:t_store/trainer_module/features/models/membership_model.dart';
+import 'package:t_store/trainer_module/features/models/trainer_model.dart';
 import 'package:t_store/utils/constants/image_strings.dart';
 
 class MembershipRepository extends GetxService {
@@ -12,7 +13,7 @@ class MembershipRepository extends GetxService {
     String name,
     String description,
     double price,
-    String duration,
+    int duration,
     List<String> workouts,
     bool isAvailable,
   ) async {
@@ -76,7 +77,7 @@ class MembershipRepository extends GetxService {
   }
 
   // Function to fetch membership plan details using the trainer ID
-  Future<List<Map<String, dynamic>>> fetchMembershipPlansByTrainer(
+  Future<List<MembershipModel>> fetchMembershipPlansByTrainer(
       String trainerId) async {
     try {
       QuerySnapshot snapshot = await _firestore
@@ -85,15 +86,88 @@ class MembershipRepository extends GetxService {
           .get();
 
       if (snapshot.docs.isNotEmpty) {
-        return snapshot.docs
-            .map((doc) => doc.data() as Map<String, dynamic>)
-            .toList();
+        List<MembershipModel> memberships = snapshot.docs.map((doc) {
+          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+          return MembershipModel(
+            id: doc.id,
+            membershipId: data['membershipId'] ?? '',
+            trainerId: data['trainerId'] ?? '',
+            planName: data['planName'] ?? '',
+            description: data['description'] ?? '',
+            price: (data['price'] ?? 0).toDouble(),
+            duration: data['duration'] ?? '',
+            workouts: List<String>.from(data['workouts'] ?? []),
+            isAvailable: data['isAvailable'] ?? false,
+            createdAt:
+                (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+          );
+        }).toList();
+
+        print(
+            'Fetched ${memberships.length} membership plans for Trainer ID: $trainerId');
+        return memberships;
       } else {
-        throw Exception('No membership plans found for Trainer ID: $trainerId');
+        print('No membership plans found for Trainer ID: $trainerId');
+        return [];
       }
     } catch (e) {
       print('Error fetching membership plans: $e');
       throw Exception('Failed to fetch membership plans');
+    }
+  }
+
+  // Function to fetch all available memberships (isAvailable = true)
+  Future<List<MembershipModel>> fetchAvailableMembershipsFromFirestore() async {
+    try {
+      // Fetch data from Firestore
+      QuerySnapshot snapshot = await _firestore
+          .collection('memberships')
+          .where('isAvailable', isEqualTo: true)
+          .get();
+
+      print('Snapshot fetched: ${snapshot.docs.length} docs found.');
+
+      if (snapshot.docs.isNotEmpty) {
+        return snapshot.docs.map((doc) {
+          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+
+          // Debugging logs
+          print('Fetched doc data: $data');
+
+          // Safely parse 'duration' field
+          int parsedDuration = 0;
+          if (data['duration'] is int) {
+            parsedDuration = data['duration'];
+          } else if (data['duration'] is String) {
+            // Try parsing the duration if it's a String
+            parsedDuration = int.tryParse(data['duration']) ?? 0;
+          }
+
+          // Debug log for duration
+          print('Parsed duration: $parsedDuration');
+
+          return MembershipModel(
+            id: doc.id,
+            membershipId: data['membershipId'] ?? '',
+            trainerId: data['trainerId'] ?? '',
+            planName: data['planName'] ?? '',
+            description: data['description'] ?? '',
+            price: (data['price'] ?? 0).toDouble(),
+            duration: parsedDuration, // Use parsed duration
+            workouts: List<String>.from(data['workouts'] ?? []),
+            isAvailable: data['isAvailable'] ?? false,
+            createdAt:
+                (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+          );
+        }).toList();
+      } else {
+        print('No available memberships found'); // Log this case
+        return []; // Return empty if no memberships are found
+      }
+    } catch (e) {
+      // Handle errors and log the message
+      print('Error fetching available membership plans: $e');
+      throw Exception('Failed to fetch available membership plans');
     }
   }
 
@@ -151,7 +225,7 @@ class MembershipRepository extends GetxService {
     }
   }
 
-// Function to fetch membership details for a trainer
+  // Function to fetch membership details for a trainer
   Future<List<Map<String, dynamic>>> getMembershipDetailsForTrainer(
       String trainerId) async {
     try {
@@ -190,6 +264,175 @@ class MembershipRepository extends GetxService {
     } catch (e) {
       print('Error fetching membership details: $e');
       throw Exception("Error fetching membership details: $e");
+    }
+  }
+
+  Future<void> addMembershipByUser({
+    required String userId,
+    required String membershipId,
+    required Timestamp startDate,
+    required String status,
+    required int progress,
+    required int duration, // duration in months
+  }) async {
+    try {
+      // Log the operation
+      print(
+          'Preparing to add membership with ID: $membershipId for user: $userId');
+
+      // Convert the `startDate` to `DateTime`
+      DateTime start = startDate.toDate();
+
+      // Calculate the end date by adding the duration (in months)
+      DateTime end = start.add(Duration(days: 30 * duration));
+
+      // Debugging logs
+      print('Start Date: $start');
+      print('End Date (calculated): $end');
+
+      // Construct membership data
+      Map<String, dynamic> membershipData = {
+        'membershipId': membershipId,
+        'startDate': startDate,
+        'endDate': Timestamp.fromDate(end),
+        'status': status,
+        'progress': progress
+      };
+
+      // Reference to the user's profile document
+      DocumentReference userRef = _firestore
+          .collection('Profiles')
+          .doc(userId)
+          .collection('clientDetails')
+          .doc('details');
+
+      // Update the user's memberships array
+      await userRef.update({
+        'memberships': FieldValue.arrayUnion([membershipData]),
+      });
+
+      // Log success
+      print('Membership added successfully: $membershipData');
+    } catch (e) {
+      print('Error adding membership for User ID: $userId: $e');
+      throw Exception('Failed to add membership');
+    }
+  }
+
+  Future<void> addMemberToTrainer(
+    String trainerId,
+    String clientId,
+    String membershipId,
+    String profilePic,
+  ) async {
+    try {
+      // Create a new member object
+      Member newMember = Member(
+        clientId: clientId,
+        membershipId: membershipId,
+        profilePic: profilePic,
+      );
+
+      // Convert the member to JSON
+      Map<String, dynamic> memberData = newMember.toJson();
+
+      // Reference to the trainer's 'trainerDetails' document
+      DocumentReference trainerRef = _firestore
+          .collection('Profiles')
+          .doc(trainerId)
+          .collection('trainerDetails')
+          .doc('details');
+
+      // Add the new member to the 'members' array
+      await trainerRef.update({
+        'members': FieldValue.arrayUnion([memberData]),
+      });
+
+      print('Added new member for Trainer ID: $trainerId');
+    } catch (e) {
+      print('Error adding member to trainer: $e');
+      throw Exception('Failed to add member to trainer');
+    }
+  }
+
+  Future<List<String>> fetchUserMembershipIds(String userId) async {
+    try {
+      // Reference to the user's profile document
+      DocumentReference userRef = _firestore
+          .collection('Profiles')
+          .doc(userId)
+          .collection('clientDetails')
+          .doc('details');
+
+      // Fetch the user's profile document
+      DocumentSnapshot userSnapshot = await userRef.get();
+
+      // Check if the document exists and contains a 'memberships' key
+      if (!userSnapshot.exists) {
+        print('No profile document found for user: $userId');
+        return [];
+      }
+
+      final data = userSnapshot.data() as Map<String, dynamic>?;
+
+      if (data == null || !data.containsKey('memberships')) {
+        print('No memberships found for user: $userId');
+        return [];
+      }
+
+      // Extract and return the membership IDs
+      List<dynamic> membershipsArray = data['memberships'] as List<dynamic>;
+      return membershipsArray
+          .map((membership) =>
+              (membership as Map<String, dynamic>)['membershipId'] as String)
+          .toList();
+    } catch (e) {
+      print('Error fetching user membership IDs: $e');
+      throw Exception('Failed to fetch user membership IDs');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchMembershipsByClientId(
+      String clientId) async {
+    try {
+      // Reference to the user's profile document by clientId
+      DocumentReference userRef = _firestore
+          .collection('Profiles')
+          .doc(clientId)
+          .collection('clientDetails')
+          .doc('details');
+
+      // Fetch the user's profile document
+      DocumentSnapshot userSnapshot = await userRef.get();
+
+      // Check if the document exists and contains a 'memberships' key
+      if (!userSnapshot.exists) {
+        print('No profile document found for client: $clientId');
+        return [];
+      }
+
+      final data = userSnapshot.data() as Map<String, dynamic>?;
+      if (data == null || !data.containsKey('memberships')) {
+        print('No memberships found for client: $clientId');
+        return [];
+      }
+
+      // Extract the memberships array
+      List<dynamic> membershipsArray = data['memberships'] as List<dynamic>;
+
+      // Fetch detailed membership info for each membershipId
+      List<Map<String, dynamic>> memberships = [];
+      for (var membership in membershipsArray) {
+        String membershipId = membership['membershipId'] as String;
+        Map<String, dynamic> membershipDetails =
+            await fetchMembershipPlan(membershipId);
+        memberships.add(membershipDetails);
+      }
+
+      return memberships;
+    } catch (e) {
+      print('Error fetching memberships for clientId: $clientId: $e');
+      throw Exception('Failed to fetch memberships');
     }
   }
 }

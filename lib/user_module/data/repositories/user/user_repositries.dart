@@ -145,29 +145,6 @@ class UserRepository extends GetxController {
   }
 
   // Function to fetch trainer details from Firestore
-  Future<Map<String, dynamic>?> fetchTrainerDetails(String userId) async {
-    try {
-      final documentSnapshot = await _db
-          .collection("Profiles")
-          .doc(userId)
-          .collection('trainerDetails')
-          .doc('details')
-          .get();
-      if (documentSnapshot.exists) {
-        return documentSnapshot.data();
-      } else {
-        return null; // Return null if no trainer details found
-      }
-    } on FirebaseException catch (e) {
-      throw TFirebaseException(e.code).message;
-    } on FormatException catch (_) {
-      throw const TFormatException().message;
-    } on PlatformException catch (e) {
-      throw TPlatformException(e.code).message;
-    } catch (e) {
-      throw 'Something went wrong. Please try again.';
-    }
-  }
 
   // Function to save client details to Firestore
   // Function to save client details to Firestore

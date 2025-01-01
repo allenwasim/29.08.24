@@ -1,22 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:t_store/trainer_module/features/models/membership_model.dart';
 import 'package:t_store/utils/constants/image_strings.dart';
 import 'package:t_store/utils/helpers/helper_functions.dart';
 
 class TTrainerCard extends StatelessWidget {
-  final MembershipModel membership;
+  final String planName;
   final String trainerName;
   final bool isActive;
   final String? startDate; // Optional start date field
   final String? endDate; // Optional end date field
+  final String? profilePic; // New argument for profile picture URL
+  final String workouts;
+  final String? price; // Optional price field
+  final int? duration; // Changed duration to int?
 
   const TTrainerCard({
     super.key,
-    required this.membership,
+    required this.planName,
     required this.trainerName,
     required this.isActive,
     this.startDate, // Accept startDate as an optional parameter
     this.endDate, // Accept endDate as an optional parameter
+    this.profilePic, // Accept profilePic as an optional parameter
+    required this.workouts, // Workouts field
+    this.price, // Optional price field
+    this.duration, // Optional duration field
   });
 
   @override
@@ -33,7 +40,7 @@ class TTrainerCard extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           image: DecorationImage(
-            image: AssetImage(TImages.homeimage2),
+            image: AssetImage(TImages.guidanceImage2),
             fit: BoxFit.cover,
             colorFilter: ColorFilter.mode(
               dark
@@ -65,7 +72,7 @@ class TTrainerCard extends StatelessWidget {
               contentPadding:
                   const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
               title: Text(
-                membership.planName,
+                planName,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
@@ -98,7 +105,7 @@ class TTrainerCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'Style: ${membership.workouts}',
+                    'Style: $workouts',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -114,9 +121,8 @@ class TTrainerCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   if (isActive) ...[
-                    // Display start and end dates if isActive is true
                     Text(
-                      'Start Date: ${startDate ?? "Not available"}', // Use passed start date
+                      'Start Date: ${startDate ?? "Not available"}',
                       style: TextStyle(
                         color: Colors.orange,
                         fontSize: 16,
@@ -131,7 +137,7 @@ class TTrainerCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'End Date: ${endDate ?? "Not available"}', // Use passed end date
+                      'End Date: ${endDate ?? "Not available"}',
                       style: TextStyle(
                         color: Colors.orange,
                         fontSize: 16,
@@ -145,8 +151,7 @@ class TTrainerCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                  ] else if (membership.price != null) ...[
-                    // Show price and duration if not active
+                  ] else if (price != null) ...[
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -184,7 +189,7 @@ class TTrainerCard extends StatelessWidget {
                                             fontWeight: FontWeight.w700),
                                       ),
                                       TextSpan(
-                                        text: '${membership.price} Rs/month',
+                                        text: '$price Rs/month',
                                         style: const TextStyle(
                                           color: Color(0xFF32CD32),
                                           fontSize: 15,
@@ -204,7 +209,23 @@ class TTrainerCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Duration: ${membership.duration}',
+                      'Duration: ${duration != null ? '$duration months' : "Not available"}',
+                      style: TextStyle(
+                        color: Colors.orange,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withOpacity(0.6),
+                            offset: const Offset(1, 1),
+                            blurRadius: 3,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ] else if (duration != null) ...[
+                    Text(
+                      'Duration: ${duration != null ? '$duration months' : "Not available"}',
                       style: TextStyle(
                         color: Colors.orange,
                         fontSize: 16,
@@ -235,12 +256,19 @@ class TTrainerCard extends StatelessWidget {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(100),
-                  child: Image.asset(
-                    TImages.homeimage2,
-                    height: 70,
-                    width: 65,
-                    fit: BoxFit.cover,
-                  ),
+                  child: profilePic != null && profilePic!.isNotEmpty
+                      ? Image.network(
+                          profilePic!,
+                          height: 70,
+                          width: 65,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.asset(
+                          TImages.homeimage2,
+                          height: 70,
+                          width: 65,
+                          fit: BoxFit.cover,
+                        ),
                 ),
               ),
             ),
