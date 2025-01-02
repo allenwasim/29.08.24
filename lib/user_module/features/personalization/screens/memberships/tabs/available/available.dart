@@ -85,12 +85,11 @@ class AvailableMembershipsScreen extends StatelessWidget {
                               isActive:
                                   false, // Available memberships are inactive
                               trainerName: trainer.name ?? 'Unknown Trainer',
-                              startDate: membership.createdAt.toString(),
-                              endDate: membership.createdAt.toString() ??
-                                  'No end date',
+
                               planName: membership.planName,
                               workouts: membership.workouts.join(', '),
                               duration: membership.duration,
+                              price: membership.price.toString(),
                             ),
                           );
                         },

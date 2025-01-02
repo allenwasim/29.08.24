@@ -42,7 +42,7 @@ class UserMembershipCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(50.0),
               child: Image.network(
-                profilePic.isNotEmpty ? profilePic : TImages.userProfileImage1,
+                profilePic,
                 width: 70,
                 height: 70,
                 fit: BoxFit.cover,

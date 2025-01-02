@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart'; // Add this for date formatting
 import 'package:t_store/common/widgets/card/trainer_membership_card.dart';
 import 'package:t_store/trainer_module/features/controllers/membership_controller.dart';
 import 'package:t_store/common/widgets/searchbars/search_bar.dart';
@@ -19,8 +20,7 @@ class ActiveMembershipsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // Triggering data fetch on screen load
     final String userId = UserController.instance.user.value.id;
-    membershipController
-        .findMembershipsByClientId(userId); // Fetch memberships by clientId
+    membershipController.findMembershipsByClientId(userId);
 
     return Scaffold(
       appBar: AppBar(
@@ -30,79 +30,78 @@ class ActiveMembershipsScreen extends StatelessWidget {
         children: [
           const SizedBox(height: 16),
           const TSearchBar(),
-          Obx(
-            () {
-              // Handle loading state for fetching memberships
-              if (membershipController.isLoading.value) {
-                return const Expanded(
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              }
-
-              // Handle empty state when no memberships are found
-              if (membershipController.clientMemberships.isEmpty) {
-                return const Expanded(
-                  child: Center(child: Text('No active memberships.')),
-                );
-              }
-
-              // List of active memberships
-              return Expanded(
-                child: ListView.builder(
-                  itemCount: membershipController.clientMemberships.length,
-                  itemBuilder: (context, index) {
-                    final membership =
-                        membershipController.clientMemberships[index];
-
-                    // Fetch trainer details based on trainerId from membership
-                    trainerDetailsController.fetchTrainerDetails(
-                        membershipController.user.value.trainerId);
-
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Obx(
-                        () {
-                          // Wait until trainer details are fetched
-                          if (trainerDetailsController.profileLoading.value) {
-                            return const CircularProgressIndicator();
-                          }
-
-                          return GestureDetector(
-                            onTap: () => Get.to(
-                              MembershipDetailScreen(
-                                membership: membership,
-                              ),
-                            ),
-                            child: TTrainerCard(
-                              profilePic: trainerDetailsController
-                                      .trainer.value?.profilePic ??
-                                  'default_profile_pic_url',
-                              isActive: true, // Active memberships are active
-                              trainerName: trainerDetailsController
-                                      .trainer.value?.name ??
-                                  'Unknown Trainer',
-                              startDate: membershipController
-                                  .user.value.createdAt
-                                  .toString(),
-                              endDate: membershipController.user.value.endDate
-                                      ?.toString() ??
-                                  'No end date',
-                              planName:
-                                  membershipController.user.value.planName,
-                              workouts: membershipController.user.value.workouts
-                                  .join(', '),
-                              duration:
-                                  membershipController.user.value.duration,
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  },
-                ),
+          Obx(() {
+            // Handle loading state for fetching memberships
+            if (membershipController.isLoading.value) {
+              return const Expanded(
+                child: Center(child: CircularProgressIndicator()),
               );
-            },
-          ),
+            }
+
+            // Handle empty state when no memberships are found
+            if (membershipController.clientMemberships.isEmpty) {
+              return const Expanded(
+                child: Center(child: Text('No active memberships.')),
+              );
+            }
+
+            // Pre-fetch trainer details only once to avoid unnecessary network calls
+            for (var membership in membershipController.clientMemberships) {
+              if (!trainerDetailsController.trainerMap
+                  .containsKey(membership.trainerId)) {
+                trainerDetailsController
+                    .fetchTrainerDetails(membership.trainerId);
+              }
+            }
+
+            // Date format for displaying start and end dates
+            final DateFormat dateFormat = DateFormat('dd MMM yyyy');
+
+            return Expanded(
+              child: ListView.builder(
+                itemCount: membershipController.clientMemberships.length,
+                itemBuilder: (context, index) {
+                  final membership =
+                      membershipController.clientMemberships[index];
+                  final trainer = trainerDetailsController.trainerMap[membership
+                      .trainerId]; // Use the trainerMap to get trainer details
+
+                  // Fetch trainer details safely
+                  final String trainerName = trainer?.name ?? 'Unknown Trainer';
+                  final String trainerProfilePic =
+                      trainer?.profilePic ?? 'default_profile_pic_url';
+
+                  // Handle membership start and end dates with proper formatting
+                  final String startDate =
+                      dateFormat.format(membership.startDate ?? DateTime.now());
+                  final String endDate = membership.endDate != null
+                      ? dateFormat.format(membership.endDate!)
+                      : 'No end date';
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: GestureDetector(
+                      onTap: () => Get.to(
+                        MembershipDetailScreen(
+                          membership: membership,
+                        ),
+                      ),
+                      child: TTrainerCard(
+                        profilePic: trainerProfilePic,
+                        isActive: true, // Active memberships are active
+                        trainerName: trainerName,
+                        startDate: startDate,
+                        endDate: endDate,
+                        planName: membership.planName,
+                        workouts: membership.workouts.join(', '),
+                        duration: membership.duration,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            );
+          }),
         ],
       ),
     );

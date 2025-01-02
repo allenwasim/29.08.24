@@ -355,43 +355,6 @@ class MembershipRepository extends GetxService {
     }
   }
 
-  Future<List<String>> fetchUserMembershipIds(String userId) async {
-    try {
-      // Reference to the user's profile document
-      DocumentReference userRef = _firestore
-          .collection('Profiles')
-          .doc(userId)
-          .collection('clientDetails')
-          .doc('details');
-
-      // Fetch the user's profile document
-      DocumentSnapshot userSnapshot = await userRef.get();
-
-      // Check if the document exists and contains a 'memberships' key
-      if (!userSnapshot.exists) {
-        print('No profile document found for user: $userId');
-        return [];
-      }
-
-      final data = userSnapshot.data() as Map<String, dynamic>?;
-
-      if (data == null || !data.containsKey('memberships')) {
-        print('No memberships found for user: $userId');
-        return [];
-      }
-
-      // Extract and return the membership IDs
-      List<dynamic> membershipsArray = data['memberships'] as List<dynamic>;
-      return membershipsArray
-          .map((membership) =>
-              (membership as Map<String, dynamic>)['membershipId'] as String)
-          .toList();
-    } catch (e) {
-      print('Error fetching user membership IDs: $e');
-      throw Exception('Failed to fetch user membership IDs');
-    }
-  }
-
   Future<List<Map<String, dynamic>>> fetchMembershipsByClientId(
       String clientId) async {
     try {
@@ -420,19 +383,92 @@ class MembershipRepository extends GetxService {
       // Extract the memberships array
       List<dynamic> membershipsArray = data['memberships'] as List<dynamic>;
 
-      // Fetch detailed membership info for each membershipId
+      // List to store detailed membership info
       List<Map<String, dynamic>> memberships = [];
       for (var membership in membershipsArray) {
         String membershipId = membership['membershipId'] as String;
+        Timestamp startDateTimestamp = membership['startDate'] as Timestamp;
+        Timestamp endDateTimestamp = membership['endDate'] as Timestamp;
+
+        // Convert Timestamp to DateTime (if startDate and endDate are Timestamps)
+        DateTime startDate = startDateTimestamp.toDate();
+        DateTime endDate = endDateTimestamp.toDate();
+
+        // Fetch detailed membership plan info (optional)
         Map<String, dynamic> membershipDetails =
             await fetchMembershipPlan(membershipId);
-        memberships.add(membershipDetails);
+
+        // Add start and end dates to the membership details
+        Map<String, dynamic> membershipWithDates = {
+          'membershipId': membershipId,
+          'startDate': startDate,
+          'endDate': endDate,
+          ...membershipDetails, // Include other membership details
+        };
+
+        memberships.add(membershipWithDates);
       }
 
       return memberships;
     } catch (e) {
       print('Error fetching memberships for clientId: $clientId: $e');
       throw Exception('Failed to fetch memberships');
+    }
+  }
+
+  Future<List<dynamic>> fetchMembershipsFromClientDetails(String userId) async {
+    try {
+      // Fetch data from Firestore
+      var snapshot = await FirebaseFirestore.instance
+          .collection('Profiles')
+          .doc(userId)
+          .collection('clientDetails')
+          .doc('details')
+          .get();
+
+      // Assuming memberships is an array inside the Firestore document
+      return snapshot.data()?['memberships'] ?? [];
+    } catch (e) {
+      print('Error fetching memberships: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getClientDetailsForTrainer(
+      String trainerId) async {
+    try {
+      final clientIds = await getClientIds(trainerId);
+
+      List<Map<String, dynamic>> clientDetails = [];
+
+      for (String clientId in clientIds) {
+        final clientDoc = await _firestore
+            .collection('Profiles')
+            .doc(clientId)
+            .collection('clientDetails')
+            .doc('details')
+            .get();
+
+        final clientData = clientDoc.data();
+
+        if (clientData != null) {
+          clientDetails.add({
+            'profilePic': clientData['profilePic'] ?? TImages.userProfileImage1,
+            'name': clientData['name'],
+            'email': clientData['email'],
+            'phoneNumber':
+                clientData['phoneNumber'], // Ensure this field exists
+            'membershipStatus':
+                clientData['membershipStatus'] ?? 'Not available',
+            'memberships': clientData['memberships'] ?? [], // Fetch memberships
+          });
+        }
+      }
+
+      return clientDetails;
+    } catch (e) {
+      print('Error fetching client details: $e');
+      throw Exception("Error fetching client details: $e");
     }
   }
 }

@@ -1,15 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:t_store/common/widgets/buttons/circular_button.dart';
 import 'package:t_store/common/widgets/searchbars/search_bar.dart';
 import 'package:t_store/constants/colors.dart';
-import 'package:t_store/trainer_module/data/repositories/membership_repository.dart';
+import 'package:t_store/trainer_module/features/controllers/membership_controller.dart';
+import 'package:t_store/trainer_module/features/models/membership_model.dart';
 import 'package:t_store/trainer_module/features/sections/members/widgets/client_membership_card.dart';
-import 'package:t_store/trainer_module/features/sections/members/widgets/member_details_screen.dart';
 import 'package:t_store/user_module/features/personalization/controllers/user_controller.dart';
-import 'package:t_store/user_module/features/personalization/screens/memberships/tabs/active/membership_training_screen.dart';
 import 'package:t_store/utils/constants/image_strings.dart';
-import 'package:t_store/utils/helpers/helper_functions.dart';
 
 class MembersScreen extends StatefulWidget {
   const MembersScreen({super.key});
@@ -19,56 +18,20 @@ class MembersScreen extends StatefulWidget {
 }
 
 class _MembersScreenState extends State<MembersScreen> {
-  final UserController userController = Get.put(UserController());
-  final MembershipRepository membershipRepository =
-      Get.put(MembershipRepository());
-
-  List<Map<String, dynamic>> _membershipDetails = [];
-  bool _isLoading = true;
+  final MembershipController membershipController =
+      Get.put(MembershipController());
 
   @override
   void initState() {
     super.initState();
-    _fetchMembershipDetails();
-  }
-
-  Future<void> _fetchMembershipDetails() async {
-    try {
-      final trainerId = userController.user.value.id;
-      if (trainerId == null || trainerId.isEmpty) {
-        Get.snackbar('Error', 'Trainer ID is not valid.');
-        return;
-      }
-
-      final membershipDetails =
-          await membershipRepository.getMembershipDetailsForTrainer(trainerId);
-
-      // Use a Map to store unique memberships by their ID
-      Map<String, Map<String, dynamic>> uniqueMembershipDetailsMap = {};
-
-      for (var membership in membershipDetails) {
-        final membershipId = membership['membershipId'];
-        if (membershipId != null && membershipId.isNotEmpty) {
-          uniqueMembershipDetailsMap[membershipId] = membership;
-        }
-      }
-
-      setState(() {
-        _membershipDetails = uniqueMembershipDetailsMap.values
-            .toList(); // Convert map values back to a list
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-      Get.snackbar('Error', 'Failed to fetch membership details: $e');
-    }
+    final trainerId = UserController.instance.user.value.id;
+    membershipController.fetchMembershipDetails(trainerId);
+    membershipController.fetchClientDetailsForTrainer(trainerId);
   }
 
   @override
   Widget build(BuildContext context) {
-    final dark = THelperFunctions.isDarkMode(context);
+    final dark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
@@ -86,80 +49,88 @@ class _MembersScreenState extends State<MembersScreen> {
           ),
         ),
       ),
-      body: _isLoading
-          ? Center(
-              child: CircularProgressIndicator(
-                color: TColors.trainerPrimary,
-              ),
-            )
-          : Column(
+      body: Obx(() {
+        if (membershipController.isLoading.value) {
+          return Center(
+            child: CircularProgressIndicator(
+              color: TColors.trainerPrimary,
+            ),
+          );
+        }
+
+        if (membershipController.membershipDetails.isEmpty) {
+          return Center(child: Text('No membership details available.'));
+        }
+
+        if (membershipController.clientDetails.isEmpty) {
+          return Center(child: Text('No client details available.'));
+        }
+
+        return Column(
+          children: [
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildDropdownButton('All Member', dark),
-                    _buildDropdownButton('All Plans', dark),
-                    _buildDropdownButton('Select Batch', dark),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                _membershipDetails.isNotEmpty
-                    ? Expanded(
-                        child: ListView.builder(
-                          itemCount: _membershipDetails.length,
-                          itemBuilder: (context, index) {
-                            final membership = _membershipDetails[index];
-                            return GestureDetector(
-                              onTap: () => Get.to(MemberDetails()),
-                              child: UserMembershipCard(
-                                name: membership['name'] ?? 'Unknown',
-                                mobile: membership['mobile'] ?? 'Not available',
-                                planExpiry:
-                                    membership['planExpiry'] ?? 'Not available',
-                                email: membership['email'] ?? 'Not available',
-                                membershipId: membership['membershipId'] ??
-                                    'Not available',
-                                profilePic:
-                                    membership['pic'] ?? TImages.acerlogo,
-                              ),
-                            );
-                          },
-                        ),
-                      )
-                    : Center(
-                        child: Column(
-                          children: [
-                            Text(
-                              'No Members found',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: dark ? Colors.white : Colors.black,
-                              ),
-                            ),
-                            Text(
-                              'Start Adding Member Click Top + Icon',
-                              style: TextStyle(
-                                color: dark
-                                    ? Colors.grey.shade400
-                                    : Colors.grey.shade800,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            const Text('OR'),
-                            const SizedBox(height: 10),
-                            TCircularButton(
-                              backgroundColor:
-                                  dark ? Colors.transparent : Colors.white,
-                              text: "Add Members",
-                              textColor: dark ? Colors.teal : Colors.teal,
-                            ),
-                          ],
-                        ),
-                      ),
+                _buildDropdownButton('All Member', dark),
+                _buildDropdownButton('All Plans', dark),
+                _buildDropdownButton('Select Batch', dark),
               ],
             ),
+            const SizedBox(height: 20),
+            Expanded(
+              child: ListView.builder(
+                  itemCount: membershipController.clientDetails.length,
+                  itemBuilder: (context, index) {
+                    final client = membershipController.clientDetails[index];
+                    final membership =
+                        membershipController.membershipDetails[index];
+
+                    // Check the raw data returned from Firestore
+
+                    // Check if the client has memberships and extract data
+                    String planExpiry =
+                        'N/A'; // Default value if no memberships found
+
+                    if (client.memberships != null &&
+                        client.memberships.isNotEmpty) {
+                      // Access the first membership (or iterate if needed)
+                      final timestamp = client.memberships[0]['endDate'];
+
+                      // Ensure timestamp is not null and is an instance of Timestamp
+                      if (timestamp != null && timestamp is Timestamp) {
+                        // Convert the Firestore Timestamp to DateTime
+                        final planExpiryDate = timestamp
+                            .toDate(); // Use .toDate() to convert to DateTime
+                        planExpiry = planExpiryDate
+                            .toLocal()
+                            .toString(); // Convert to local time and string
+                      } else {
+                        planExpiry = 'N/A';
+                      }
+                    }
+
+                    return GestureDetector(
+                      onTap: () {
+                        // Navigation logic goes here
+                      },
+                      child: UserMembershipCard(
+                        name: client.name, // Display client name
+                        mobile:
+                            client.phoneNumber, // Display client phone number
+                        email: client.email, // Display client email
+                        profilePic:
+                            client.profilePic, // Display the URL if available
+                        planExpiry: planExpiry, // Display the plan expiry date
+                        membershipId:
+                            membership.membershipId, // Display membership ID
+                      ),
+                    );
+                  }),
+            ),
+          ],
+        );
+      }),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: Colors.teal,
         onPressed: () {},

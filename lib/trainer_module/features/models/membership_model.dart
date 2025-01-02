@@ -126,7 +126,6 @@ class MembershipModel {
 
   // Add this method to convert a Map<String, dynamic> into MembershipModel
   static MembershipModel fromMap(Map<String, dynamic> data) {
-    // Ensure `duration` is parsed correctly, whether it's a String or int
     int parsedDuration = 0;
     if (data['duration'] is int) {
       parsedDuration = data['duration'];
@@ -141,12 +140,18 @@ class MembershipModel {
       planName: data['planName'] ?? '',
       description: data['description'] ?? '',
       price: (data['price'] ?? 0).toDouble(),
-      duration: parsedDuration, // Use parsed duration
+      duration: parsedDuration,
       workouts: List<String>.from(data['workouts'] ?? []),
       isAvailable: data['isAvailable'] ?? false,
-      createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      startDate: (data['startDate'] as Timestamp?)?.toDate(),
-      endDate: (data['endDate'] as Timestamp?)?.toDate(),
+      createdAt: (data['createdAt'] is Timestamp)
+          ? (data['createdAt'] as Timestamp).toDate()
+          : (data['createdAt'] as DateTime?) ?? DateTime.now(),
+      startDate: (data['startDate'] is Timestamp)
+          ? (data['startDate'] as Timestamp).toDate()
+          : data['startDate'] as DateTime?,
+      endDate: (data['endDate'] is Timestamp)
+          ? (data['endDate'] as Timestamp).toDate()
+          : data['endDate'] as DateTime?,
     );
   }
 

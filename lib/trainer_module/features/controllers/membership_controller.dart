@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:t_store/trainer_module/data/repositories/membership_repository.dart';
 import 'package:t_store/trainer_module/features/models/membership_model.dart';
 import 'package:t_store/trainer_module/features/sections/gym/gym.dart';
+import 'package:t_store/user_module/features/personalization/models/client_model.dart';
 import 'package:t_store/user_module/features/personalization/screens/memberships/memberships.dart';
 import 'package:t_store/user_module/features/personalization/screens/memberships/tabs/active/active.dart';
 import 'package:t_store/utils/popups/loader.dart';
@@ -12,6 +13,7 @@ class MembershipController extends GetxController {
 
   // Observable list to store the membership plans
   final membershipPlans = <MembershipModel>[].obs;
+  var clientDetails = <ClientDetails>[].obs;
 
   // Observable variable to store the membership details
   final membershipDetails = <MembershipModel>[].obs;
@@ -22,6 +24,9 @@ class MembershipController extends GetxController {
   var profileLoading = false.obs; // Loading state
   var availableMemberships =
       <MembershipModel>[].obs; // Observable list for memberships
+
+  final RxList<dynamic> memberships = <dynamic>[].obs;
+  final RxBool membershipsLoading = false.obs;
 
   final MembershipRepository membershipRepository =
       Get.put(MembershipRepository());
@@ -145,27 +150,6 @@ class MembershipController extends GetxController {
     }
   }
 
-  Future<void> fetchUserMembershipIds(String userId) async {
-    try {
-      // Set loading state to true while fetching data
-      isLoading.value = true;
-
-      // Fetch the membership IDs from the repository
-      List<String> fetchedMembershipIds =
-          await membershipRepository.fetchUserMembershipIds(userId);
-
-      // Update the observable list with fetched membership IDs
-      membershipIds.value = fetchedMembershipIds;
-      print('Fetched membership IDs: $fetchedMembershipIds');
-    } catch (e) {
-      print('Error fetching user membership IDs: $e');
-      throw Exception('Failed to fetch user membership IDs');
-    } finally {
-      // Set loading state to false after the operation completes
-      isLoading.value = false;
-    }
-  }
-
   Future<void> findMembershipsByClientId(String clientId) async {
     try {
       // Set loading state to true while fetching data
@@ -175,9 +159,16 @@ class MembershipController extends GetxController {
       List<Map<String, dynamic>> membershipsData =
           await membershipRepository.fetchMembershipsByClientId(clientId);
 
+      // Check if the fetched data is not empty
+      if (membershipsData.isEmpty) {
+        print('No memberships found for clientId $clientId');
+      }
+
       // Convert the fetched list of maps into a list of MembershipModel instances
-      clientMemberships.value =
-          membershipsData.map((data) => MembershipModel.fromMap(data)).toList();
+      clientMemberships.value = membershipsData.map((data) {
+        // Map each item to the MembershipModel (ensure the fields are mapped correctly)
+        return MembershipModel.fromMap(data);
+      }).toList();
 
       print('Fetched memberships for clientId $clientId: $clientMemberships');
     } catch (e) {
@@ -186,6 +177,65 @@ class MembershipController extends GetxController {
     } finally {
       // Set loading state to false after the operation completes
       isLoading.value = false;
+    }
+  }
+
+  Future<void> fetchMembershipsFromClientDetails(String userId) async {
+    try {
+      // Set loading state to true
+      membershipsLoading.value = true;
+
+      // Fetch memberships from the repository
+      final fetchedMemberships =
+          await membershipRepository.fetchMembershipsFromClientDetails(userId);
+
+      // Update observable memberships list
+      memberships.value = fetchedMemberships;
+    } catch (e) {
+      print('Error fetching memberships for userId $userId: $e');
+      memberships.value = []; // Reset memberships on error
+    } finally {
+      // Set loading state to false
+      membershipsLoading.value = false;
+    }
+  }
+
+  Future<void> fetchMembershipDetails(String trainerId) async {
+    try {
+      isLoading.value = true; // Set loading to true
+      final fetchedMemberships =
+          await membershipRepository.getMembershipDetailsForTrainer(trainerId);
+
+      // Convert List<Map<String, dynamic>> to List<MembershipModel>
+      membershipDetails.value = fetchedMemberships
+          .map((membershipMap) => MembershipModel.fromMap(membershipMap))
+          .toList();
+
+      isLoading.value = false; // Set loading to false
+    } catch (e) {
+      isLoading.value = false;
+      print('Error fetching membership details: $e');
+      throw Exception("Error fetching membership details: $e");
+    }
+  }
+
+  Future<void> fetchClientDetailsForTrainer(String trainerId) async {
+    try {
+      profileLoading.value = true; // Setting the loading state to true
+      final fetchedClientDetails =
+          await membershipRepository.getClientDetailsForTrainer(trainerId);
+
+      clientDetails.assignAll(
+        fetchedClientDetails
+            .map((data) =>
+                ClientDetails.fromMap(data)) // Now with memberships included
+            .toList(),
+      );
+    } catch (e) {
+      print('Error fetching client details: $e');
+      clientDetails.clear(); // Optionally clear the list if there's an error
+    } finally {
+      profileLoading.value = false; // Setting the loading state to false
     }
   }
 }

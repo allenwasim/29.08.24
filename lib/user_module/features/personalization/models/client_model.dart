@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class ClientDetails {
   final String userId; // Unique identifier for the user
   final String name; // Name of the client
@@ -35,7 +33,7 @@ class ClientDetails {
   Map<String, dynamic> toJson() {
     return {
       'userId': userId,
-      'name': name, // Include the name in the JSON
+      'name': name,
       'height': height,
       'weight': weight,
       'gender': gender,
@@ -50,11 +48,11 @@ class ClientDetails {
     };
   }
 
-  // Create ClientDetails from Firestore JSON
+  // Create ClientDetails from Firestore JSON (using fromJson)
   factory ClientDetails.fromJson(Map<String, dynamic> json) {
     return ClientDetails(
       userId: json['userId'] ?? '',
-      name: json['name'] ?? '', // Parse the name from JSON
+      name: json['name'] ?? '',
       height: json['height'] ?? '',
       weight: json['weight'] ?? '',
       gender: json['gender'] ?? 'Not Specified',
@@ -65,11 +63,30 @@ class ClientDetails {
       email: json['email'] ?? '',
       address: json['address'] ?? '',
       phoneNumber: json['phoneNumber'] ?? '',
-      profilePic: json['profilePic'] ?? '', // Parse profilePic from JSON
+      profilePic: json['profilePic'] ?? '',
     );
   }
 
-  // Add a new membership with duration instead of endDate
+  // Add the fromMap method that works the same way as fromJson
+  factory ClientDetails.fromMap(Map<String, dynamic> map) {
+    return ClientDetails(
+      userId: map['userId'] ?? '',
+      name: map['name'] ?? '',
+      height: map['height'] ?? '',
+      weight: map['weight'] ?? '',
+      gender: map['gender'] ?? 'Not Specified',
+      activityLevel: map['activityLevel'] ?? 'Sedentary',
+      injuries: map['injuries'] ?? '',
+      fitnessGoal: map['fitnessGoal'] ?? '',
+      memberships: List<Map<String, dynamic>>.from(map['memberships'] ?? []),
+      email: map['email'] ?? '',
+      address: map['address'] ?? '',
+      phoneNumber:
+          map['phoneNumber'] ?? '', // Ensure this matches the key in Firestore
+      profilePic:
+          map['profilePic'] ?? '', // Ensure this matches the key in Firestore
+    );
+  }
 
   // Update progress for a specific membership
   void updateProgress(String membershipId, int progress) {
