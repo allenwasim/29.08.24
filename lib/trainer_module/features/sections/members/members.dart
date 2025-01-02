@@ -1,14 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:t_store/common/widgets/buttons/circular_button.dart';
 import 'package:t_store/common/widgets/searchbars/search_bar.dart';
 import 'package:t_store/constants/colors.dart';
 import 'package:t_store/trainer_module/features/controllers/membership_controller.dart';
-import 'package:t_store/trainer_module/features/models/membership_model.dart';
 import 'package:t_store/trainer_module/features/sections/members/widgets/client_membership_card.dart';
 import 'package:t_store/user_module/features/personalization/controllers/user_controller.dart';
-import 'package:t_store/utils/constants/image_strings.dart';
 
 class MembersScreen extends StatefulWidget {
   const MembersScreen({super.key});
