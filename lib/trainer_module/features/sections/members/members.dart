@@ -5,6 +5,7 @@ import 'package:t_store/common/widgets/searchbars/search_bar.dart';
 import 'package:t_store/constants/colors.dart';
 import 'package:t_store/trainer_module/features/controllers/membership_controller.dart';
 import 'package:t_store/trainer_module/features/sections/members/widgets/client_membership_card.dart';
+import 'package:t_store/trainer_module/features/sections/members/widgets/client_membership_detailed_screen.dart';
 import 'package:t_store/user_module/features/personalization/controllers/user_controller.dart';
 
 class MembersScreen extends StatefulWidget {
@@ -17,11 +18,12 @@ class MembersScreen extends StatefulWidget {
 class _MembersScreenState extends State<MembersScreen> {
   final MembershipController membershipController =
       Get.put(MembershipController());
+  final UserController userController = Get.put(UserController());
 
   @override
   void initState() {
     super.initState();
-    final trainerId = UserController.instance.user.value.id;
+    final trainerId = userController.user.value.id;
     membershipController.fetchMembershipDetails(trainerId);
     membershipController.fetchClientDetailsForTrainer(trainerId);
   }
@@ -77,54 +79,73 @@ class _MembersScreenState extends State<MembersScreen> {
             const SizedBox(height: 20),
             Expanded(
               child: ListView.builder(
-                  itemCount: membershipController.clientDetails.length,
-                  itemBuilder: (context, index) {
-                    final client = membershipController.clientDetails[index];
-                    final membership =
-                        membershipController.membershipDetails[index];
+                itemCount: membershipController.clientDetails.length,
+                itemBuilder: (context, index) {
+                  final client = membershipController.clientDetails[index];
+                  final memberships =
+                      membershipController.membershipDetails[index];
 
-                    // Check the raw data returned from Firestore
+                  String planExpiry =
+                      'N/A'; // Default value if no memberships found
 
-                    // Check if the client has memberships and extract data
-                    String planExpiry =
-                        'N/A'; // Default value if no memberships found
+                  List<Widget> membershipWidgets = [];
+                  if (client.memberships != null &&
+                      client.memberships.isNotEmpty) {
+                    for (int membershipIndex = 0;
+                        membershipIndex < client.memberships.length;
+                        membershipIndex++) {
+                      final membership = client.memberships[membershipIndex];
 
-                    if (client.memberships != null &&
-                        client.memberships.isNotEmpty) {
-                      // Access the first membership (or iterate if needed)
-                      final timestamp = client.memberships[0]['endDate'];
+                      final endTimestamp = membership['endDate'];
 
-                      // Ensure timestamp is not null and is an instance of Timestamp
-                      if (timestamp != null && timestamp is Timestamp) {
-                        // Convert the Firestore Timestamp to DateTime
-                        final planExpiryDate = timestamp
-                            .toDate(); // Use .toDate() to convert to DateTime
-                        planExpiry = planExpiryDate
-                            .toLocal()
-                            .toString(); // Convert to local time and string
+                      if (endTimestamp != null && endTimestamp is Timestamp) {
+                        final planExpiryDate = endTimestamp.toDate();
+                        planExpiry = planExpiryDate.toLocal().toString();
                       } else {
                         planExpiry = 'N/A';
                       }
-                    }
 
-                    return GestureDetector(
-                      onTap: () {
-                        // Navigation logic goes here
-                      },
-                      child: UserMembershipCard(
-                        name: client.name, // Display client name
-                        mobile:
-                            client.phoneNumber, // Display client phone number
-                        email: client.email, // Display client email
-                        profilePic:
-                            client.profilePic, // Display the URL if available
-                        planExpiry: planExpiry, // Display the plan expiry date
-                        membershipId:
-                            membership.membershipId, // Display membership ID
-                      ),
-                    );
-                  }),
-            ),
+                      // Calculate remaining days
+                      DateTime endDateTime =
+                          (endTimestamp != null && endTimestamp is Timestamp)
+                              ? endTimestamp.toDate()
+                              : DateTime
+                                  .now(); // Default to now if no valid end date
+
+                      membershipWidgets.add(GestureDetector(
+                        onTap: () {
+                          final membershipData =
+                              client.memberships[membershipIndex];
+                          Get.to(
+                            () => ClientMembershipDetails(
+                              index: membershipIndex,
+                              trainerId: userController.user.value.id,
+                              startDate: membershipData['startDate'],
+                              endDate: membershipData['endDate'],
+                              membershipId: membershipData['membershipId'],
+                            ),
+                          );
+                        },
+                        child: UserMembershipCard(
+                          name: client.name,
+                          mobile: client.phoneNumber,
+                          email: client.email,
+                          profilePic: client.profilePic,
+                          planExpiry: planExpiry,
+                          membershipId: membership['membershipId'],
+                          daysLeft: calculateRemainingDays(endDateTime)
+                              .toString(), // Passing DateTime
+                        ),
+                      ));
+                    }
+                  }
+
+                  return Column(
+                    children: membershipWidgets,
+                  );
+                },
+              ),
+            )
           ],
         );
       }),
@@ -135,6 +156,12 @@ class _MembersScreenState extends State<MembersScreen> {
         label: const Text('SMS'),
       ),
     );
+  }
+
+  int calculateRemainingDays(DateTime endDateTime) {
+    final currentDate = DateTime.now();
+    final difference = endDateTime.difference(currentDate);
+    return difference.inDays;
   }
 
   Widget _buildDropdownButton(String title, bool dark) {

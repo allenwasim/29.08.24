@@ -10,6 +10,7 @@ class UserMembershipCard extends StatelessWidget {
   final String email;
   final String membershipId;
   final String profilePic;
+  final String daysLeft;
 
   const UserMembershipCard({
     Key? key,
@@ -19,12 +20,25 @@ class UserMembershipCard extends StatelessWidget {
     required this.email,
     required this.membershipId,
     required this.profilePic,
+    required this.daysLeft, // Added daysLeft
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // Check if dark mode is enabled
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    // If daysLeft is not passed, calculate it from the planExpiry
+    String remainingDays = daysLeft;
+
+    if (remainingDays.isEmpty) {
+      final expiryDate = DateTime.tryParse(planExpiry);
+      if (expiryDate != null) {
+        final difference = expiryDate.difference(DateTime.now()).inDays;
+        remainingDays = difference > 0 ? '$difference days left' : 'Expired';
+      } else {
+        remainingDays = 'Invalid Date';
+      }
+    }
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
@@ -56,10 +70,8 @@ class UserMembershipCard extends StatelessWidget {
                   Text(
                     name,
                     style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                          fontSize: 14, // Make the name smaller
-                          color: isDarkMode
-                              ? Colors.white
-                              : Colors.black, // Adjust text color for dark mode
+                          fontSize: 14,
+                          color: isDarkMode ? Colors.white : Colors.black,
                         ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -71,6 +83,9 @@ class UserMembershipCard extends StatelessWidget {
                   _buildDetailText('Email', email, isDarkMode),
                   const SizedBox(height: 5),
                   _buildDetailText('Membership ID', membershipId, isDarkMode),
+                  const SizedBox(height: 5),
+                  _buildDetailText('Days Left', remainingDays,
+                      isDarkMode), // Displaying the Days Left
                 ],
               ),
             ),
@@ -87,20 +102,16 @@ class UserMembershipCard extends StatelessWidget {
           TextSpan(
             text: '$title: ',
             style: TextStyle(
-              fontSize: 12, // Smaller text
+              fontSize: 12,
               fontWeight: FontWeight.bold,
-              color: isDarkMode
-                  ? TColors.primary
-                  : TColors.trainerPrimary, // Apply dark mode compatible color
+              color: isDarkMode ? TColors.primary : TColors.trainerPrimary,
             ),
           ),
           TextSpan(
             text: value,
             style: TextStyle(
-              fontSize: 12, // Smaller text
-              color: isDarkMode
-                  ? Colors.white
-                  : Colors.black, // Adjust text color for dark mode
+              fontSize: 12,
+              color: isDarkMode ? Colors.white : Colors.black,
             ),
           ),
         ],

@@ -180,26 +180,6 @@ class MembershipController extends GetxController {
     }
   }
 
-  Future<void> fetchMembershipsFromClientDetails(String userId) async {
-    try {
-      // Set loading state to true
-      membershipsLoading.value = true;
-
-      // Fetch memberships from the repository
-      final fetchedMemberships =
-          await membershipRepository.fetchMembershipsFromClientDetails(userId);
-
-      // Update observable memberships list
-      memberships.value = fetchedMemberships;
-    } catch (e) {
-      print('Error fetching memberships for userId $userId: $e');
-      memberships.value = []; // Reset memberships on error
-    } finally {
-      // Set loading state to false
-      membershipsLoading.value = false;
-    }
-  }
-
   Future<void> fetchMembershipDetails(String trainerId) async {
     try {
       isLoading.value = true; // Set loading to true

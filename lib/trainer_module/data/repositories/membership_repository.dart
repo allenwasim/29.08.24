@@ -416,24 +416,6 @@ class MembershipRepository extends GetxService {
     }
   }
 
-  Future<List<dynamic>> fetchMembershipsFromClientDetails(String userId) async {
-    try {
-      // Fetch data from Firestore
-      var snapshot = await FirebaseFirestore.instance
-          .collection('Profiles')
-          .doc(userId)
-          .collection('clientDetails')
-          .doc('details')
-          .get();
-
-      // Assuming memberships is an array inside the Firestore document
-      return snapshot.data()?['memberships'] ?? [];
-    } catch (e) {
-      print('Error fetching memberships: $e');
-      rethrow;
-    }
-  }
-
   Future<List<Map<String, dynamic>>> getClientDetailsForTrainer(
       String trainerId) async {
     try {
@@ -461,6 +443,16 @@ class MembershipRepository extends GetxService {
             'membershipStatus':
                 clientData['membershipStatus'] ?? 'Not available',
             'memberships': clientData['memberships'] ?? [], // Fetch memberships
+            'weight': clientData['weight'] ?? '', // Add weight field
+            'height': clientData['height'] ?? '', // Add height field
+            'gender':
+                clientData['gender'] ?? 'Not Specified', // Add gender field
+            'activityLevel': clientData['activityLevel'] ??
+                'Sedentary', // Add activity level field
+            'injuries': clientData['injuries'] ?? '', // Add injuries field
+            'fitnessGoal':
+                clientData['fitnessGoal'] ?? '', // Add fitness goal field
+            'address': clientData['address'] ?? '', // Add address field
           });
         }
       }
