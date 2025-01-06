@@ -131,7 +131,7 @@ class MembershipController extends GetxController {
       // Log for debugging
       print('Initiating membership addition for user: $userId');
 
-      // Call the repository method to perform the Firestore update
+      // Call the repository method to perform the Firestore update for the user
       await membershipRepository.addMembershipByUser(
         userId: userId,
         membershipId: membershipId,
@@ -140,6 +140,10 @@ class MembershipController extends GetxController {
         progress: progress,
         duration: duration,
       );
+
+      // Call the repository method to add the membership to the trainer
+
+      // Navigate to the Memberships page
       Get.to(() => Memberships());
 
       // Optionally handle success in the UI
@@ -177,6 +181,28 @@ class MembershipController extends GetxController {
     } finally {
       // Set loading state to false after the operation completes
       isLoading.value = false;
+    }
+  }
+
+  Future<void> addMemberToTrainer(
+    String trainerId,
+    String clientId,
+    String membershipId,
+    String profilePic,
+  ) async {
+    try {
+      // Call the repository method to add the member to the trainer's list
+      await membershipRepository.addMemberToTrainer(
+        trainerId,
+        clientId,
+        membershipId,
+        profilePic,
+      );
+      // Optionally handle success UI logic here, e.g., showing a success message
+      print('Successfully added member to trainer.');
+    } catch (e) {
+      // Handle failure UI logic here, e.g., showing an error message
+      print('Failed to add member to trainer: $e');
     }
   }
 

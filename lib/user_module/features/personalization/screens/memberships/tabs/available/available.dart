@@ -85,7 +85,6 @@ class AvailableMembershipsScreen extends StatelessWidget {
                               isActive:
                                   false, // Available memberships are inactive
                               trainerName: trainer.name ?? 'Unknown Trainer',
-
                               planName: membership.planName,
                               workouts: membership.workouts.join(', '),
                               duration: membership.duration,

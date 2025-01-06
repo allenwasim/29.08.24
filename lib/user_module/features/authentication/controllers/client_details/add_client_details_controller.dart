@@ -19,7 +19,7 @@ class AddClientDetailsController extends GetxController {
   final phoneController = TextEditingController();
   final addressController = TextEditingController();
 
-  String? gender;
+  var gender = 'Male'.obs; // Use .obs to make the String reactive
   String activityLevel = "Sedentary";
   String? fitnessGoal;
 
@@ -48,7 +48,7 @@ class AddClientDetailsController extends GetxController {
       userId: userId,
       height: heightController.text,
       weight: weightController.text,
-      gender: gender ?? 'Not Specified',
+      gender: gender.toString() ?? 'No t Specified',
       activityLevel: activityLevel,
       fitnessGoal: fitnessGoal ?? 'Not Specified',
       injuries: injuriesController.text,

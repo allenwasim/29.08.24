@@ -38,7 +38,7 @@ class TrainerDetails {
   String trainerId;
   String name;
   String bio;
-  String expertise;
+  List<String> expertise;
   int yearsOfExperience;
   double rating;
   List<String> certifications;
@@ -66,7 +66,7 @@ class TrainerDetails {
       : trainerId = '',
         name = '',
         bio = '',
-        expertise = '',
+        expertise = [],
         yearsOfExperience = 0,
         rating = 0.0,
         certifications = [],
@@ -84,7 +84,7 @@ class TrainerDetails {
   void updateTrainerDetails({
     String? name,
     String? bio,
-    String? expertise,
+    List<String>? expertise,
     int? yearsOfExperience,
     double? rating,
     List<String>? certifications,
@@ -128,9 +128,9 @@ class TrainerDetails {
       trainerId: json['trainerId'] ?? '',
       name: json['name'] ?? '',
       bio: json['bio'] ?? '',
-      expertise: json['expertise'] ?? '',
+      expertise: List<String>.from(json['expertise'] ?? []),
       yearsOfExperience: json['yearsOfExperience'] ?? 0,
-      rating: json['rating'] ?? 0.0,
+      rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
       certifications: List<String>.from(json['certifications'] ?? []),
       languages: List<String>.from(json['languages'] ?? []),
       availability: json['availability'] ?? '',

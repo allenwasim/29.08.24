@@ -7,6 +7,7 @@ import 'package:t_store/trainer_module/features/controllers/membership_controlle
 import 'package:t_store/trainer_module/features/models/membership_model.dart';
 import 'package:t_store/constants/colors.dart';
 import 'package:t_store/trainer_module/features/models/trainer_model.dart';
+import 'package:t_store/trainer_module/features/sections/add_trainer_details.dart/add_trainer_details_screen.dart';
 import 'package:t_store/user_module/features/personalization/controllers/user_controller.dart';
 import 'package:t_store/utils/constants/image_strings.dart';
 
@@ -26,7 +27,7 @@ class AvailableMembershipDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final dark = MediaQuery.of(context).platformBrightness == Brightness.dark;
 
-    final String trainerExpertise = trainerDetails.expertise ?? 'Expert';
+    final List<String> trainerExpertise = trainerDetails.expertise ?? [];
     final String trainerBio = trainerDetails.bio ?? 'No bio available';
     final int trainerYearsOfExperience = trainerDetails.yearsOfExperience ?? 0;
     final double trainerRating = trainerDetails.rating ?? 0.0;
@@ -73,7 +74,8 @@ class AvailableMembershipDetailsScreen extends StatelessWidget {
                       children: [
                         _buildDetailRow('Name', trainerDetails.name),
                         const SizedBox(height: 4),
-                        _buildDetailRow('Expertise', trainerExpertise),
+                        _buildDetailRow(
+                            'Expertise', trainerExpertise.join(", ")),
                         _buildDetailRow('Rating', '$trainerRating ⭐'),
                         const SizedBox(height: 8),
                         Card(
@@ -109,14 +111,7 @@ class AvailableMembershipDetailsScreen extends StatelessWidget {
               const SizedBox(height: 8),
               _buildListRow('Languages', trainerLanguages),
               const SizedBox(height: 8),
-              Text(
-                'Availability: $trainerAvailability',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: dark ? Colors.white : Colors.black54,
-                ),
-              ),
+
               const SizedBox(height: 20),
 
               // Membership Plan Section
@@ -217,6 +212,11 @@ class AvailableMembershipDetailsScreen extends StatelessWidget {
                       progress: 0,
                       duration: membership.duration,
                     );
+                    membershipController.addMemberToTrainer(
+                        trainerDetails.trainerId,
+                        userId,
+                        membership.id,
+                        userController.user.value.profilePicture);
                   } catch (e) {
                     print('Error in Start Membership button: $e');
                   }
@@ -275,14 +275,7 @@ class AvailableMembershipDetailsScreen extends StatelessWidget {
             spacing: 8.0,
             runSpacing: 4.0,
             children: items.map((item) {
-              return Chip(
-                label: Text(item),
-                backgroundColor: Colors.green.shade100,
-                labelStyle: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14,
-                ),
-              );
+              return Text(item);
             }).toList(),
           ),
         ),
