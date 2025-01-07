@@ -16,6 +16,7 @@ class MembershipModel {
   // Nullable fields for Active Membership
   DateTime? startDate; // Nullable field for start date
   DateTime? endDate; // Nullable field for end date
+  String? meetLink; // Nullable field for meeting link
 
   // Constructor with optional parameters
   MembershipModel({
@@ -31,6 +32,7 @@ class MembershipModel {
     DateTime? createdAt,
     this.startDate,
     this.endDate,
+    this.meetLink,
   }) : createdAt = createdAt ?? DateTime.now();
 
   // Named constructor for an empty membership model
@@ -46,36 +48,15 @@ class MembershipModel {
         isAvailable = true,
         createdAt = DateTime.now(),
         startDate = null,
-        endDate = null;
+        endDate = null,
+        meetLink = null;
 
   // Helper function to get formatted price
   String get formattedPrice => TFormatter.formatPrice(price);
 
-  // Helper function to get formatted duration
-
-  // Method to update plan name
-  void updatePlanName(String newPlanName) {
-    planName = newPlanName;
-  }
-
-  // Method to update description
-  void updateDescription(String newDescription) {
-    description = newDescription;
-  }
-
-  // Method to update price
-  void updatePrice(double newPrice) {
-    price = newPrice;
-  }
-
-  // Method to update workouts
-  void updateWorkouts(List<String> newWorkouts) {
-    workouts = newWorkouts;
-  }
-
-  // Method to update availability status
-  void updateAvailability(bool newAvailability) {
-    isAvailable = newAvailability;
+  // Method to update the meet link
+  void updateMeetLink(String? newMeetLink) {
+    meetLink = newMeetLink;
   }
 
   // Method to convert MembershipModel to JSON
@@ -92,6 +73,7 @@ class MembershipModel {
       'createdAt': createdAt,
       'startDate': startDate,
       'endDate': endDate,
+      'meetLink': meetLink,
     };
   }
 
@@ -100,7 +82,6 @@ class MembershipModel {
       DocumentSnapshot<Map<String, dynamic>> document) async {
     final data = document.data()!;
 
-    // Ensure `duration` is parsed correctly, whether it's a String or int
     int parsedDuration = 0;
     if (data['duration'] is int) {
       parsedDuration = data['duration'];
@@ -115,16 +96,17 @@ class MembershipModel {
       planName: data['planName'] ?? '',
       description: data['description'] ?? '',
       price: (data['price'] ?? 0).toDouble(),
-      duration: parsedDuration, // Use parsed duration
+      duration: parsedDuration,
       workouts: List<String>.from(data['workouts'] ?? []),
       isAvailable: data['isAvailable'] ?? false,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       startDate: (data['startDate'] as Timestamp?)?.toDate(),
       endDate: (data['endDate'] as Timestamp?)?.toDate(),
+      meetLink: data['meetLink'] as String?,
     );
   }
 
-  // Add this method to convert a Map<String, dynamic> into MembershipModel
+  // Method to convert a Map<String, dynamic> into MembershipModel
   static MembershipModel fromMap(Map<String, dynamic> data) {
     int parsedDuration = 0;
     if (data['duration'] is int) {
@@ -152,6 +134,7 @@ class MembershipModel {
       endDate: (data['endDate'] is Timestamp)
           ? (data['endDate'] as Timestamp).toDate()
           : data['endDate'] as DateTime?,
+      meetLink: data['meetLink'] as String?,
     );
   }
 
@@ -175,6 +158,6 @@ class MembershipModel {
 
   @override
   String toString() {
-    return 'MembershipModel(id: $id, membershipId: $membershipId, trainerId: $trainerId, planName: $planName, description: $description, price: $price, duration: $duration, workouts: $workouts, isAvailable: $isAvailable, createdAt: $createdAt, startDate: $startDate, endDate: $endDate)';
+    return 'MembershipModel(id: $id, membershipId: $membershipId, trainerId: $trainerId, planName: $planName, description: $description, price: $price, duration: $duration, workouts: $workouts, isAvailable: $isAvailable, createdAt: $createdAt, startDate: $startDate, endDate: $endDate, meetLink: $meetLink)';
   }
 }

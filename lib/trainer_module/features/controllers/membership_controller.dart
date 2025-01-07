@@ -54,55 +54,6 @@ class MembershipController extends GetxController {
     }
   }
 
-  // Add a new membership plan for a trainer
-  Future<void> addMembershipPlan({
-    required String trainerId,
-    required String name,
-    required String description,
-    required double price,
-    required int duration,
-    required List<String> workouts,
-    required bool isAvailable,
-  }) async {
-    try {
-      isLoading.value = true;
-
-      // Call the repository to save the membership plan
-      final newMembership = await membershipRepository.addMembershipPlan(
-        trainerId,
-        name,
-        description,
-        price,
-        duration,
-        workouts,
-        isAvailable,
-      );
-
-      // Add the new membership to the observable list
-      membershipPlans.add(newMembership);
-
-      isLoading.value = false;
-
-      // Show success snackbar
-      TLoaders.successSnackBar(
-        title: "Success",
-        message: "Membership Plan added successfully.",
-      );
-
-      // Redirect to the desired screen
-      Get.offAll(
-          GymScreen(trainerId: trainerId)); // Replace with the desired route
-    } catch (e) {
-      isLoading.value = false;
-
-      // Show error snackbar
-      TLoaders.warningSnackBar(
-        title: "Error",
-        message: "Failed to add membership plan. Please try again.",
-      );
-    }
-  }
-
   // Fetch membership details for a specific trainer
   Future<void> fetchAvailableMemberships() async {
     try {

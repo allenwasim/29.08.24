@@ -45,6 +45,7 @@ dependencies:
   cached_network_image: ^3.4.1
   shimmer: ^3.0.0
   carousel_slider: ^5.0.0
+  webview_flutter: ^4.10.0
 
   #--------------- ./ PACKAGES END ------------------#
 

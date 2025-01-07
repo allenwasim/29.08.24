@@ -13,6 +13,7 @@ class AddPlansController extends GetxController {
   RxInt duration = 0.obs; // Changed from RxString to RxInt
   RxList<String> workouts = <String>[].obs;
   RxBool isAvailable = true.obs;
+  RxString meetLink = ''.obs; // Added field for meet link
 
   RxList<MembershipModel> membershipPlans = <MembershipModel>[].obs;
 
@@ -31,8 +32,9 @@ class AddPlansController extends GetxController {
     if (name.value.isEmpty ||
         description.value.isEmpty ||
         price.value <= 0 ||
-        duration.value <= 0) {
-      // Check if duration is valid
+        duration.value <= 0 ||
+        meetLink.value.isEmpty) {
+      // Check if all fields are valid
       Get.snackbar(
         'Error',
         'Please fill in all fields correctly.',
@@ -51,6 +53,7 @@ class AddPlansController extends GetxController {
         duration.value, // Convert duration to string
         workouts,
         isAvailable.value,
+        meetLink.value, // Pass the meet link
       );
 
       // Show success snackbar

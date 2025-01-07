@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:http/http.dart';
 import 'package:intl/intl.dart';
+import 'package:t_store/common/widgets/buttons/circular_button.dart';
+import 'package:t_store/trainer_module/data/repositories/membership_repository.dart';
 import 'package:t_store/trainer_module/features/models/membership_model.dart';
+import 'package:t_store/trainer_module/features/sections/members/widgets/web_page_view.dart';
+import 'package:t_store/user_module/data/repositories/client/client_repository.dart';
 
-class MembershipDetailScreen extends StatelessWidget {
+final ClientRepository clientRepository = Get.put(ClientRepository());
+
+class ActiveMembershipDetailScreen extends StatelessWidget {
   final MembershipModel membership;
 
-  const MembershipDetailScreen({Key? key, required this.membership})
+  const ActiveMembershipDetailScreen({Key? key, required this.membership})
       : super(key: key);
 
   @override
@@ -74,7 +82,6 @@ class MembershipDetailScreen extends StatelessWidget {
                     // Progress Section
                     buildProgressSection(context, isDarkMode, progress,
                         workoutsCompleted, totalDays),
-
                     const SizedBox(height: 24),
                     // Live Sessions Button
                     buildActionButton(
@@ -82,7 +89,21 @@ class MembershipDetailScreen extends StatelessWidget {
                       'Join Live Session',
                       Icons.video_call,
                       () {
-                        // Handle live session logic
+                        if (membership.meetLink != null &&
+                            membership.meetLink!.isNotEmpty) {
+                          print(membership.meetLink);
+                          print("object");
+                          clientRepository
+                              .navigateToGoogleMeet(membership.meetLink!);
+                        } else {
+                          Get.snackbar(
+                            'Error',
+                            'No valid Google Meet link available for this membership.',
+                            snackPosition: SnackPosition.BOTTOM,
+                            backgroundColor: Colors.red,
+                            colorText: Colors.white,
+                          );
+                        }
                       },
                     ),
 
@@ -238,18 +259,11 @@ class MembershipDetailScreen extends StatelessWidget {
 
   Widget buildActionButton(BuildContext context, String label, IconData icon,
       VoidCallback onPressed) {
-    return ElevatedButton.icon(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.grey[200],
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        minimumSize: const Size(double.infinity, 50),
-      ),
-      icon: Icon(icon, color: Colors.black),
-      label: Text(label, style: const TextStyle(color: Colors.black)),
+    return TCircularButton(
+      onTap: onPressed,
+      text: label,
+      textColor: Colors.white,
+      backgroundColor: Colors.green,
     );
   }
 }

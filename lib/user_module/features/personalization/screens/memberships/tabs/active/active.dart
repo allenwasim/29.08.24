@@ -82,7 +82,7 @@ class ActiveMembershipsScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
                     child: GestureDetector(
                       onTap: () => Get.to(
-                        MembershipDetailScreen(
+                        ActiveMembershipDetailScreen(
                           membership: membership,
                         ),
                       ),

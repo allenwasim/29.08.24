@@ -16,6 +16,7 @@ class MembershipRepository extends GetxService {
     int duration,
     List<String> workouts,
     bool isAvailable,
+    String meetLink, // Added meetLink parameter
   ) async {
     try {
       String membershipId = _firestore.collection('memberships').doc().id;
@@ -29,6 +30,7 @@ class MembershipRepository extends GetxService {
         'duration': duration,
         'workouts': workouts,
         'isAvailable': isAvailable,
+        'meetLink': meetLink, // Added meetLink to the data
         'createdAt': FieldValue.serverTimestamp(),
       };
 
@@ -47,6 +49,7 @@ class MembershipRepository extends GetxService {
         duration: duration,
         workouts: workouts,
         isAvailable: isAvailable,
+        meetLink: meetLink, // Added meetLink to the model
         createdAt: DateTime.now(),
       );
 
@@ -390,7 +393,7 @@ class MembershipRepository extends GetxService {
         Timestamp startDateTimestamp = membership['startDate'] as Timestamp;
         Timestamp endDateTimestamp = membership['endDate'] as Timestamp;
 
-        // Convert Timestamp to DateTime (if startDate and endDate are Timestamps)
+        // Convert Timestamp to DateTime
         DateTime startDate = startDateTimestamp.toDate();
         DateTime endDate = endDateTimestamp.toDate();
 
@@ -398,15 +401,19 @@ class MembershipRepository extends GetxService {
         Map<String, dynamic> membershipDetails =
             await fetchMembershipPlan(membershipId);
 
+        // Extract `meetLink` if available
+        String? meetLink = membershipDetails['meetLink'] as String?;
+
         // Add start and end dates to the membership details
-        Map<String, dynamic> membershipWithDates = {
+        Map<String, dynamic> membershipWithDetails = {
           'membershipId': membershipId,
           'startDate': startDate,
           'endDate': endDate,
+          'meetLink': meetLink, // Include meetLink in the output
           ...membershipDetails, // Include other membership details
         };
 
-        memberships.add(membershipWithDates);
+        memberships.add(membershipWithDetails);
       }
 
       return memberships;

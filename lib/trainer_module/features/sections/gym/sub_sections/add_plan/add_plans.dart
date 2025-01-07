@@ -77,6 +77,25 @@ class AddPlanScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
 
+                // Meet Link Field
+                TextFormField(
+                  decoration:
+                      const InputDecoration(labelText: 'Google Meet Link'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a meet link';
+                    }
+                    final urlPattern =
+                        r'^(https?:\/\/)?(www\.)?(meet\.google\.com\/[^\s]+)$';
+                    if (!RegExp(urlPattern).hasMatch(value)) {
+                      return 'Please enter a valid Google Meet link';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) => controller.meetLink.value = value,
+                ),
+                const SizedBox(height: 16),
+
                 // Price Dropdown
                 DropdownButtonFormField<int>(
                   decoration:

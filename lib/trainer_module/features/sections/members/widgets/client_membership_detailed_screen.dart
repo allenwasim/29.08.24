@@ -16,6 +16,7 @@ class ClientMembershipDetails extends StatelessWidget {
       Get.put(MembershipController());
 
   ClientMembershipDetails({
+    super.key,
     required this.trainerId,
     required this.index,
     required this.startDate,
