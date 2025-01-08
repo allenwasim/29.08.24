@@ -10,6 +10,8 @@ class ClientDetailsController extends GetxController {
 
   final clientRepository = Get.put(ClientRepository());
   final detailsLoading = false.obs;
+  var clientMembershipData =
+      Rx<Map<String, dynamic>?>(null); // To hold membership data
 
   @override
   void onInit() {
@@ -58,6 +60,39 @@ class ClientDetailsController extends GetxController {
       TLoaders.warningSnackBar(
           title: "Error",
           message: "Failed to save client details. Please try again.");
+    }
+  }
+
+  Future<void> fetchClientMemberships({
+    required String clientId,
+    required String membershipId,
+  }) async {
+    try {
+      // Set loading state to true
+      detailsLoading.value = true;
+
+      // Fetch the membership from the repository
+      Map<String, dynamic>? fetchedMembership =
+          await clientRepository.fetchMembershipById(
+        clientId: clientId,
+        membershipId: membershipId,
+      );
+
+      // Update the clientMembership observable with the fetched membership data
+      clientMembershipData.value = fetchedMembership;
+
+      // Log the fetched data
+      if (fetchedMembership != null) {
+        print('Membership fetched successfully: $fetchedMembership');
+      } else {
+        print('No membership found.');
+      }
+    } catch (e) {
+      print('Error fetching client memberships: $e');
+      // Handle error appropriately (maybe show a UI alert)
+    } finally {
+      // Set loading state to false
+      detailsLoading.value = false;
     }
   }
 }

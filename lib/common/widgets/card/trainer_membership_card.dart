@@ -62,7 +62,7 @@ class TTrainerCard extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(50.0),
                 child: Image.network(
-                  profilePic?.isNotEmpty ?? false
+                  profilePic?.isNotEmpty == true
                       ? profilePic!
                       : TImages.userProfileImage1,
                   width: 70,
@@ -107,19 +107,20 @@ class TTrainerCard extends StatelessWidget {
                     const SizedBox(height: 10),
                     if (isActive) ...[
                       // Display Start and End Date
-                      _buildDetailText(
-                          'Start Date', startDate, TColors.primary),
-                      _buildDetailText('End Date', endDate, TColors.primary),
+                      _buildDetailText('Start Date',
+                          startDate ?? 'Not available', colorScheme.primary),
+                      _buildDetailText('End Date', endDate ?? 'Not available',
+                          colorScheme.primary),
                     ] else if (price != null) ...[
                       // Show Duration
                       _buildDetailText(
                         'Duration',
                         duration != null ? '$duration months' : 'Not available',
-                        TColors.primary,
+                        colorScheme.primary,
                       ),
                       const SizedBox(height: 10),
                       // Display "Join for" Price
-                      _buildJoinForPrice(price!, TColors.primary),
+                      _buildJoinForPrice(price!, colorScheme.primary),
                     ],
                   ],
                 ),
@@ -132,11 +133,11 @@ class TTrainerCard extends StatelessWidget {
   }
 
   // Helper function to build detail rows
-  Widget _buildDetailText(String label, String? value, Color colorScheme) {
+  Widget _buildDetailText(String label, String value, Color colorScheme) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Text(
-        '$label: ${value ?? "Not available"}',
+        '$label: $value',
         style: TextStyle(
           color: colorScheme,
           fontSize: 12,

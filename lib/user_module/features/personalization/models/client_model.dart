@@ -26,7 +26,7 @@ class ClientDetails {
     required this.email,
     required this.address,
     required this.phoneNumber,
-    required this.profilePic, // Added profilePic to constructor
+    required this.profilePic,
   });
 
   // Convert ClientDetails to JSON for Firestore
@@ -128,5 +128,25 @@ class ClientDetails {
   // Function to get userId
   String getUserId() {
     return userId;
+  }
+
+  // Add membership with unique clientMembershipId
+  void addMembership(Map<String, dynamic> newMembership) {
+    String uniqueMembershipId =
+        'client_${DateTime.now().millisecondsSinceEpoch}'; // Generate a unique ID using timestamp
+    newMembership['clientMembershipId'] =
+        uniqueMembershipId; // Add unique ID to membership
+    memberships.add(newMembership); // Add to memberships list
+  }
+
+  // Update membership details by clientMembershipId
+  void updateMembership(
+      String clientMembershipId, Map<String, dynamic> updatedMembership) {
+    final membershipIndex = memberships.indexWhere(
+      (membership) => membership['clientMembershipId'] == clientMembershipId,
+    );
+    if (membershipIndex != -1) {
+      memberships[membershipIndex] = updatedMembership;
+    }
   }
 }

@@ -6,31 +6,39 @@ import 'package:t_store/trainer_module/features/models/membership_model.dart';
 import 'package:t_store/trainer_module/features/models/trainer_model.dart';
 import 'package:t_store/trainer_module/features/sections/trainer_details_screen/trainer_details_screen.dart';
 import 'package:t_store/user_module/data/repositories/client/client_repository.dart';
+import 'package:t_store/user_module/features/authentication/controllers/client_details/client_details_controller.dart';
 
 final ClientRepository clientRepository = Get.put(ClientRepository());
+final ClientDetailsController clientDetailsController =
+    Get.put(ClientDetailsController());
 
 class ActiveMembershipDetailScreen extends StatelessWidget {
   final MembershipModel membership;
   final TrainerDetails trainer;
+  final dynamic clientMembership;
 
-  const ActiveMembershipDetailScreen({
-    Key? key,
-    required this.membership,
-    required this.trainer,
-  }) : super(key: key);
+  const ActiveMembershipDetailScreen(
+      {Key? key,
+      required this.membership,
+      required this.trainer,
+      required this.clientMembership})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
 
-    // Format dates
+    // Format dates using data from the ClientDetailsController
     final DateFormat dateFormat = DateFormat("MMM dd, yyyy");
-    final String startDateFormatted = dateFormat.format(membership.createdAt);
-    final String endDateFormatted = dateFormat.format(
-        membership.createdAt.add(Duration(days: 30))); // Adjust for end date
+    final startDate = clientMembership['startDate'] != null
+        ? dateFormat.format(clientMembership['startDate'].toDate())
+        : 'Unknown start date';
+    final endDate = clientMembership['endDate'] != null
+        ? dateFormat.format(clientMembership['endDate'].toDate())
+        : 'No end date';
 
-    // Calculate progress
+    // Calculate progress based on fetched data
     final int totalDays = membership.workouts.length;
     final int workoutsCompleted =
         membership.workouts.where((workout) => workout.isNotEmpty).length;
@@ -49,30 +57,36 @@ class ActiveMembershipDetailScreen extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildMembershipInfoCard(
-                context,
-                startDateFormatted,
-                endDateFormatted,
-              ),
-              const SizedBox(height: 16),
-              _buildTrainerDetailsCard(context),
-              const SizedBox(height: 16),
-              _buildPrivilegesSection(context),
-              const SizedBox(height: 16),
-              _buildProgressSection(
-                  context, progress, workoutsCompleted, totalDays),
-              const SizedBox(height: 16),
-              _buildActionButtons(context),
-            ],
+      body: Obx(() {
+        if (clientDetailsController.detailsLoading.value) {
+          return Center(child: CircularProgressIndicator());
+        }
+
+        return SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildMembershipInfoCard(
+                  context,
+                  startDate,
+                  endDate,
+                ),
+                const SizedBox(height: 16),
+                _buildTrainerDetailsCard(context),
+                const SizedBox(height: 16),
+                _buildPrivilegesSection(context),
+                const SizedBox(height: 16),
+                _buildProgressSection(
+                    context, progress, workoutsCompleted, totalDays),
+                const SizedBox(height: 16),
+                _buildActionButtons(context),
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      }),
     );
   }
 

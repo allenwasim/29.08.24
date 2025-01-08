@@ -21,14 +21,6 @@ class _MembersScreenState extends State<MembersScreen> {
   final UserController userController = Get.put(UserController());
 
   @override
-  void initState() {
-    super.initState();
-    final trainerId = userController.user.value.id;
-    membershipController.fetchMembershipDetails(trainerId);
-    membershipController.fetchClientDetailsForTrainer(trainerId);
-  }
-
-  @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
 
@@ -65,6 +57,8 @@ class _MembersScreenState extends State<MembersScreen> {
           return Center(child: Text('No client details available.'));
         }
 
+        final clients = membershipController.clientDetails;
+
         return Column(
           children: [
             const SizedBox(height: 20),
@@ -79,65 +73,60 @@ class _MembersScreenState extends State<MembersScreen> {
             const SizedBox(height: 20),
             Expanded(
               child: ListView.builder(
-                itemCount: membershipController.clientDetails.length,
+                itemCount: clients.length,
                 itemBuilder: (context, index) {
-                  final client = membershipController.clientDetails[index];
+                  final client = clients[index];
                   String planExpiry = 'N/A';
 
-                  List<Widget> membershipWidgets = [];
+                  // Directly handle membership details
                   if (client.memberships != null &&
                       client.memberships.isNotEmpty) {
-                    for (int membershipIndex = 0;
-                        membershipIndex < client.memberships.length;
-                        membershipIndex++) {
-                      final membership = client.memberships[membershipIndex];
-                      final endTimestamp = membership['endDate'];
+                    // Get the latest membership or process all if needed
+                    final membership = client.memberships
+                        .first; // assuming we're using the first membership
 
-                      if (endTimestamp != null && endTimestamp is Timestamp) {
-                        final planExpiryDate = endTimestamp.toDate();
-                        planExpiry = planExpiryDate.toLocal().toString();
-                      }
-
-                      DateTime endDateTime =
-                          (endTimestamp != null && endTimestamp is Timestamp)
-                              ? endTimestamp.toDate()
-                              : DateTime.now();
-
-                      membershipWidgets.add(GestureDetector(
-                        onTap: () {
-                          final membershipData =
-                              client.memberships[membershipIndex];
-                          Get.to(
-                            () => ClientMembershipDetails(
-                              client: client,
-                              trainerId: userController.user.value.id,
-                              startDate: membershipData['startDate'],
-                              endDate: membershipData['endDate'],
-                              membershipId: membershipData['membershipId'],
-                              membership: membership,
-                            ),
-                          );
-                        },
-                        child: UserMembershipCard(
-                          name: client.name,
-                          mobile: client.phoneNumber,
-                          email: client.email,
-                          profilePic: client.profilePic,
-                          planExpiry: planExpiry,
-                          membershipId: membership['membershipId'],
-                          daysLeft:
-                              calculateRemainingDays(endDateTime).toString(),
-                        ),
-                      ));
+                    final endTimestamp = membership['endDate'];
+                    if (endTimestamp != null && endTimestamp is Timestamp) {
+                      final planExpiryDate = endTimestamp.toDate();
+                      planExpiry = planExpiryDate.toLocal().toString();
                     }
+
+                    DateTime endDateTime =
+                        (endTimestamp != null && endTimestamp is Timestamp)
+                            ? endTimestamp.toDate()
+                            : DateTime.now();
+
+                    return GestureDetector(
+                      onTap: () {
+                        final membershipData = membership;
+                        Get.to(
+                          () => ClientMembershipDetails(
+                            client: client,
+                            trainerId: userController.user.value.id,
+                            startDate: membershipData['startDate'],
+                            endDate: membershipData['endDate'],
+                            membershipId: membershipData['membershipId'],
+                            membership: membership,
+                          ),
+                        );
+                      },
+                      child: UserMembershipCard(
+                        name: client.name,
+                        mobile: client.phoneNumber,
+                        email: client.email,
+                        profilePic: client.profilePic,
+                        planExpiry: planExpiry,
+                        membershipId: membership['membershipId'],
+                        daysLeft:
+                            calculateRemainingDays(endDateTime).toString(),
+                      ),
+                    );
                   }
 
-                  return Column(
-                    children: membershipWidgets,
-                  );
+                  return Container(); // Return an empty container if no membership exists
                 },
               ),
-            )
+            ),
           ],
         );
       }),

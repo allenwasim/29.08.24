@@ -77,4 +77,47 @@ class ClientRepository extends GetxController {
       Get.snackbar("Error", "Failed to navigate to Google Meet.");
     }
   }
+
+  Future<Map<String, dynamic>?> fetchMembershipById({
+    required String clientId,
+    required String membershipId,
+  }) async {
+    try {
+      // Reference to the user's profile document
+      DocumentReference userRef = _db
+          .collection('Profiles')
+          .doc(clientId)
+          .collection('clientDetails')
+          .doc('details');
+
+      // Fetch the user document
+      DocumentSnapshot userSnapshot = await userRef.get();
+
+      // Check if the document exists
+      if (userSnapshot.exists) {
+        // Get the memberships array from the user's profile
+        List<dynamic> memberships = userSnapshot['memberships'] ?? [];
+
+        // Find the membership with the provided membershipId
+        Map<String, dynamic>? membership = memberships.firstWhere(
+          (membership) => membership['membershipId'] == membershipId,
+          orElse: () => {},
+        );
+
+        // Return the membership data if found
+        if (membership!.isNotEmpty) {
+          return membership;
+        } else {
+          print('No membership found with ID: $membershipId');
+          return null;
+        }
+      } else {
+        print('No user found with ID: $clientId');
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching memberships: $e');
+      throw Exception('Failed to fetch membership');
+    }
+  }
 }

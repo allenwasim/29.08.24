@@ -254,6 +254,7 @@ class MembershipRepository extends GetxService {
               'name': clientData['name'],
               'email': clientData['email'],
               'mobile': clientData['phoneNumber'],
+              'startDate': membership['startDate'],
               'planExpiry': membership['endDate'] != null
                   ? (membership['endDate'] as Timestamp).toDate().toString()
                   : 'Not available',
@@ -289,13 +290,20 @@ class MembershipRepository extends GetxService {
       // Calculate the end date by adding the duration (in months)
       DateTime end = start.add(Duration(days: 30 * duration));
 
+      // Generate a unique clientMembershipId using the current timestamp
+      String clientMembershipId =
+          'client_${DateTime.now().millisecondsSinceEpoch}';
+
       // Debugging logs
       print('Start Date: $start');
       print('End Date (calculated): $end');
+      print('Generated Client Membership ID: $clientMembershipId');
 
-      // Construct membership data
+      // Construct membership data including the unique clientMembershipId
       Map<String, dynamic> membershipData = {
         'membershipId': membershipId,
+        'clientMembershipId':
+            clientMembershipId, // Add unique clientMembershipId
         'startDate': startDate,
         'endDate': Timestamp.fromDate(end),
         'status': status,
