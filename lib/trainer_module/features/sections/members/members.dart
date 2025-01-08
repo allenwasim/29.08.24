@@ -82,11 +82,7 @@ class _MembersScreenState extends State<MembersScreen> {
                 itemCount: membershipController.clientDetails.length,
                 itemBuilder: (context, index) {
                   final client = membershipController.clientDetails[index];
-                  final memberships =
-                      membershipController.membershipDetails[index];
-
-                  String planExpiry =
-                      'N/A'; // Default value if no memberships found
+                  String planExpiry = 'N/A';
 
                   List<Widget> membershipWidgets = [];
                   if (client.memberships != null &&
@@ -95,22 +91,17 @@ class _MembersScreenState extends State<MembersScreen> {
                         membershipIndex < client.memberships.length;
                         membershipIndex++) {
                       final membership = client.memberships[membershipIndex];
-
                       final endTimestamp = membership['endDate'];
 
                       if (endTimestamp != null && endTimestamp is Timestamp) {
                         final planExpiryDate = endTimestamp.toDate();
                         planExpiry = planExpiryDate.toLocal().toString();
-                      } else {
-                        planExpiry = 'N/A';
                       }
 
-                      // Calculate remaining days
                       DateTime endDateTime =
                           (endTimestamp != null && endTimestamp is Timestamp)
                               ? endTimestamp.toDate()
-                              : DateTime
-                                  .now(); // Default to now if no valid end date
+                              : DateTime.now();
 
                       membershipWidgets.add(GestureDetector(
                         onTap: () {
@@ -118,11 +109,12 @@ class _MembersScreenState extends State<MembersScreen> {
                               client.memberships[membershipIndex];
                           Get.to(
                             () => ClientMembershipDetails(
-                              index: membershipIndex,
+                              client: client,
                               trainerId: userController.user.value.id,
                               startDate: membershipData['startDate'],
                               endDate: membershipData['endDate'],
                               membershipId: membershipData['membershipId'],
+                              membership: membership,
                             ),
                           );
                         },
@@ -133,8 +125,8 @@ class _MembersScreenState extends State<MembersScreen> {
                           profilePic: client.profilePic,
                           planExpiry: planExpiry,
                           membershipId: membership['membershipId'],
-                          daysLeft: calculateRemainingDays(endDateTime)
-                              .toString(), // Passing DateTime
+                          daysLeft:
+                              calculateRemainingDays(endDateTime).toString(),
                         ),
                       ));
                     }

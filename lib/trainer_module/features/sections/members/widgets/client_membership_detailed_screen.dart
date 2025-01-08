@@ -4,13 +4,15 @@ import 'package:t_store/constants/colors.dart';
 import 'package:t_store/trainer_module/features/controllers/membership_controller.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:t_store/user_module/features/authentication/controllers/client_details/client_details_controller.dart';
 
 class ClientMembershipDetails extends StatelessWidget {
   final String trainerId;
-  final int index;
+  final dynamic client;
   final Timestamp startDate;
   final Timestamp endDate;
   final String membershipId;
+  final dynamic membership;
 
   final MembershipController membershipController =
       Get.put(MembershipController());
@@ -18,16 +20,19 @@ class ClientMembershipDetails extends StatelessWidget {
   ClientMembershipDetails({
     super.key,
     required this.trainerId,
-    required this.index,
+    required this.client,
     required this.startDate,
     required this.endDate,
     required this.membershipId,
+    this.membership,
   });
 
   @override
   Widget build(BuildContext context) {
     // Fetch membership details only when necessary
     membershipController.fetchMembershipDetails(trainerId);
+
+    // Fetch client details
 
     return Scaffold(
       appBar: AppBar(
@@ -39,22 +44,19 @@ class ClientMembershipDetails extends StatelessWidget {
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Obx(() {
-        // Checking if the membership details are still loading
-        if (membershipController.isLoading.value) {
-          return Center(child: CircularProgressIndicator());
-        }
+        // Check if membership details are still loading
 
         // Accessing membership details
         final memberships = membershipController.membershipDetails;
-        final clients = membershipController.clientDetails;
-
-        if (memberships.isEmpty || index >= memberships.length) {
-          return Center(child: Text("No membership details found"));
+        if (memberships.isEmpty) {
+          return const Center(child: Text("No membership details available."));
         }
+        final membership = memberships[0];
 
-        // Proceed with displaying membership details if available
-        final membership = memberships[index];
-        final client = clients[0]; // Assuming only one client exists
+        // Access client details
+        if (client == null) {
+          return const Center(child: Text("Client details unavailable."));
+        }
 
         // Convert Firebase Timestamps to DateTime
         final startDateTime = startDate.toDate();
@@ -68,13 +70,13 @@ class ClientMembershipDetails extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Client's profile image (just for demo, adjust to match your actual model)
+              // Client's profile image
               Center(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(50.0),
                   child: Image.network(
-                    client
-                        .profilePic, // Assuming the profile picture URL is part of the MembershipModel
+                    client.profilePic ??
+                        'https://via.placeholder.com/100', // Placeholder for missing image
                     width: 100,
                     height: 100,
                     fit: BoxFit.cover,
@@ -85,7 +87,7 @@ class ClientMembershipDetails extends StatelessWidget {
               // Client's name
               Center(
                 child: Text(
-                  client.name,
+                  client.name ?? "N/A",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
@@ -99,7 +101,7 @@ class ClientMembershipDetails extends StatelessWidget {
               // Membership plan name
               Center(
                 child: Text(
-                  membership.planName,
+                  membership.planName ?? "N/A",
                   style: TextStyle(
                     fontSize: 16,
                     color: Theme.of(context).brightness == Brightness.dark
@@ -151,56 +153,47 @@ class ClientMembershipDetails extends StatelessWidget {
                       _buildDetailRow(
                         Icons.height,
                         'Height',
-                        client.height ??
-                            "N/A", // Handle null values if height is missing
+                        client.height?.toString() ?? "N/A",
                       ),
                       _buildDetailRow(
                         Icons.fitness_center,
                         'Weight',
-                        client.weight ??
-                            "N/A", // Handle null values if weight is missing
+                        client.weight?.toString() ?? "N/A",
                       ),
                       _buildDetailRow(
                         Icons.person,
                         'Gender',
-                        client.gender ??
-                            "N/A", // Handle null values if gender is missing
+                        client.gender ?? "N/A",
                       ),
                       _buildDetailRow(
                         Icons.accessibility,
                         'Activity Level',
-                        client.activityLevel ??
-                            "N/A", // Handle null values if activity level is missing
+                        client.activityLevel ?? "N/A",
                       ),
                       _buildDetailRow(
                         Icons.medical_services,
                         'Injuries',
-                        client.injuries ??
-                            "None", // Handle null values if injuries are missing
+                        client.injuries ?? "None",
                       ),
                       _buildDetailRow(
                         Icons.flag,
                         'Fitness Goal',
-                        client.fitnessGoal ??
-                            "N/A", // Handle null values if fitness goal is missing
+                        client.fitnessGoal ?? "N/A",
                       ),
                       _buildDetailRow(
                         Icons.email,
                         'Email',
-                        client.email ??
-                            "N/A", // Handle null values if email is missing
+                        client.email ?? "N/A",
                       ),
                       _buildDetailRow(
                         Icons.home,
                         'Address',
-                        client.address ??
-                            "N/A", // Handle null values if address is missing
+                        client.address ?? "N/A",
                       ),
                       _buildDetailRow(
                         Icons.phone,
                         'Phone Number',
-                        client.phoneNumber ??
-                            "N/A", // Handle null values if phone number is missing
+                        client.phoneNumber ?? "N/A",
                       ),
                     ],
                   ),
@@ -240,7 +233,7 @@ class ClientMembershipDetails extends StatelessWidget {
               ),
             ),
           ),
-          Expanded(child: Text(":")),
+          const Expanded(child: Text(":")),
           Expanded(
             flex: 5,
             child: Text(

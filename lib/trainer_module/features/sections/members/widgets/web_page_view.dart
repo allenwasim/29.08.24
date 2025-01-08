@@ -1,47 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:t_store/user_module/data/repositories/client/live_session_repository.dart';
 
-class NavigateToMeetPage extends StatelessWidget {
+class LiveSessionScreen extends StatelessWidget {
   final String meetUrl;
+  final LiveSessionRepository liveSessionRepository = LiveSessionRepository();
 
-  const NavigateToMeetPage({Key? key, required this.meetUrl}) : super(key: key);
+  LiveSessionScreen({Key? key, required this.meetUrl}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Join Google Meet'),
+        title: const Text('Live Session'),
       ),
       body: Center(
         child: ElevatedButton(
-          onPressed: () => launchMeet(context, meetUrl),
-          child: const Text('Open Google Meet'),
+          onPressed: () =>
+              liveSessionRepository.openMeetSession(context, meetUrl),
+          child: const Text('Join Live Session'),
         ),
       ),
     );
-  }
-
-  // Directly launches the URL
-  static Future<void> launchMeet(BuildContext context, String url) async {
-    final Uri meetUri = Uri.parse(_ensureValidUrl(url));
-    print("Launching Meet URL: $meetUri");
-
-    // Try to launch the Meet URL directly
-    try {
-      await launchUrl(meetUri, mode: LaunchMode.externalApplication);
-    } catch (e) {
-      print("Unable to open Meet URL: $meetUri");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Unable to open Google Meet')),
-      );
-    }
-  }
-
-  // Ensure URL has a valid scheme (add https:// if missing)
-  static String _ensureValidUrl(String url) {
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      return 'https://$url'; // Add https:// if missing
-    }
-    return url;
   }
 }

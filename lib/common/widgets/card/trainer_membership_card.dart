@@ -29,36 +29,36 @@ class TTrainerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Check if dark mode is enabled
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final dark = THelperFunctions.isDarkMode(context);
 
     return Container(
-      constraints: BoxConstraints(minHeight: 200),
+      constraints: const BoxConstraints(minHeight: 200),
       margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15.0),
         image: DecorationImage(
-          image: AssetImage(TImages.guidanceImage2), // Background image
-          fit: BoxFit.cover, // Ensure the image covers the entire card
-          colorFilter: ColorFilter.mode(
-            Colors.black
-                .withOpacity(0.5), // Reduce opacity of the background image
-            BlendMode.darken,
-          ),
-        ),
+            image: const AssetImage(TImages.guidanceImage2), // Background image
+            fit: BoxFit.cover,
+            colorFilter: dark
+                ? ColorFilter.mode(
+                    Colors.black.withOpacity(0.2), // Add dark overlay
+                    BlendMode.darken,
+                  )
+                : null),
       ),
       child: Card(
-        margin: EdgeInsets.zero, // Remove default margin for card
+        margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15.0),
         ),
-        color: Colors
-            .transparent, // Set card color to transparent to show background image
+        color: Colors.transparent, // Transparent to show background image
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Row(
             children: [
-              // Profile Picture on the Left
+              // Profile Picture
               ClipRRect(
                 borderRadius: BorderRadius.circular(50.0),
                 child: Image.network(
@@ -71,7 +71,7 @@ class TTrainerCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 15),
-              // Trainer Info on the Right
+              // Trainer Info
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,50 +79,47 @@ class TTrainerCard extends StatelessWidget {
                     // Trainer's Name
                     Text(
                       trainerName,
-                      style:
-                          Theme.of(context).textTheme.headlineMedium!.copyWith(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: isDarkMode ? Colors.white : Colors.black,
-                              ),
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 5),
                     // Plan Name
                     Text(
-                      planName,
-                      style: TextStyle(
-                        color: isDarkMode ? Colors.white : Colors.black,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      "Plan Name: $planName",
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                          fontSize: 15,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 5),
                     // Workout Style
                     Text(
                       'Style: $workouts',
-                      style: TextStyle(
-                        color: isDarkMode ? Colors.white : Colors.black,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                          fontSize: 12,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10),
                     if (isActive) ...[
                       // Display Start and End Date
-                      _buildDetailText('Start Date', startDate, isDarkMode),
-                      _buildDetailText('End Date', endDate, isDarkMode),
+                      _buildDetailText(
+                          'Start Date', startDate, TColors.primary),
+                      _buildDetailText('End Date', endDate, TColors.primary),
                     ] else if (price != null) ...[
                       // Show Duration
                       _buildDetailText(
-                          'Duration',
-                          duration != null
-                              ? '$duration months'
-                              : 'Not available',
-                          isDarkMode),
+                        'Duration',
+                        duration != null ? '$duration months' : 'Not available',
+                        TColors.primary,
+                      ),
                       const SizedBox(height: 10),
-                      // Display "Join for" Price in larger font
-                      _buildJoinForPrice(price!, isDarkMode),
+                      // Display "Join for" Price
+                      _buildJoinForPrice(price!, TColors.primary),
                     ],
                   ],
                 ),
@@ -134,14 +131,14 @@ class TTrainerCard extends StatelessWidget {
     );
   }
 
-  // Helper function to build text rows
-  Widget _buildDetailText(String label, String? value, bool isDarkMode) {
+  // Helper function to build detail rows
+  Widget _buildDetailText(String label, String? value, Color colorScheme) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Text(
         '$label: ${value ?? "Not available"}',
         style: TextStyle(
-          color: isDarkMode ? TColors.primary : TColors.trainerPrimary,
+          color: colorScheme,
           fontSize: 12,
           fontWeight: FontWeight.bold,
         ),
@@ -149,14 +146,14 @@ class TTrainerCard extends StatelessWidget {
     );
   }
 
-  // Helper function to display "Join for" price in a larger font
-  Widget _buildJoinForPrice(String price, bool isDarkMode) {
+  // Helper function to display "Join for" price
+  Widget _buildJoinForPrice(String price, Color color) {
     return Text(
       'Join for $price Rs/month',
       style: TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.bold,
-        color: isDarkMode ? Colors.white : Colors.black,
+        color: color,
       ),
     );
   }

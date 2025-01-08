@@ -66,7 +66,7 @@ class ClientRepository extends GetxController {
     try {
       if (meetLink.isNotEmpty) {
         // Navigate to the Google Meet link
-        Get.to(() => NavigateToMeetPage(
+        Get.to(() => LiveSessionScreen(
               meetUrl: meetLink,
             ));
         // Handle the case where the meet link is empty or invalid

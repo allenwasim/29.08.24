@@ -81,10 +81,8 @@ class ClientDetails {
       memberships: List<Map<String, dynamic>>.from(map['memberships'] ?? []),
       email: map['email'] ?? '',
       address: map['address'] ?? '',
-      phoneNumber:
-          map['phoneNumber'] ?? '', // Ensure this matches the key in Firestore
-      profilePic:
-          map['profilePic'] ?? '', // Ensure this matches the key in Firestore
+      phoneNumber: map['phoneNumber'] ?? '',
+      profilePic: map['profilePic'] ?? '',
     );
   }
 

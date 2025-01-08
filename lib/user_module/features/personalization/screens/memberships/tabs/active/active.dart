@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart'; // Add this for date formatting
+import 'package:intl/intl.dart'; // For date formatting
 import 'package:t_store/common/widgets/card/trainer_membership_card.dart';
 import 'package:t_store/trainer_module/features/controllers/membership_controller.dart';
 import 'package:t_store/common/widgets/searchbars/search_bar.dart';
@@ -81,11 +81,15 @@ class ActiveMembershipsScreen extends StatelessWidget {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
                     child: GestureDetector(
-                      onTap: () => Get.to(
-                        ActiveMembershipDetailScreen(
-                          membership: membership,
-                        ),
-                      ),
+                      onTap: () {
+                        // Navigate to ActiveMembershipDetailScreen with both membership and trainer details
+                        Get.to(
+                          ActiveMembershipDetailScreen(
+                            membership: membership,
+                            trainer: trainer!, // Safely pass trainer details
+                          ),
+                        );
+                      },
                       child: TTrainerCard(
                         profilePic: trainerProfilePic,
                         isActive: true, // Active memberships are active

@@ -1,12 +1,13 @@
 import 'package:get/get.dart';
 import 'package:t_store/user_module/data/repositories/client/client_repository.dart';
+import 'package:t_store/user_module/features/personalization/models/client_model.dart';
 import 'package:t_store/utils/popups/loader.dart';
 
 class ClientDetailsController extends GetxController {
   static ClientDetailsController get instance => Get.find();
 
-  final Rx<Map<String, dynamic>?> clientDetails =
-      Rx<Map<String, dynamic>?>(null);
+  Rx<ClientDetails?> clientDetails = Rx<ClientDetails?>(null);
+
   final clientRepository = Get.put(ClientRepository());
   final detailsLoading = false.obs;
 
@@ -20,17 +21,29 @@ class ClientDetailsController extends GetxController {
   // Function to fetch client details
   Future<void> fetchClientDetails(String clientId) async {
     try {
-      detailsLoading.value = true;
+      detailsLoading.value = true; // Indicate loading state
       final fetchedDetails =
           await clientRepository.fetchClientDetails(clientId);
-      clientDetails.value = fetchedDetails; // Update the client details
-      detailsLoading.value = false;
+
+      if (fetchedDetails != null && fetchedDetails.isNotEmpty) {
+        // Convert the fetched map to a ClientDetails instance
+        clientDetails.value = ClientDetails.fromMap(fetchedDetails);
+      } else {
+        clientDetails.value = null; // Handle empty details
+        TLoaders.warningSnackBar(
+          title: "No Data",
+          message: "No client details were found for the provided ID.",
+        );
+      }
     } catch (e) {
-      clientDetails.value = null; // Handle any error
-      detailsLoading.value = false;
+      clientDetails.value = null; // Reset client details on error
       TLoaders.warningSnackBar(
-          title: "Error",
-          message: "Failed to fetch client details. Please try again.");
+        title: "Error",
+        message: "Failed to fetch client details. Please try again.",
+      );
+      print("Error fetching client details: $e"); // Log the error
+    } finally {
+      detailsLoading.value = false; // Always reset loading state
     }
   }
 
