@@ -7,7 +7,7 @@ import 'package:t_store/trainer_module/features/controllers/membership_controlle
 import 'package:t_store/trainer_module/features/models/membership_model.dart';
 import 'package:t_store/constants/colors.dart';
 import 'package:t_store/trainer_module/features/models/trainer_model.dart';
-import 'package:t_store/trainer_module/features/sections/add_trainer_details.dart/add_trainer_details_screen.dart';
+import 'package:t_store/trainer_module/features/sections/add_trainer_details/add_trainer_details_screen.dart';
 import 'package:t_store/user_module/features/personalization/controllers/user_controller.dart';
 import 'package:t_store/utils/constants/image_strings.dart';
 

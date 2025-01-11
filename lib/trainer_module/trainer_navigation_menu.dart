@@ -6,6 +6,7 @@ import 'package:t_store/trainer_module/features/sections/dash_board/dashboard.da
 import 'package:t_store/trainer_module/features/sections/collection/collection.dart';
 import 'package:t_store/trainer_module/features/sections/gym/gym.dart';
 import 'package:t_store/trainer_module/features/sections/members/members.dart';
+import 'package:t_store/trainer_module/features/sections/profile/trainerprofile.dart';
 import 'package:t_store/user_module/data/repositories/authentication/authentication_repository.dart';
 import 'package:t_store/user_module/features/personalization/controllers/user_controller.dart';
 import 'package:t_store/user_module/features/shop/screens/fitstore/widgets/settings/settings.dart';
@@ -59,8 +60,7 @@ class TrainerNavigationMenu extends StatelessWidget {
             GestureDetector(
               onTap: () {
                 Navigator.pop(context);
-                Get.to(
-                    () => GymScreen(trainerId: userController.user.value.id));
+                Get.to(() => TrainerProfileScreen());
               },
               child: UserAccountsDrawerHeader(
                 accountName: Obx(() {
@@ -96,29 +96,9 @@ class TrainerNavigationMenu extends StatelessWidget {
                 context, controller, iconColor, Icons.people, 'Members', 2),
             buildListTile(
                 context, controller, iconColor, Icons.people, 'Collection', 3),
+            const Divider(),
             buildListTile(
                 context, controller, iconColor, Icons.settings, 'Settings', 4),
-            const Divider(),
-            ListTile(
-              leading: Icon(
-                Icons.logout,
-                color: dark ? Colors.red : Colors.grey,
-              ),
-              title: Text(
-                'Logout',
-                style: TextStyle(
-                  color: dark ? Colors.red : Colors.grey,
-                ),
-              ),
-              onTap: () async {
-                try {
-                  await authRepo.logout();
-                } catch (e) {
-                  Get.snackbar("Logout Failed", e.toString(),
-                      snackPosition: SnackPosition.BOTTOM);
-                }
-              },
-            ),
           ],
         ),
       ),

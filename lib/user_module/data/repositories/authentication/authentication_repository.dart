@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:t_store/admin_module/admin_navigation.dart';
-import 'package:t_store/trainer_module/features/sections/add_trainer_details.dart/add_trainer_details_screen.dart';
+import 'package:t_store/trainer_module/features/sections/add_trainer_details/add_trainer_details_screen.dart';
 import 'package:t_store/trainer_module/trainer_navigation_menu.dart';
 import 'package:t_store/user_module/data/repositories/user/user_repositries.dart';
 import 'package:t_store/user_module/features/authentication/screens/client_details/add_client_details.dart';

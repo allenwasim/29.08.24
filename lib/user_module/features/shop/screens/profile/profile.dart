@@ -4,6 +4,8 @@ import 'package:iconsax/iconsax.dart';
 import 'package:t_store/common/images/circular_image.dart';
 import 'package:t_store/common/widgets/text/section_header.dart';
 import 'package:t_store/user_module/data/repositories/authentication/authentication_repository.dart';
+import 'package:t_store/user_module/features/authentication/controllers/client_details/client_details_controller.dart';
+import 'package:t_store/user_module/features/personalization/screens/memberships/tabs/active/membership_training_screen.dart';
 import 'package:t_store/user_module/features/shop/screens/profile/widgets/change_name.dart';
 import 'package:t_store/user_module/features/shop/screens/profile/widgets/profile_menu.dart';
 import 'package:t_store/user_module/features/personalization/controllers/user_controller.dart';
@@ -17,8 +19,11 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
     final UserController controller = Get.put(UserController());
+    final ClientDetailsController detailsController =
+        Get.put(ClientDetailsController());
     final AuthenticationRepository authRepo =
         Get.put(AuthenticationRepository());
+    clientDetailsController.fetchClientDetails(controller.user.value.id);
 
     return Scaffold(
       backgroundColor: dark ? Colors.black : Colors.white,
@@ -110,14 +115,18 @@ class ProfileScreen extends StatelessWidget {
                   title: "E-mail",
                   value: controller.user.value.email),
               TProfileMenu(
-                  onPressed: () {},
-                  title: "Phone number",
-                  value: controller.user.value.phoneNumber),
-              TProfileMenu(onPressed: () {}, title: "Gender", value: "Male"),
+                onPressed: () {},
+                title: "Phone number",
+                value: detailsController.clientDetails.value?.phoneNumber ??
+                    "Not available",
+              ),
               TProfileMenu(
                   onPressed: () {},
-                  title: "Date of birth",
-                  value: "20-11-2003"),
+                  title: "Gender",
+                  value: clientDetailsController.clientDetails.value?.gender
+                          .toString() ??
+                      "Not Available"),
+              TProfileMenu(onPressed: () {}, title: "Date of birth", value: ""),
               const Divider(),
               const SizedBox(
                 height: TSizes.spaceBtwItems,

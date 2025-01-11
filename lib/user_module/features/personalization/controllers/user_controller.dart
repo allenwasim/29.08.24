@@ -99,6 +99,8 @@ class UserController extends GetxController {
             title: "Congratulations",
             message: "Your profile picture has been updated");
       } catch (e) {
+        print("Image upload error: $e");
+
         TLoaders.warningSnackBar(
             title: "Update Failed",
             message:
