@@ -7,6 +7,7 @@ import 'package:t_store/trainer_module/features/sections/collection/collection.d
 import 'package:t_store/trainer_module/features/sections/gym/gym.dart';
 import 'package:t_store/trainer_module/features/sections/members/members.dart';
 import 'package:t_store/trainer_module/features/sections/profile/trainerprofile.dart';
+import 'package:t_store/trainer_module/features/sections/upload_turtorials.dart/upload_video_turtorials.dart';
 import 'package:t_store/user_module/data/repositories/authentication/authentication_repository.dart';
 import 'package:t_store/user_module/features/personalization/controllers/user_controller.dart';
 import 'package:t_store/user_module/features/shop/screens/fitstore/widgets/settings/settings.dart';
@@ -144,7 +145,7 @@ class TrainerNavigationController extends GetxController {
   // Ensure this is a List<Widget>, where each widget is a screen
   final screens = [
     DashboardScreen(),
-    const UploadTutorialsScreen(),
+    UploadVideoScreen(),
     const MembersScreen(),
     CollectionScreen(),
   ];
@@ -168,22 +169,6 @@ class TrainerNavigationController extends GetxController {
 
   void updateSelectedIndex(int index) {
     selectedIndex.value = index;
-  }
-}
-
-class UploadTutorialsScreen extends StatelessWidget {
-  const UploadTutorialsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Text(
-          'Upload Tutorials Screen',
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-      ),
-    );
   }
 }
 

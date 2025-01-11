@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:t_store/constants/colors.dart';
 import 'package:t_store/trainer_module/features/models/membership_model.dart';
 import 'package:t_store/trainer_module/features/models/trainer_model.dart';
-import 'package:t_store/trainer_module/features/sections/trainer_details_screen/trainer_details_screen.dart';
+import 'package:t_store/user_module/features/personalization/screens/trainer_details_screen/trainer_details_screen.dart';
 import 'package:t_store/user_module/data/repositories/client/live_session_repository.dart';
 import 'package:t_store/user_module/features/authentication/controllers/client_details/client_details_controller.dart';
 import 'package:t_store/utils/constants/image_strings.dart';
