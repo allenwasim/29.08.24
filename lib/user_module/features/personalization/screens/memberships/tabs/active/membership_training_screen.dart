@@ -5,10 +5,12 @@ import 'package:t_store/constants/colors.dart';
 import 'package:t_store/trainer_module/features/models/membership_model.dart';
 import 'package:t_store/trainer_module/features/models/trainer_model.dart';
 import 'package:t_store/trainer_module/features/sections/trainer_details_screen/trainer_details_screen.dart';
-import 'package:t_store/user_module/data/repositories/client/client_repository.dart';
+import 'package:t_store/user_module/data/repositories/client/live_session_repository.dart';
 import 'package:t_store/user_module/features/authentication/controllers/client_details/client_details_controller.dart';
+import 'package:t_store/utils/constants/image_strings.dart';
 
-final ClientRepository clientRepository = Get.put(ClientRepository());
+final LiveSessionRepository liveSessionRepository =
+    Get.put(LiveSessionRepository());
 final ClientDetailsController clientDetailsController =
     Get.put(ClientDetailsController());
 
@@ -153,8 +155,7 @@ class ActiveMembershipDetailScreen extends StatelessWidget {
                 radius: 30,
                 backgroundImage: trainer.profilePic.isNotEmpty
                     ? NetworkImage(trainer.profilePic)
-                    : const AssetImage('assets/images/default_trainer.png')
-                        as ImageProvider,
+                    : const AssetImage(TImages.user) as ImageProvider,
               ),
               const SizedBox(width: 16),
 
@@ -280,20 +281,8 @@ class ActiveMembershipDetailScreen extends StatelessWidget {
           'Join Live Session',
           Icons.video_call,
           theme.colorScheme.primary,
-          () {
-            if (membership.meetLink != null &&
-                membership.meetLink!.isNotEmpty) {
-              clientRepository.navigateToGoogleMeet(membership.meetLink!);
-            } else {
-              Get.snackbar(
-                'Error',
-                'No valid Google Meet link available.',
-                snackPosition: SnackPosition.BOTTOM,
-                backgroundColor: Colors.red,
-                colorText: Colors.white,
-              );
-            }
-          },
+          () => liveSessionRepository.openMeetSession(
+              context, membership.meetLink ?? "Not Available"),
         ),
         const SizedBox(height: 16),
         _buildActionButton(

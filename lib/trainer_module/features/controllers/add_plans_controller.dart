@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 import 'package:t_store/trainer_module/data/repositories/membership_repository.dart';
 import 'package:t_store/trainer_module/features/models/membership_model.dart';
 import 'package:t_store/trainer_module/features/sections/gym/gym.dart';
+import 'package:t_store/trainer_module/trainer_navigation_menu.dart';
+import 'package:t_store/user_module/data/repositories/authentication/authentication_repository.dart';
 
 class AddPlansController extends GetxController {
   final MembershipRepository membershipRepository =
@@ -64,8 +66,7 @@ class AddPlansController extends GetxController {
       );
 
       // Navigate to another screen after adding the plan
-      Get.offAll(() => GymScreen(
-          trainerId: trainerId)); // Replace with the actual route name
+      AuthenticationRepository.instance.screenRedirect();
     } catch (e) {
       // Show error snackbar
       Get.snackbar(

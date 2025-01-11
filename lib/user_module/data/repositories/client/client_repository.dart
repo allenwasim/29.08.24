@@ -62,22 +62,6 @@ class ClientRepository extends GetxController {
     }
   }
 
-  void navigateToGoogleMeet(String meetLink) {
-    try {
-      if (meetLink.isNotEmpty) {
-        // Navigate to the Google Meet link
-        Get.to(() => LiveSessionScreen(
-              meetUrl: meetLink,
-            ));
-        // Handle the case where the meet link is empty or invalid
-        Get.snackbar("Error", "Meet link is not available.");
-      }
-    } catch (e) {
-      // Handle errors, if any
-      Get.snackbar("Error", "Failed to navigate to Google Meet.");
-    }
-  }
-
   Future<Map<String, dynamic>?> fetchMembershipById({
     required String clientId,
     required String membershipId,
