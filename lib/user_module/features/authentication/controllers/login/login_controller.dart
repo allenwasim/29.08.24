@@ -100,7 +100,7 @@ class LoginController extends GetxController {
     }
   }
 
-  Future<void> googleSignUp() async {
+  Future<void> googleSignUp({bool isTrainer = false}) async {
     try {
       TFullScreenLoader.openLoadingDialog(' ', TImages.emailVerification);
 
@@ -113,7 +113,9 @@ class LoginController extends GetxController {
       final userCredentials =
           await AuthenticationRepository.instance.signInWithGoogle();
 
-      await userController.saveUserRecord(userCredentials);
+      isTrainer
+          ? await userController.saveUserRecord(userCredentials, true)
+          : await userController.saveUserRecord(userCredentials, false);
       TFullScreenLoader.stopLoading();
       AuthenticationRepository.instance.screenRedirect();
     } catch (e) {

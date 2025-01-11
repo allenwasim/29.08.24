@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:t_store/common/images/circular_image.dart';
 import 'package:t_store/common/widgets/buttons/circular_button.dart';
 import 'package:t_store/constants/colors.dart';
 import 'package:t_store/trainer_module/features/controllers/add_trainer_details_controller.dart';
 import 'package:t_store/user_module/features/personalization/controllers/user_controller.dart';
+import 'package:t_store/utils/constants/image_strings.dart';
 import 'package:t_store/utils/constants/sizes.dart';
 import 'package:t_store/utils/helpers/helper_functions.dart';
 
@@ -110,10 +112,24 @@ class _AddTrainerDetailsScreenState extends State<AddTrainerDetailsScreen> {
           // Profile picture avatar
           Center(
             // Center the avatar horizontally
-            child: CircleAvatar(
-              radius: 60,
-              backgroundImage:
-                  NetworkImage(userController.user.value.profilePicture),
+            child: Column(
+              children: [
+                Obx(() {
+                  final networkImage = userController.user.value.profilePicture;
+                  final image =
+                      networkImage.isNotEmpty ? networkImage : TImages.user;
+                  return TCircularImage(
+                    padding: 4,
+                    isNetworkImage: true,
+                    image: image,
+                    width: 120,
+                    height: 120,
+                  );
+                }),
+                TextButton(
+                    onPressed: () => userController.uploadUserProfilePicture(),
+                    child: const Text("select another picture"))
+              ],
             ),
           ),
         ],

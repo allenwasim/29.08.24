@@ -40,7 +40,18 @@ class SignupScreen extends StatelessWidget {
               ),
               const TSocialButtons(
                 isLogin: false,
-              )
+                isTrainer: false,
+              ),
+              const SizedBox(height: TSizes.spaceBtwSections),
+              // Add a simple text below the social buttons
+              TFormDivider(
+                  dark: dark, dividerText: TTexts.signInAsTrainer.capitalize!),
+              const SizedBox(height: TSizes.spaceBtwSections),
+              // Add Google Signup Button
+              const TSocialButtons(
+                isLogin: false,
+                isTrainer: true,
+              ),
             ],
           ),
         ),

@@ -25,7 +25,7 @@ class UserModel {
     required this.username,
     this.phoneNumber = '',
     this.profilePicture = '',
-    this.role = 'client',
+    this.role = '',
   });
 
   // Named constructor for an empty user model

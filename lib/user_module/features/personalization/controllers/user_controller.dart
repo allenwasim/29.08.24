@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:t_store/trainer_module/features/sections/add_trainer_details/add_trainer_details_screen.dart';
 import 'package:t_store/user_module/data/repositories/user/user_repositries.dart';
 import 'package:t_store/user_module/features/personalization/models/user_model.dart';
 import 'package:t_store/utils/popups/loader.dart';
@@ -30,7 +31,8 @@ class UserController extends GetxController {
     }
   }
 
-  Future<void> saveUserRecord(UserCredential? userCredentials) async {
+  Future<void> saveUserRecord(
+      UserCredential? userCredentials, bool isTrainer) async {
     try {
       await fetchUserRecord();
 
@@ -48,15 +50,16 @@ class UserController extends GetxController {
             : '';
 
         final newUser = UserModel(
-          id: userCredentials.user!.uid,
-          firstName: nameParts.isNotEmpty
-              ? nameParts[0]
-              : "", // Fixed index to 0 for firstName
-          lastName: nameParts.length > 1 ? nameParts.sublist(1).join(" ") : "",
-          email: userCredentials.user!.email ?? " ",
-          username: username,
-          profilePicture: userCredentials.user!.photoURL ?? "",
-        );
+            id: userCredentials.user!.uid,
+            firstName: nameParts.isNotEmpty
+                ? nameParts[0]
+                : "", // Fixed index to 0 for firstName
+            lastName:
+                nameParts.length > 1 ? nameParts.sublist(1).join(" ") : "",
+            email: userCredentials.user!.email ?? " ",
+            username: username,
+            profilePicture: userCredentials.user!.photoURL ?? "",
+            role: isTrainer ? "trainer" : "Client");
 
         await userRepository.saveUserRecord(newUser);
       }
