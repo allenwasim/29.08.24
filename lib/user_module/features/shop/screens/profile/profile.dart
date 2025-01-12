@@ -23,7 +23,9 @@ class ProfileScreen extends StatelessWidget {
         Get.put(ClientDetailsController());
     final AuthenticationRepository authRepo =
         Get.put(AuthenticationRepository());
-    clientDetailsController.fetchClientDetails(controller.user.value.id);
+
+    // Ensure that the client details are fetched
+    detailsController.fetchClientDetails(controller.user.value.id);
 
     return Scaffold(
       backgroundColor: dark ? Colors.black : Colors.white,
@@ -68,20 +70,12 @@ class ProfileScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(
-                height: TSizes.spaceBtwSections / 2,
-              ),
+              const SizedBox(height: TSizes.spaceBtwSections / 2),
               const Divider(),
-              const SizedBox(
-                height: TSizes.spaceBtwItems,
-              ),
+              const SizedBox(height: TSizes.spaceBtwItems),
               const TSectionHeading(
-                title: "Profile Information",
-                showActionButton: false,
-              ),
-              const SizedBox(
-                height: TSizes.spaceBtwItems,
-              ),
+                  title: "Profile Information", showActionButton: false),
+              const SizedBox(height: TSizes.spaceBtwItems),
               TProfileMenu(
                   onPressed: () => Get.to(() => const ChangeName()),
                   title: "Name",
@@ -90,47 +84,46 @@ class ProfileScreen extends StatelessWidget {
                   onPressed: () {},
                   title: "Username",
                   value: controller.user.value.username),
-              const SizedBox(
-                height: TSizes.spaceBtwItems,
-              ),
+              const SizedBox(height: TSizes.spaceBtwItems),
               const Divider(),
-              const SizedBox(
-                height: TSizes.spaceBtwItems,
-              ),
+              const SizedBox(height: TSizes.spaceBtwItems),
               const TSectionHeading(
-                title: "Personal Information",
-                showActionButton: false,
-              ),
-              const SizedBox(
-                height: TSizes.spaceBtwItems,
-              ),
-              TProfileMenu(
-                onPressed: () {},
-                title: "User Id",
-                value: controller.user.value.id,
-                icon: Iconsax.copy,
-              ),
-              TProfileMenu(
+                  title: "Personal Information", showActionButton: false),
+              const SizedBox(height: TSizes.spaceBtwItems),
+
+              // Make sure to wrap these fields in Obx to watch for changes
+              Obx(() {
+                return TProfileMenu(
                   onPressed: () {},
-                  title: "E-mail",
-                  value: controller.user.value.email),
-              TProfileMenu(
-                onPressed: () {},
-                title: "Phone number",
-                value: detailsController.clientDetails.value?.phoneNumber ??
-                    "Not available",
-              ),
-              TProfileMenu(
-                  onPressed: () {},
-                  title: "Gender",
-                  value: clientDetailsController.clientDetails.value?.gender
-                          .toString() ??
-                      "Not Available"),
+                  title: "User Id",
+                  value: controller.user.value.id,
+                  icon: Iconsax.copy,
+                );
+              }),
+              Obx(() {
+                return TProfileMenu(
+                    onPressed: () {},
+                    title: "E-mail",
+                    value: controller.user.value.email);
+              }),
+              Obx(() {
+                return TProfileMenu(
+                    onPressed: () {},
+                    title: "Phone number",
+                    value: detailsController.clientDetails.value?.phoneNumber ??
+                        "Not available");
+              }),
+              Obx(() {
+                return TProfileMenu(
+                    onPressed: () {},
+                    title: "Gender",
+                    value: detailsController.clientDetails.value?.gender
+                            ?.toString() ??
+                        "Not Available");
+              }),
               TProfileMenu(onPressed: () {}, title: "Date of birth", value: ""),
               const Divider(),
-              const SizedBox(
-                height: TSizes.spaceBtwItems,
-              ),
+              const SizedBox(height: TSizes.spaceBtwItems),
               Center(
                 child: Column(
                   children: [

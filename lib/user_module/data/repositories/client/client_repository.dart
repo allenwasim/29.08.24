@@ -2,9 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 
-import 'package:t_store/trainer_module/features/sections/members/widgets/web_page_view.dart';
-import 'package:webview_flutter/webview_flutter.dart';
-
 class ClientRepository extends GetxController {
   // Get the Firebase Firestore instance
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -59,22 +56,6 @@ class ClientRepository extends GetxController {
       throw Exception("PlatformException: ${e.message}");
     } catch (e) {
       throw Exception('Something went wrong. Please try again.');
-    }
-  }
-
-  void navigateToGoogleMeet(String meetLink) {
-    try {
-      if (meetLink.isNotEmpty) {
-        // Navigate to the Google Meet link
-        Get.to(() => LiveSessionScreen(
-              meetUrl: meetLink,
-            ));
-        // Handle the case where the meet link is empty or invalid
-        Get.snackbar("Error", "Meet link is not available.");
-      }
-    } catch (e) {
-      // Handle errors, if any
-      Get.snackbar("Error", "Failed to navigate to Google Meet.");
     }
   }
 

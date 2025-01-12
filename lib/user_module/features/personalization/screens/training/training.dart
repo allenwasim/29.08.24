@@ -38,7 +38,7 @@ class _TrainingState extends State<Training>
         ),
         body: TabBarView(
           controller: _tabController,
-          children: const [
+          children: [
             DiscoverTab(),
             GuidancePage(),
             TrainerListScreen(),

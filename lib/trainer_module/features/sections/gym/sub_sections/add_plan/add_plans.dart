@@ -3,11 +3,12 @@ import 'package:get/get.dart';
 import 'package:t_store/common/widgets/buttons/circular_button.dart';
 import 'package:t_store/constants/colors.dart';
 import 'package:t_store/trainer_module/features/controllers/add_plans_controller.dart';
+import 'package:t_store/trainer_module/features/sections/add_trainer_details/add_trainer_details_screen.dart';
 
 class AddPlanScreen extends StatelessWidget {
-  final String trainerId;
-
-  const AddPlanScreen({super.key, required this.trainerId});
+  const AddPlanScreen({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -199,7 +200,8 @@ class AddPlanScreen extends StatelessWidget {
                       text: 'Add Plan',
                       backgroundColor: TColors.primary,
                       onTap: () async {
-                        await controller.addMembershipPlan(trainerId);
+                        await controller
+                            .addMembershipPlan(userController.user.value.id);
                       },
                     ),
                   ),

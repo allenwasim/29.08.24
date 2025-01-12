@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:t_store/trainer_module/data/repositories/membership_repository.dart';
 import 'package:t_store/trainer_module/features/models/membership_model.dart';
 import 'package:t_store/trainer_module/features/sections/gym/gym.dart';
+import 'package:t_store/user_module/data/repositories/authentication/authentication_repository.dart';
 import 'package:t_store/user_module/features/personalization/models/client_model.dart';
 import 'package:t_store/user_module/features/personalization/screens/memberships/memberships.dart';
 import 'package:t_store/user_module/features/personalization/screens/memberships/tabs/active/active.dart';
@@ -95,8 +96,7 @@ class MembershipController extends GetxController {
       // Call the repository method to add the membership to the trainer
 
       // Navigate to the Memberships page
-      Get.to(() => Memberships());
-
+      AuthenticationRepository.instance.screenRedirect;
       // Optionally handle success in the UI
       print('Membership added successfully for User ID: $userId');
     } catch (e) {

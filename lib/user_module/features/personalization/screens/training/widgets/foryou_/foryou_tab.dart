@@ -1,105 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:t_store/user_module/features/personalization/screens/training/widgets/foryou_/widgets/video_sections.dart';
-import 'package:video_player/video_player.dart';
+import 'package:get/get.dart';
 import 'package:t_store/common/widgets/searchbars/search_bar.dart';
+import 'package:t_store/user_module/features/authentication/controllers/video_controller.dart/video_controller..dart';
+import 'package:t_store/user_module/features/personalization/screens/training/widgets/foryou_/widgets/full_screen_video.dart.dart';
+import 'package:t_store/user_module/features/personalization/screens/training/widgets/foryou_/widgets/video_sections.dart';
 import 'package:t_store/utils/constants/image_strings.dart';
 
 class DiscoverTab extends StatefulWidget {
-  const DiscoverTab({super.key});
-
   @override
   _DiscoverTabState createState() => _DiscoverTabState();
 }
 
 class _DiscoverTabState extends State<DiscoverTab> {
-  final PageController _pageControllerNewWorkouts = PageController();
-  final PageController _pageControllerGreatForHome = PageController();
-  int _currentPageNewWorkouts = 0;
-  int _currentPageGreatForHome = 0;
-
-  late List<VideoPlayerController> _controllersNewWorkouts;
-  late List<VideoPlayerController> _controllersGreatForHome;
+  // Initialize the VideoController
+  final VideoController videoController = Get.put(VideoController());
 
   @override
   void initState() {
     super.initState();
-
-    // Initialize controllers for "New Workouts"
-    _controllersNewWorkouts = [
-      for (var url in [
-        "assets/videos/1.mp4",
-        'assets/videos/2.mp4',
-      ])
-        VideoPlayerController.asset(url)
-          ..initialize()
-          ..setLooping(true)
-          ..setVolume(0.0) // Mute sound
-          ..addListener(() {
-            if (mounted) setState(() {});
-          })
-    ];
-
-    // Initialize controllers for "Great for Home"
-    _controllersGreatForHome = [
-      for (var url in [
-        'assets/videos/3.mp4',
-        'assets/videos/4.mp4',
-      ])
-        VideoPlayerController.asset(url)
-          ..initialize()
-          ..setLooping(true)
-          ..setVolume(0.0) // Mute sound
-          ..addListener(() {
-            if (mounted) setState(() {});
-          })
-    ];
-  }
-
-  @override
-  void dispose() {
-    for (var controller in _controllersNewWorkouts) {
-      controller.dispose();
-    }
-    for (var controller in _controllersGreatForHome) {
-      controller.dispose();
-    }
-    _pageControllerNewWorkouts.dispose();
-    _pageControllerGreatForHome.dispose();
-    super.dispose();
-  }
-
-  void _onPageChangedNewWorkouts(int index) {
-    setState(() {
-      _currentPageNewWorkouts = index;
-    });
-    _updateVideoPlaybackNewWorkouts();
-  }
-
-  void _onPageChangedGreatForHome(int index) {
-    setState(() {
-      _currentPageGreatForHome = index;
-    });
-    _updateVideoPlaybackGreatForHome();
-  }
-
-  void _updateVideoPlaybackNewWorkouts() {
-    for (int i = 0; i < _controllersNewWorkouts.length; i++) {
-      if (i == _currentPageNewWorkouts) {
-        _controllersNewWorkouts[i].play();
-      } else {
-        _controllersNewWorkouts[i].pause();
-      }
-    }
-  }
-
-  void _updateVideoPlaybackGreatForHome() {
-    for (int i = 0; i < _controllersGreatForHome.length; i++) {
-      if (i == _currentPageGreatForHome) {
-        _controllersGreatForHome[i].play();
-      } else {
-        _controllersGreatForHome[i].pause();
-      }
-    }
+    // Call fetchAllVideos once when the widget is first created
+    videoController.fetchAllVideos();
   }
 
   @override
@@ -107,56 +27,91 @@ class _DiscoverTabState extends State<DiscoverTab> {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.only(left: 16),
-        child: ListView(
-          children: [
-            const SizedBox(height: 16),
-            // Search bar
-            const TSearchBar(),
+        child: Obx(() {
+          // Check loading state
+          if (videoController.isLoading.value) {
+            return Center(child: CircularProgressIndicator());
+          }
 
-            // New Workouts Section
-            VideoSection(
-              title: 'New Workouts',
-              videoUrls: const [
-                "assets/videos/1.mp4",
-                'assets/videos/2.mp4',
-              ],
-              pageController: _pageControllerNewWorkouts,
-              onPageChanged: _onPageChangedNewWorkouts,
-              controllers: _controllersNewWorkouts,
-              height: 290, // Specify the desired height
-            ),
-            const SizedBox(
-              height: 16,
-            ),
-            VideoSection(
-              title: 'Great for home',
-              videoUrls: const [
-                "assets/videos/1.mp4",
-                'assets/videos/2.mp4',
-              ],
-              pageController: _pageControllerNewWorkouts,
-              onPageChanged: _onPageChangedNewWorkouts,
-              controllers: _controllersNewWorkouts,
-              height: 290,
-              // Specify the desired height
-            ),
+          // Handle errors
+          if (videoController.errorMessage.isNotEmpty) {
+            return Center(
+              child: Text('Error: ${videoController.errorMessage.value}'),
+            );
+          }
 
-            const SizedBox(height: 24),
+          // Display videos from the controller
+          return ListView(
+            children: [
+              const SizedBox(height: 16),
+              // Search bar
+              const TSearchBar(),
 
-            // Browse Categories Section
-            const Text(
-              'Browse Categories',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w300,
+              // New Workouts Section
+              GestureDetector(
+                onTap: () {
+                  // Pass initialVideoUrl (the selected video URL) and allVideos dynamically from videoController.videos
+                  String initialVideoUrl = videoController.videos[0]
+                      ['videoUrl']; // Example: selected video
+                  List<String> allVideos = videoController.videos
+                      .map((video) => video['videoUrl'] as String)
+                      .toList();
+
+                  Get.to(FullScreenVideoReels(
+                    initialVideoUrls: [initialVideoUrl], // Selected video URL
+                    allVideos: allVideos,
+                  ));
+                },
+                child: VideoSection(
+                  title: 'New Workouts',
+                  videoUrls: videoController.videos
+                      .map((video) => video['thumbnailUrl'] as String)
+                      .toList(),
+                  height: 290, // Specify the desired height
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            buildCategoryItem(context, TImages.browseImage1, 'Workout Focus'),
-            buildCategoryItem(context, TImages.browseImage2, 'Muscle Group'),
-            buildCategoryItem(context, TImages.browseImage3, 'Equipment'),
-          ],
-        ),
+              const SizedBox(height: 16),
+
+              // Great for home Section
+              GestureDetector(
+                onTap: () {
+                  // Pass initialVideoUrl (the selected video URL) and allVideos dynamically from videoController.videos
+                  String initialVideoUrl = videoController.videos[1]
+                      ['videoUrl']; // Example: selected video
+                  List<String> allVideos = videoController.videos
+                      .map((video) => video['videoUrl'] as String)
+                      .toList();
+
+                  Get.to(FullScreenVideoReels(
+                    initialVideoUrls: [initialVideoUrl], // Selected video URL
+                    allVideos: allVideos,
+                  ));
+                },
+                child: VideoSection(
+                  title: 'Great for home',
+                  videoUrls: videoController.videos
+                      .map((video) => video['thumbnailUrl'] as String)
+                      .toList(),
+                  height: 290, // Specify the desired height
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Browse Categories Section
+              const Text(
+                'Browse Categories',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w300,
+                ),
+              ),
+              const SizedBox(height: 8),
+              buildCategoryItem(context, TImages.browseImage1, 'Workout Focus'),
+              buildCategoryItem(context, TImages.browseImage2, 'Muscle Group'),
+              buildCategoryItem(context, TImages.browseImage3, 'Equipment'),
+            ],
+          );
+        }),
       ),
     );
   }
@@ -165,7 +120,8 @@ class _DiscoverTabState extends State<DiscoverTab> {
       BuildContext context, String imagePath, String title) {
     return GestureDetector(
       onTap: () {
-        // Navigate to the respective category screen
+        // Navigate to the respective category screen (implement navigation)
+        Get.toNamed('/category', arguments: title); // Example navigation
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 12.0),
@@ -173,7 +129,8 @@ class _DiscoverTabState extends State<DiscoverTab> {
         height: 200,
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage(imagePath),
+            image: NetworkImage(
+                imagePath), // Use NetworkImage to load images from a URL
             fit: BoxFit.cover,
           ),
           borderRadius: BorderRadius.circular(12),
