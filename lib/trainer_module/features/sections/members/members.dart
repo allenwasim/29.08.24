@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:t_store/common/widgets/searchbars/search_bar.dart';
 import 'package:t_store/constants/colors.dart';
 import 'package:t_store/trainer_module/features/controllers/membership_controller.dart';
+import 'package:t_store/trainer_module/features/sections/gym/sub_sections/add_plan/add_plans.dart';
 import 'package:t_store/trainer_module/features/sections/members/widgets/client_membership_card.dart';
 import 'package:t_store/trainer_module/features/sections/members/widgets/client_membership_detailed_screen.dart';
 import 'package:t_store/user_module/features/personalization/controllers/user_controller.dart';
@@ -23,6 +24,9 @@ class _MembersScreenState extends State<MembersScreen> {
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
+    membershipController
+        .fetchClientDetailsForTrainer(userController.user.value.id);
+    membershipController.fetchMembershipDetails(userController.user.value.id);
 
     return Scaffold(
       appBar: AppBar(
@@ -35,10 +39,34 @@ class _MembersScreenState extends State<MembersScreen> {
                 backgroundColor: Colors.white,
                 textColor: Colors.grey,
               ),
-              SizedBox(height: 5),
             ],
           ),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5),
+            child: OutlinedButton(
+              onPressed: () {
+                // Action when Add Plan button is pressed.
+                Get.to(() =>
+                    AddPlanScreen()); // Replace with your screen for adding a plan
+              },
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(
+                    color: Colors
+                        .white), // White border color for the outlined button
+              ),
+              child: Text(
+                'Add +',
+                style: TextStyle(
+                    color: Colors
+                        .white, // Make the text color white to match the AppBar theme
+                    fontWeight: FontWeight.bold,
+                    fontSize: 10),
+              ),
+            ),
+          ),
+        ],
       ),
       body: Obx(() {
         if (membershipController.isLoading.value) {
