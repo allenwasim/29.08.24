@@ -135,6 +135,7 @@ class _MembersScreenState extends State<MembersScreen> {
                             endDate: membershipData['endDate'],
                             membershipId: membershipData['membershipId'],
                             membership: membership,
+                            clientId: membershipData['clientMembershipId'],
                           ),
                         );
                       },

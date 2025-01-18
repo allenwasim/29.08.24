@@ -1,11 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:t_store/trainer_module/data/repositories/trainer_repository.dart';
 import 'package:t_store/trainer_module/features/models/trainer_model.dart';
 import 'package:t_store/user_module/data/repositories/authentication/authentication_repository.dart';
 import 'package:t_store/user_module/features/personalization/controllers/user_controller.dart';
-import 'package:t_store/user_module/features/personalization/models/user_model.dart';
 
 class AddTrainerController extends GetxController {
   AddTrainerController();
@@ -80,7 +78,6 @@ class AddTrainerController extends GetxController {
       // Optionally, go back to the previous screen after redirection
       Get.back();
     } catch (e) {
-      print("Error while saving trainer details: $e");
       Get.snackbar("Error", "Failed to save trainer details");
     }
   }

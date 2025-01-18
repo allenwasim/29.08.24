@@ -119,58 +119,56 @@ class MembershipRepository extends GetxService {
     }
   }
 
-  // Function to fetch all available memberships (isAvailable = true)
   Future<List<MembershipModel>> fetchAvailableMembershipsFromFirestore() async {
     try {
-      // Fetch data from Firestore
-      QuerySnapshot snapshot = await _firestore
+      // Fetch data from Firestore where isAvailable = true
+      final snapshot = await _firestore
           .collection('memberships')
           .where('isAvailable', isEqualTo: true)
           .get();
 
-      print('Snapshot fetched: ${snapshot.docs.length} docs found.');
+      print('Fetched ${snapshot.docs.length} membership documents.');
 
-      if (snapshot.docs.isNotEmpty) {
-        return snapshot.docs.map((doc) {
-          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-
-          // Debugging logs
-          print('Fetched doc data: $data');
-
-          // Safely parse 'duration' field
-          int parsedDuration = 0;
-          if (data['duration'] is int) {
-            parsedDuration = data['duration'];
-          } else if (data['duration'] is String) {
-            // Try parsing the duration if it's a String
-            parsedDuration = int.tryParse(data['duration']) ?? 0;
-          }
-
-          // Debug log for duration
-          print('Parsed duration: $parsedDuration');
-
-          return MembershipModel(
-            id: doc.id,
-            membershipId: data['membershipId'] ?? '',
-            trainerId: data['trainerId'] ?? '',
-            planName: data['planName'] ?? '',
-            description: data['description'] ?? '',
-            price: (data['price'] ?? 0).toDouble(),
-            duration: parsedDuration, // Use parsed duration
-            workouts: List<String>.from(data['workouts'] ?? []),
-            isAvailable: data['isAvailable'] ?? false,
-            createdAt:
-                (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-          );
-        }).toList();
-      } else {
-        print('No available memberships found'); // Log this case
-        return []; // Return empty if no memberships are found
+      // Check if snapshot contains any documents
+      if (snapshot.docs.isEmpty) {
+        print('No available memberships found.');
+        return [];
       }
+
+      // Map Firestore documents to MembershipModel instances
+      return snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+
+        // Debug log for raw document data
+        print('Document data: $data');
+
+        // Safely parse duration (handle both `int` and `String` types)
+        final duration = data['duration'] is int
+            ? data['duration']
+            : int.tryParse(data['duration']?.toString() ?? '') ?? 0;
+
+        // Safely parse workouts list
+        final workouts = data['workouts'] is List
+            ? List<String>.from(data['workouts'])
+            : <String>[];
+
+        return MembershipModel(
+          id: doc.id,
+          membershipId: data['membershipId'] ?? '',
+          trainerId: data['trainerId'] ?? '',
+          planName: data['planName'] ?? '',
+          description: data['description'] ?? '',
+          price: (data['price'] ?? 0).toDouble(),
+          duration: duration,
+          workouts: workouts,
+          isAvailable: data['isAvailable'] ?? false,
+          createdAt:
+              (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+        );
+      }).toList();
     } catch (e) {
-      // Handle errors and log the message
-      print('Error fetching available membership plans: $e');
-      throw Exception('Failed to fetch available membership plans');
+      print('Error fetching memberships from Firestore: $e');
+      throw Exception('Failed to fetch available membership plans.');
     }
   }
 

@@ -5,6 +5,7 @@ import 'package:t_store/trainer_module/features/controllers/membership_controlle
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:t_store/user_module/features/authentication/controllers/client_details/client_details_controller.dart';
+import 'package:t_store/utils/constants/image_strings.dart';
 
 class ClientMembershipDetails extends StatelessWidget {
   final String trainerId;
@@ -12,6 +13,7 @@ class ClientMembershipDetails extends StatelessWidget {
   final Timestamp startDate;
   final Timestamp endDate;
   final String membershipId;
+  final String clientId;
   final dynamic membership;
 
   final MembershipController membershipController =
@@ -25,6 +27,7 @@ class ClientMembershipDetails extends StatelessWidget {
     required this.endDate,
     required this.membershipId,
     this.membership,
+    required this.clientId,
   });
 
   @override
@@ -76,7 +79,7 @@ class ClientMembershipDetails extends StatelessWidget {
                   borderRadius: BorderRadius.circular(50.0),
                   child: Image.network(
                     client.profilePic ??
-                        'https://via.placeholder.com/100', // Placeholder for missing image
+                        TImages.user, // Placeholder for missing image
                     width: 100,
                     height: 100,
                     fit: BoxFit.cover,
@@ -128,6 +131,11 @@ class ClientMembershipDetails extends StatelessWidget {
                         Icons.confirmation_number,
                         'Membership ID',
                         membershipId,
+                      ),
+                      _buildDetailRow(
+                        Icons.confirmation_number,
+                        'Client ID',
+                        clientId,
                       ),
                       _buildDetailRow(
                         Icons.date_range,

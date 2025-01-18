@@ -16,6 +16,7 @@ class AvailableMembershipDetailsScreen extends StatelessWidget {
   final TrainerDetails trainerDetails;
   final MembershipController membershipController =
       Get.put(MembershipController());
+  final UserController userController = Get.put(UserController());
 
   AvailableMembershipDetailsScreen({
     Key? key,
@@ -187,7 +188,7 @@ class AvailableMembershipDetailsScreen extends StatelessWidget {
                   try {
                     final Timestamp startDate =
                         Timestamp.fromDate(DateTime.now());
-                    final String userId = UserController.instance.user.value.id;
+                    final String userId = userController.user.value.id;
 
                     // Debugging logs
                     print('User ID: $userId');

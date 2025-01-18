@@ -4,6 +4,7 @@ import 'package:t_store/common/widgets/card/trainer_membership_card.dart';
 import 'package:t_store/trainer_module/features/controllers/membership_controller.dart';
 import 'package:t_store/common/widgets/searchbars/search_bar.dart';
 import 'package:t_store/trainer_module/features/controllers/trainer_controller.dart';
+import 'package:t_store/trainer_module/features/models/trainer_model.dart';
 import 'package:t_store/user_module/features/personalization/screens/memberships/tabs/available/available_membership_details_screen.dart';
 
 class AvailableMembershipsScreen extends StatelessWidget {
@@ -11,13 +12,47 @@ class AvailableMembershipsScreen extends StatelessWidget {
 
   final MembershipController membershipController =
       Get.put(MembershipController());
-  final TrainerDetailsController trainerDetailsController =
-      Get.put(TrainerDetailsController());
+  final RxList<Map<String, dynamic>> membershipsWithTrainerDetails =
+      <Map<String, dynamic>>[].obs;
+
+  Future<void> fetchMembershipsAndTrainers() async {
+    // Fetch memberships
+    await membershipController.fetchAvailableMemberships();
+
+    // Fetch trainer details for each unique trainerId
+    final trainerIds = membershipController.availableMemberships
+        .map((membership) => membership.trainerId)
+        .toSet();
+
+    final trainerDetailsMap = <String, TrainerDetails>{};
+    for (final trainerId in trainerIds) {
+      try {
+        final trainerDetailsController = Get.put(
+          TrainerDetailsController(),
+          tag: trainerId,
+        );
+        await trainerDetailsController.fetchTrainerDetails(trainerId);
+        trainerDetailsMap[trainerId] = trainerDetailsController.trainer.value!;
+      } catch (e) {
+        print('Failed to fetch trainer details for trainerId $trainerId: $e');
+      }
+    }
+
+    // Combine memberships and trainer details into a single list
+    membershipsWithTrainerDetails.assignAll(
+      membershipController.availableMemberships.map((membership) {
+        return {
+          'membership': membership,
+          'trainer': trainerDetailsMap[membership.trainerId],
+        };
+      }).toList(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Triggering data fetch on screen load
-    membershipController.fetchAvailableMemberships();
+    // Trigger data fetching on screen load
+    fetchMembershipsAndTrainers();
 
     return Scaffold(
       appBar: AppBar(
@@ -29,69 +64,57 @@ class AvailableMembershipsScreen extends StatelessWidget {
           const TSearchBar(),
           Obx(
             () {
-              // Handle loading state for memberships
-              if (membershipController.profileLoading.value) {
+              // Handle loading state
+              if (membershipController.profileLoading.value ||
+                  membershipsWithTrainerDetails.isEmpty) {
                 return const Expanded(
                   child: Center(child: CircularProgressIndicator()),
                 );
               }
 
               // Handle empty state
-              if (membershipController.availableMemberships.isEmpty) {
+              if (membershipsWithTrainerDetails.isEmpty) {
                 return const Expanded(
                   child: Center(child: Text('No available memberships.')),
                 );
               }
 
-              // List of available memberships
+              // Render memberships with trainer details
               return Expanded(
                 child: ListView.builder(
-                  itemCount: membershipController.availableMemberships.length,
+                  itemCount: membershipsWithTrainerDetails.length,
                   itemBuilder: (context, index) {
-                    final membership =
-                        membershipController.availableMemberships[index];
+                    final item = membershipsWithTrainerDetails[index];
+                    final membership = item['membership'];
+                    final trainer = item['trainer'];
 
-                    // Fetch trainer details based on trainerId from membership
-                    trainerDetailsController
-                        .fetchTrainerDetails(membership.trainerId);
+                    if (trainer == null) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                        child: Center(
+                            child: Text('Trainer details not available.')),
+                      );
+                    }
 
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Obx(
-                        () {
-                          // Wait until trainer details are fetched
-                          if (trainerDetailsController.profileLoading.value) {
-                            return const Center(
-                                child: CircularProgressIndicator());
-                          }
-
-                          // Ensure the trainer data is available before rendering the card
-                          final trainer =
-                              trainerDetailsController.trainer.value;
-                          if (trainer == null) {
-                            return const Center(
-                                child: Text('Trainer details not available.'));
-                          }
-
-                          return GestureDetector(
-                            onTap: () =>
-                                Get.to(AvailableMembershipDetailsScreen(
-                              membership: membership,
-                              trainerDetails: trainer,
-                            )),
-                            child: TTrainerCard(
-                              profilePic: trainer.profilePic ??
-                                  'default_profile_pic_url', // Default URL for profile picture
-                              isActive:
-                                  false, // Available memberships are inactive
-                              trainerName: trainer.name ?? 'Unknown Trainer',
-                              planName: membership.planName,
-                              workouts: membership.workouts.join(', '),
-                              duration: membership.duration,
-                              price: membership.price.toString(),
-                            ),
-                          );
-                        },
+                      child: GestureDetector(
+                        onTap: () => Get.to(
+                          AvailableMembershipDetailsScreen(
+                            membership: membership,
+                            trainerDetails: trainer,
+                          ),
+                        ),
+                        child: TTrainerCard(
+                          profilePic: trainer.profilePic ??
+                              'default_profile_pic_url', // Default URL for profile picture
+                          isActive: false, // Available memberships are inactive
+                          trainerName: trainer.name ?? 'Unknown Trainer',
+                          planName: membership.planName,
+                          workouts: membership.workouts.join(', '),
+                          duration: membership.duration,
+                          price: membership.price.toString(),
+                        ),
                       ),
                     );
                   },

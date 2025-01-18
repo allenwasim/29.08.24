@@ -58,16 +58,21 @@ class MembershipController extends GetxController {
   // Fetch membership details for a specific trainer
   Future<void> fetchAvailableMemberships() async {
     try {
-      profileLoading.value = true;
-      // Call the repository function to fetch the available memberships
-      availableMemberships.value =
+      profileLoading.value = true; // Set loading to true at the start
+
+      // Fetch memberships from the repository
+      final memberships =
           await membershipRepository.fetchAvailableMembershipsFromFirestore();
-      await Future.delayed(Duration(milliseconds: 100)); // Slight delay
+
+      // Assign the fetched memberships to the observable
+      availableMemberships.value = memberships;
+
+      print('Fetched ${memberships.length} available memberships.');
     } catch (e) {
-      availableMemberships.value = []; // Reset on error
+      availableMemberships.value = []; // Reset the list in case of error
       print('Error fetching available membership plans: $e');
     } finally {
-      profileLoading.value = false; // Ensure this is always set to false
+      profileLoading.value = false; // Always set loading to false
     }
   }
 
