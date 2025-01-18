@@ -17,6 +17,8 @@ class LoginController extends GetxController {
   final password = TextEditingController();
   GlobalKey<FormState> loginFormKey = GlobalKey<FormState>();
   final userController = Get.put(UserController());
+  final AuthenticationRepository authenticationRepository =
+      Get.put(AuthenticationRepository());
 
   // @override
   // void onInit() {
@@ -88,11 +90,10 @@ class LoginController extends GetxController {
         return;
       }
 
-      final userCredentials =
-          await AuthenticationRepository.instance.signInWithGoogle();
+      final userCredentials = await authenticationRepository.signInWithGoogle();
 
       TFullScreenLoader.stopLoading();
-      AuthenticationRepository.instance.screenRedirect();
+      authenticationRepository.screenRedirect();
     } catch (e) {
       TFullScreenLoader.stopLoading();
 

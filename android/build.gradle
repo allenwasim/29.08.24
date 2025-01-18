@@ -16,3 +16,16 @@ subprojects {
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    ext.kotlin_version = "1.8.22"  // Define Kotlin version here
+    dependencies {
+        // Update Android Gradle Plugin (AGP) to 8.2.1 or higher
+        classpath 'com.android.tools.build:gradle:8.2.1' // Latest version of AGP
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version" // Use the Kotlin version defined above
+    }
+}

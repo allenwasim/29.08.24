@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:t_store/constants/colors.dart';
-import 'package:t_store/user_module/features/personalization/screens/training/training.dart';
 import 'package:t_store/utils/helpers/helper_functions.dart';
 
 class TCircularButton extends StatelessWidget {

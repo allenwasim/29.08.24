@@ -6,7 +6,6 @@ import 'package:get_storage/get_storage.dart';
 import 'package:t_store/app.dart';
 import 'package:t_store/firebase_options.dart';
 import 'package:t_store/user_module/data/repositories/authentication/authentication_repository.dart';
-import 'package:t_store/user_module/data/repositories/user/user_repositries.dart';
 
 void main() async {
   final WidgetsBinding widgetsBinding =

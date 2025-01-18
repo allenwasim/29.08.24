@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:t_store/utils/constants/image_strings.dart';
-import 'package:t_store/constants/colors.dart';
 import 'package:t_store/utils/helpers/helper_functions.dart';
 
 class TTrainerCard extends StatelessWidget {
@@ -43,6 +42,7 @@ class TTrainerCard extends StatelessWidget {
             fit: BoxFit.cover,
             colorFilter: dark
                 ? ColorFilter.mode(
+                    // ignore: deprecated_member_use
                     Colors.black.withOpacity(0.2), // Add dark overlay
                     BlendMode.darken,
                   )

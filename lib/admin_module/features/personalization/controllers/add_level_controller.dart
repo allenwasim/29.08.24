@@ -1,7 +1,4 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -202,14 +199,10 @@ class AddLevelController extends GetxController {
             'Uploading Level Image...', image.path);
 
         // Create a reference to Firebase Storage with a path where the image will be saved
-        final storageRef = FirebaseStorage.instance.ref().child(
-            "Levels/Images/${DateTime.now().millisecondsSinceEpoch}.jpg");
 
         // Upload the selected image to Firebase Storage
-        final uploadTask = await storageRef.putFile(File(image.path));
 
         // Get the image URL after upload
-        final imageUrl = await uploadTask.ref.getDownloadURL();
 
         // Now, update the level data with the uploaded image URL
         // Assuming you have a way to identify which level this image belongs to

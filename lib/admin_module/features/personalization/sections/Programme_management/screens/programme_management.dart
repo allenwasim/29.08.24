@@ -7,6 +7,7 @@ class AdminProgrammesScreen extends StatefulWidget {
   const AdminProgrammesScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _AdminProgrammesScreenState createState() => _AdminProgrammesScreenState();
 }
 
@@ -27,18 +28,6 @@ class _AdminProgrammesScreenState extends State<AdminProgrammesScreen> {
       'additionalInfo': '4–6 weeks, dumbbells required',
     },
   ];
-
-  void _addProgramme(String title, String description, String additionalInfo,
-      String imageUrl) {
-    setState(() {
-      programmes.add({
-        'imageUrl': imageUrl,
-        'title': title,
-        'description': description,
-        'additionalInfo': additionalInfo,
-      });
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,8 +75,8 @@ class _AdminProgrammesScreenState extends State<AdminProgrammesScreen> {
         onPressed: () {
           Get.to(() => AddProgrammeScreen());
         },
-        child: const Icon(Icons.add),
         backgroundColor: isDarkMode ? Colors.green[400] : Colors.green,
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -102,6 +91,7 @@ class ProgramCard extends StatelessWidget {
   final bool isDarkMode;
 
   const ProgramCard({
+    super.key,
     required this.imageUrl,
     required this.title,
     required this.description,
