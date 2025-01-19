@@ -65,7 +65,7 @@ class AddTrainerController extends GetxController {
       availability: "Available", // Default availability
       members: [],
       profilePic: userController.user.value.profilePicture,
-      earnings: 0.0,
+      earnings: [],
     );
 
     try {

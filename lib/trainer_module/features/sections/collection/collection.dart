@@ -1,10 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:t_store/common/widgets/buttons/circular_button.dart';
+import 'package:t_store/constants/colors.dart';
+import 'package:t_store/trainer_module/features/controllers/collection_controller.dart';
+import 'package:t_store/trainer_module/features/sections/collection/widgets/summary_row.dart';
+import 'package:t_store/trainer_module/features/sections/collection/widgets/date_selector.dart';
 
-class CollectionScreen extends StatelessWidget {
+class CollectionScreen extends StatefulWidget {
   const CollectionScreen({super.key});
 
   @override
+  _CollectionScreenState createState() => _CollectionScreenState();
+}
+
+class _CollectionScreenState extends State<CollectionScreen> {
+  final CollectionController controller = Get.put(CollectionController());
+  DateTime? fromDate;
+  DateTime? toDate;
+  bool isSearchPerformed = false; // Track if the search button was clicked
+
+  // TextEditingController to show the date selected
+  TextEditingController fromDateController = TextEditingController();
+  TextEditingController toDateController = TextEditingController();
+
+  @override
   Widget build(BuildContext context) {
+    // Fetch collections when the widget is built
+    controller.fetchAllCollections(DateTime.now().year, DateTime.now().month);
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -12,25 +37,31 @@ class CollectionScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Date Filters
-            const Row(
+            Row(
               children: [
                 Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      labelText: 'From Date',
-                      prefixIcon: Icon(Icons.calendar_today),
-                      border: OutlineInputBorder(),
-                    ),
+                  child: DateSelector(
+                    controller: fromDateController,
+                    label: 'From Date',
+                    icon: Icons.calendar_today,
+                    onDateSelected: (selectedDate) {
+                      setState(() {
+                        fromDate = selectedDate;
+                      });
+                    },
                   ),
                 ),
                 SizedBox(width: 10),
                 Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      labelText: 'To Date',
-                      prefixIcon: Icon(Icons.calendar_today),
-                      border: OutlineInputBorder(),
-                    ),
+                  child: DateSelector(
+                    controller: toDateController,
+                    label: 'To Date',
+                    icon: Icons.calendar_today,
+                    onDateSelected: (selectedDate) {
+                      setState(() {
+                        toDate = selectedDate;
+                      });
+                    },
                   ),
                 ),
               ],
@@ -41,13 +72,34 @@ class CollectionScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                ElevatedButton(
-                  onPressed: () {},
-                  child: const Text('Search'),
+                TCircularButton(
+                  backgroundColor: isDark ? Colors.grey[800] : Colors.white,
+                  textColor: TColors.trainerPrimary,
+                  text: 'Search',
+                  onTap: () {
+                    if (fromDate != null && toDate != null) {
+                      controller.fetchCollectionsBetweenDates(
+                          fromDate!, toDate!);
+                      setState(() {
+                        isSearchPerformed = true; // Mark search as performed
+                      });
+                    }
+                  },
                 ),
-                OutlinedButton(
-                  onPressed: () {},
-                  child: const Text('Clear'),
+                TCircularButton(
+                  backgroundColor: Colors.transparent,
+                  textColor: isDark ? Colors.white : TColors.black,
+                  text: 'Clear',
+                  onTap: () {
+                    setState(() {
+                      fromDate = null;
+                      toDate = null;
+                      isSearchPerformed = false; // Reset search status
+                      fromDateController.clear();
+                      toDateController.clear();
+                    });
+                    controller.resetCollections();
+                  },
                 ),
               ],
             ),
@@ -60,80 +112,29 @@ class CollectionScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Plan Collection Summary
-            const SummaryCard(title: 'Plan Collection Summary'),
+            // Plan Collection Summary (Always Visible)
+
+            // Conditionally render the "Earnings Between Dates" card when search is performed
+            Obx(() {
+              if (controller.isLoading.value) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              return SummaryCard(
+                title: isSearchPerformed
+                    ? 'Earnings Between Selected Dates'
+                    : 'Collection Summary',
+                amount: isSearchPerformed
+                    ? controller.totalCollectionForDateRange.value.toString()
+                    : controller.totalCollection.value.toString(),
+                monthlyEarnings: controller.monthlyCollection.value.toString(),
+                totalEarnings: controller.totalCollection.value.toString(),
+                isSearchPerformed: isSearchPerformed, // Pass the flag
+              );
+            })
           ],
         ),
       ),
-    );
-  }
-}
-
-class SummaryCard extends StatelessWidget {
-  final String title;
-
-  const SummaryCard({super.key, required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            const Divider(),
-            _buildSummaryRow('Total Membership', '0', '0', '0'),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSummaryRow(
-      String label, String amount, String received, String balanceDue) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 4),
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                'Complete Amount: $amount',
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                '₹ Received: $received',
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                '₹ Balance due: $balanceDue',
-                style: const TextStyle(color: Colors.red),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-      ],
     );
   }
 }

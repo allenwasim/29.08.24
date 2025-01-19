@@ -156,7 +156,7 @@ class MembershipController extends GetxController {
         profilePic,
         paidAmount, // Pass the paid amount to the repository method
       );
-
+      AuthenticationRepository.instance.screenRedirect;
       // Optionally handle success UI logic here, e.g., showing a success message
       print('Successfully added member to trainer.');
     } catch (e) {

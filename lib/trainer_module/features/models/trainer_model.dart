@@ -34,6 +34,38 @@ class Member {
   }
 }
 
+class Earning {
+  final double amount; // Earnings amount
+  final DateTime date; // Date of the earning
+
+  // Constructor
+  Earning({
+    required this.amount,
+    required this.date,
+  });
+
+  // Method to convert Earning to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'amount': amount,
+      'date': date.toIso8601String(),
+    };
+  }
+
+  // Factory to create Earning from JSON
+  factory Earning.fromJson(Map<String, dynamic> json) {
+    return Earning(
+      amount: (json['amount'] as num).toDouble(),
+      date: DateTime.parse(json['date']),
+    );
+  }
+
+  @override
+  String toString() {
+    return 'Earning(amount: $amount, date: $date)';
+  }
+}
+
 class TrainerDetails {
   String trainerId;
   String name;
@@ -46,7 +78,7 @@ class TrainerDetails {
   String availability;
   List<Member> members;
   String profilePic;
-  double earnings; // Added earnings field
+  List<Earning> earnings; // Changed earnings to a list of Earning
 
   TrainerDetails({
     required this.trainerId,
@@ -60,7 +92,7 @@ class TrainerDetails {
     required this.availability,
     required this.members,
     required this.profilePic,
-    required this.earnings, // Added earnings to the constructor
+    required this.earnings, // Updated field
   });
 
   // Named constructor for an empty trainer model
@@ -76,38 +108,11 @@ class TrainerDetails {
         availability = '',
         members = [],
         profilePic = '',
-        earnings = 0.0; // Default value for earnings
+        earnings = []; // Default value for earnings
 
-  // Method to add a new member to the trainer's member list
-  void addMemberToTrainerDetails(Member member) {
-    members.add(member);
-  }
-
-  // Method to update trainer details
-  void updateTrainerDetails({
-    String? name,
-    String? bio,
-    List<String>? expertise,
-    int? yearsOfExperience,
-    double? rating,
-    List<String>? certifications,
-    List<String>? languages,
-    String? availability,
-    List<Member>? members,
-    String? profilePic,
-    double? earnings,
-  }) {
-    if (name != null) this.name = name;
-    if (bio != null) this.bio = bio;
-    if (expertise != null) this.expertise = expertise;
-    if (yearsOfExperience != null) this.yearsOfExperience = yearsOfExperience;
-    if (rating != null) this.rating = rating;
-    if (certifications != null) this.certifications = certifications;
-    if (languages != null) this.languages = languages;
-    if (availability != null) this.availability = availability;
-    if (members != null) this.members = members;
-    if (profilePic != null) this.profilePic = profilePic;
-    if (earnings != null) this.earnings = earnings; // Update earnings
+  // Method to add a new earning entry
+  void addEarning(Earning earning) {
+    earnings.add(earning);
   }
 
   // Method to convert TrainerDetails to JSON
@@ -124,11 +129,13 @@ class TrainerDetails {
       'availability': availability,
       'members': members.map((member) => member.toJson()).toList(),
       'profilePic': profilePic,
-      'earnings': earnings, // Serialize earnings
+      'earnings': earnings
+          .map((earning) => earning.toJson())
+          .toList(), // Serialize earnings
     };
   }
 
-  // Method to create TrainerDetails from JSON
+  // Factory to create TrainerDetails from JSON
   factory TrainerDetails.fromJson(Map<String, dynamic> json) {
     return TrainerDetails(
       trainerId: json['trainerId'] ?? '',
@@ -144,10 +151,9 @@ class TrainerDetails {
           .map((memberJson) => Member.fromJson(memberJson))
           .toList(),
       profilePic: json['profilePic'] ?? '',
-      earnings: (json['earnings'] is int)
-          ? (json['earnings'] as int).toDouble() // Convert int to double
-          : (json['earnings'] as num?)?.toDouble() ??
-              0.0, // Handle double or null
+      earnings: (json['earnings'] as List<dynamic>? ?? [])
+          .map((earningJson) => Earning.fromJson(earningJson))
+          .toList(), // Deserialize earnings
     );
   }
 

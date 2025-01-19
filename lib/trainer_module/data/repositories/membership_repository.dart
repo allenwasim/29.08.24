@@ -346,6 +346,12 @@ class MembershipRepository extends GetxService {
       // Convert the member to JSON
       Map<String, dynamic> memberData = newMember.toJson();
 
+      // Create a new earning object
+      Map<String, dynamic> newEarning = {
+        'amount': paidAmount,
+        'date': DateTime.now().toIso8601String(),
+      };
+
       // Reference to the trainer's 'trainerDetails' document
       DocumentReference trainerRef = _firestore
           .collection('Profiles')
@@ -362,14 +368,11 @@ class MembershipRepository extends GetxService {
           throw Exception('Trainer details not found for ID: $trainerId');
         }
 
-        // Get the current earnings value
-        double currentEarnings = snapshot.get('earnings') as double? ?? 0.0;
-
         // Update the trainer's members and earnings
         transaction.update(trainerRef, {
-          'members': FieldValue.arrayUnion([memberData]),
+          'members': FieldValue.arrayUnion([memberData]), // Add the new member
           'earnings':
-              currentEarnings + paidAmount, // Add the paid amount to earnings
+              FieldValue.arrayUnion([newEarning]), // Add the new earning
         });
       });
 
