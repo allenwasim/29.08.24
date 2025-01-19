@@ -217,7 +217,8 @@ class AvailableMembershipDetailsScreen extends StatelessWidget {
                         trainerDetails.trainerId,
                         userId,
                         membership.id,
-                        userController.user.value.profilePicture);
+                        userController.user.value.profilePicture,
+                        membership.price.toDouble());
                   } catch (e) {
                     print('Error in Start Membership button: $e');
                   }

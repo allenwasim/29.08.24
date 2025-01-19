@@ -145,6 +145,7 @@ class MembershipController extends GetxController {
     String clientId,
     String membershipId,
     String profilePic,
+    double paidAmount, // New argument for paid amount
   ) async {
     try {
       // Call the repository method to add the member to the trainer's list
@@ -153,7 +154,9 @@ class MembershipController extends GetxController {
         clientId,
         membershipId,
         profilePic,
+        paidAmount, // Pass the paid amount to the repository method
       );
+
       // Optionally handle success UI logic here, e.g., showing a success message
       print('Successfully added member to trainer.');
     } catch (e) {

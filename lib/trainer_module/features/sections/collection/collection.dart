@@ -62,10 +62,6 @@ class CollectionScreen extends StatelessWidget {
 
             // Plan Collection Summary
             const SummaryCard(title: 'Plan Collection Summary'),
-            const SizedBox(height: 16),
-
-            // Service Collection Summary
-            const SummaryCard(title: 'Service Collection Summary'),
           ],
         ),
       ),
@@ -96,12 +92,6 @@ class SummaryCard extends StatelessWidget {
             const SizedBox(height: 8),
             const Divider(),
             _buildSummaryRow('Total Membership', '0', '0', '0'),
-            const Divider(),
-            _buildSummaryRow('Completely Paid', '0', '0', '0'),
-            const Divider(),
-            _buildSummaryRow('Remainder Balance', '0', '0', '0'),
-            const Divider(),
-            _buildSummaryRow('Unpaid Payment', '0', '0', '0'),
           ],
         ),
       ),

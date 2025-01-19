@@ -46,6 +46,7 @@ class TrainerDetails {
   String availability;
   List<Member> members;
   String profilePic;
+  double earnings; // Added earnings field
 
   TrainerDetails({
     required this.trainerId,
@@ -59,6 +60,7 @@ class TrainerDetails {
     required this.availability,
     required this.members,
     required this.profilePic,
+    required this.earnings, // Added earnings to the constructor
   });
 
   // Named constructor for an empty trainer model
@@ -73,7 +75,8 @@ class TrainerDetails {
         languages = [],
         availability = '',
         members = [],
-        profilePic = '';
+        profilePic = '',
+        earnings = 0.0; // Default value for earnings
 
   // Method to add a new member to the trainer's member list
   void addMemberToTrainerDetails(Member member) {
@@ -92,6 +95,7 @@ class TrainerDetails {
     String? availability,
     List<Member>? members,
     String? profilePic,
+    double? earnings,
   }) {
     if (name != null) this.name = name;
     if (bio != null) this.bio = bio;
@@ -103,6 +107,7 @@ class TrainerDetails {
     if (availability != null) this.availability = availability;
     if (members != null) this.members = members;
     if (profilePic != null) this.profilePic = profilePic;
+    if (earnings != null) this.earnings = earnings; // Update earnings
   }
 
   // Method to convert TrainerDetails to JSON
@@ -119,6 +124,7 @@ class TrainerDetails {
       'availability': availability,
       'members': members.map((member) => member.toJson()).toList(),
       'profilePic': profilePic,
+      'earnings': earnings, // Serialize earnings
     };
   }
 
@@ -138,11 +144,15 @@ class TrainerDetails {
           .map((memberJson) => Member.fromJson(memberJson))
           .toList(),
       profilePic: json['profilePic'] ?? '',
+      earnings: (json['earnings'] is int)
+          ? (json['earnings'] as int).toDouble() // Convert int to double
+          : (json['earnings'] as num?)?.toDouble() ??
+              0.0, // Handle double or null
     );
   }
 
   @override
   String toString() {
-    return 'TrainerDetails(trainerId: $trainerId, name: $name, bio: $bio, expertise: $expertise, yearsOfExperience: $yearsOfExperience, rating: $rating, certifications: $certifications, languages: $languages, availability: $availability, profilePic: $profilePic, members: $members)';
+    return 'TrainerDetails(trainerId: $trainerId, name: $name, bio: $bio, expertise: $expertise, yearsOfExperience: $yearsOfExperience, rating: $rating, certifications: $certifications, languages: $languages, availability: $availability, profilePic: $profilePic, earnings: $earnings, members: $members)';
   }
 }

@@ -333,6 +333,7 @@ class MembershipRepository extends GetxService {
     String clientId,
     String membershipId,
     String profilePic,
+    double paidAmount, // New argument for paid amount
   ) async {
     try {
       // Create a new member object
@@ -352,12 +353,27 @@ class MembershipRepository extends GetxService {
           .collection('trainerDetails')
           .doc('details');
 
-      // Add the new member to the 'members' array
-      await trainerRef.update({
-        'members': FieldValue.arrayUnion([memberData]),
+      // Firestore transaction to update members and earnings atomically
+      await _firestore.runTransaction((transaction) async {
+        // Get the current trainer details document
+        DocumentSnapshot snapshot = await transaction.get(trainerRef);
+
+        if (!snapshot.exists) {
+          throw Exception('Trainer details not found for ID: $trainerId');
+        }
+
+        // Get the current earnings value
+        double currentEarnings = snapshot.get('earnings') as double? ?? 0.0;
+
+        // Update the trainer's members and earnings
+        transaction.update(trainerRef, {
+          'members': FieldValue.arrayUnion([memberData]),
+          'earnings':
+              currentEarnings + paidAmount, // Add the paid amount to earnings
+        });
       });
 
-      print('Added new member for Trainer ID: $trainerId');
+      print('Added new member and updated earnings for Trainer ID: $trainerId');
     } catch (e) {
       print('Error adding member to trainer: $e');
       throw Exception('Failed to add member to trainer');
